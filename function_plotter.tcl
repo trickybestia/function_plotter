@@ -27,6 +27,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/line_drawer.v"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/fill_drawer_tb.v"]"\
+ "[file normalize "$origin_dir/src/line_drawer_tb.v"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -157,8 +158,8 @@ set_property -name "webtalk.modelsim_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xcelium_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "46" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -255,6 +256,30 @@ add_files -norecurse -fileset $obj $files
 # Set 'fill_drawer_tb' fileset properties
 set obj [get_filesets fill_drawer_tb]
 set_property -name "top" -value "fill_drawer_tb" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'line_drawer_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet line_drawer_tb] ""]} {
+  create_fileset -simset line_drawer_tb
+}
+
+# Set 'line_drawer_tb' fileset object
+set obj [get_filesets line_drawer_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/line_drawer_tb.v"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'line_drawer_tb' fileset file properties for remote files
+# None
+
+# Set 'line_drawer_tb' fileset file properties for local files
+# None
+
+# Set 'line_drawer_tb' fileset properties
+set obj [get_filesets line_drawer_tb]
+set_property -name "top" -value "line_drawer_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 

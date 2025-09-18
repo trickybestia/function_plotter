@@ -51,7 +51,6 @@ def draw_line(screen: pygame.Surface, x1: int, y1: int, x2: int, y2: int):
             break
 
         p += p_direction
-
         error += delta_error
 
         if error >= delta_p + 1:

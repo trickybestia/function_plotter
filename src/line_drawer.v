@@ -1,24 +1,22 @@
 module line_drawer (
     clk,
     
+    start,
+    ready,
+
     x1,
     y1,
     x2,
     y2,
-    
-    start,
-    ready,
     
     write_enable,
     write_addr,
     write_data
 );
 
-// ОБРЕГИСТРИТЬ ЧТО ТО. ЧТО ЕСЛИ x1, y1, x2, y2 поменяются во время работы модуля?
-
 parameter HOR_ACTIVE_PIXELS = 640;
 parameter VER_ACTIVE_PIXELS = 480;
-parameter COLOR             = 0;
+parameter COLOR             = 1;
 parameter WRITE_DATA_WIDTH  = 1;
 
 localparam X_WIDTH          = $clog2(HOR_ACTIVE_PIXELS);
@@ -27,15 +25,18 @@ localparam COORD_WIDTH      = X_WIDTH > Y_WIDTH ? X_WIDTH : Y_WIDTH;
 localparam PIXELS_COUNT     = HOR_ACTIVE_PIXELS * VER_ACTIVE_PIXELS;
 localparam WRITE_ADDR_WIDTH = $clog2(PIXELS_COUNT);
 
+localparam STATE_READY = 0;
+localparam STATE_WORK  = 1;
+
 input clk;
+
+input  start;
+output ready;
 
 input [X_WIDTH - 1:0] x1;
 input [Y_WIDTH - 1:0] y1;
 input [X_WIDTH - 1:0] x2;
 input [Y_WIDTH - 1:0] y2;
-
-input  start;
-output ready;
 
 output                          write_enable;
 output [WRITE_ADDR_WIDTH - 1:0] write_addr;
@@ -63,8 +64,30 @@ reg [COORD_WIDTH:0] error;
 reg [COORD_WIDTH - 1:0] p;
 reg [COORD_WIDTH - 1:0] s;
 
+reg state;
+
+assign ready = (state == STATE_READY);
+
+assign write_enable = (state == STATE_WORK);
+assign write_addr   = primary_is_x ? (s * HOR_ACTIVE_PIXELS + p) : (p * HOR_ACTIVE_PIXELS + s);
+assign write_data   = COLOR;
+
+function [COORD_WIDTH - 1:0] apply_direction;
+    input        [COORD_WIDTH - 1:0] value;
+    input signed [1:0]               direction;
+    
+    case (direction)
+        1:  apply_direction      = value + 1;
+        -1: apply_direction      = value - 1;
+        default: apply_direction = value;
+    endcase
+endfunction
+
 initial begin
+    state = STATE_READY;
     error = 0;
+    p     = 0;
+    s     = 0;
 end
 
 always @(*) begin
@@ -77,6 +100,30 @@ always @(*) begin
     if (s_end > s_start) s_direction = 1;
     else if (s_end < s_start) s_direction = -1;
     else s_direction = 0;
+end
+
+always @(posedge clk) begin
+    case (state)
+        STATE_READY: state <= start ? STATE_WORK : STATE_READY;
+        STATE_WORK:  state <= (p == p_end) ? STATE_READY : STATE_WORK;
+    endcase
+end
+
+always @(posedge clk) begin
+    if ((state == STATE_READY) & start) begin
+        error <= 0;
+        p     <= p_start;
+        s     <= s_start;
+    end else if (state == STATE_WORK) begin
+        p <= apply_direction(p, p_direction);
+        
+        if (error + delta_error >= delta_p + 1) begin
+            s     <= apply_direction(s, s_direction);
+            error <= error + delta_error - delta_p - 1;
+        end else begin
+            error <= error + delta_error;
+        end
+    end
 end
 
 endmodule
