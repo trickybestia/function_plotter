@@ -18,6 +18,7 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
+ "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/top_Nexys_A7_100T.v"]"\
  "[file normalize "$origin_dir/src/ps2_raw_rx.v"]"\
  "[file normalize "$origin_dir/src/ps2_rx.v"]"\
@@ -26,7 +27,6 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/line_drawer.v"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/fill_drawer_tb.v"]"\
- "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -169,6 +169,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
+ [file normalize "${origin_dir}/ip/vga_mmcm/vga_mmcm.xci"] \
  [file normalize "${origin_dir}/src/top_Nexys_A7_100T.v"] \
  [file normalize "${origin_dir}/src/ps2_raw_rx.v"] \
  [file normalize "${origin_dir}/src/ps2_rx.v"] \
