@@ -9,3 +9,8 @@ __pycache__
 # Do not ignore IP cores configuration
 !/ip/*
 !/ip/*/*.xci
+
+# draw.io temp files
+*.drawio.dtmp
+# draw.io backups
+*.drawio.bkp
