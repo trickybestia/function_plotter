@@ -1,6 +1,6 @@
 # function_plotter
 
-Display graph of user defined-function using Nexys A7-100T FPGA development board.
+Display graph of user-defined function using Nexys A7-100T FPGA development board.
 
 ## Vivado project initialization
 
