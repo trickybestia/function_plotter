@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.1.2 Chrome/138.0.7204.251 Electron/37.5.0 Safari/537.36" version="28.1.2">
   <diagram name="top_Nexys_A7_100T" id="f4R5nthmzPWrMM-4h1sa">
-    <mxGraphModel dx="3080" dy="810" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3080" dy="834" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -1091,12 +1091,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="wawASpPagILhCwxSG9ba-283" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;jumpStyle=gap;" parent="1" edge="1">
+        <mxCell id="wawASpPagILhCwxSG9ba-283" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;jumpStyle=gap;" parent="1" edge="1" source="wawASpPagILhCwxSG9ba-170">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1560" y="300" />
-              <mxPoint x="1560" y="300" />
-            </Array>
+            <Array as="points" />
             <mxPoint x="1250" y="299.8" as="sourcePoint" />
             <mxPoint x="1660" y="299.8" as="targetPoint" />
           </mxGeometry>
