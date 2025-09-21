@@ -54,10 +54,6 @@ reg [DATA_WIDTH - 1:0]   tmp;
 
 assign ready = (state == STATE_READY);
 
-reg get_;
-reg insert_;
-reg remove_;
-
 initial begin
     data_out = 0;
     length   = 0;
@@ -66,33 +62,12 @@ initial begin
     tmp      = 0;
 end
 
-// purpose of this block is to tell synthesizer to treat get, insert, remove
-// signals as mutually exclusive, maybe it works, maybe not ¯\_(ツ)_/¯
-always @(*) begin
-    get_    = 0;
-    insert_ = 0;
-    remove_ = 0;
-
-    casez ({get, insert, remove})
-        3'b1??: get_    = 1;
-        3'b?1?: insert_ = 1;
-        3'b??1: remove_ = 1;
-    endcase
-    
-    // uncomment to see difference in resource usage
-    /*
-    get_    = get;
-    insert_ = insert;
-    remove_ = remove;
-    */
-end
-
 // state
 always @(posedge clk) begin
     case (state)
         STATE_READY: begin
-            if (insert_) state <= (index != length) ? STATE_INSERT_READ : STATE_INSERT_DONE;
-            if (remove_) state <= (index != length - 1) ? STATE_REMOVE_READ : STATE_REMOVE_DONE;
+            if (insert) state <= (index != length) ? STATE_INSERT_READ : STATE_INSERT_DONE;
+            if (remove) state <= (index != length - 1) ? STATE_REMOVE_READ : STATE_REMOVE_DONE;
         end
         STATE_INSERT_READ:  state <= STATE_INSERT_WRITE;
         STATE_INSERT_WRITE: state <= (j == index) ? STATE_INSERT_DONE : STATE_INSERT_READ;
@@ -107,8 +82,8 @@ end
 always @(posedge clk) begin
     case (state)
         STATE_READY: begin
-            if (insert_) j <= length;
-            if (remove_) j <= index; 
+            if (insert) j <= length;
+            if (remove) j <= index; 
         end
         STATE_INSERT_WRITE: j <= j - 1;
         STATE_REMOVE_WRITE: j <= j + 1;
@@ -146,7 +121,7 @@ end
 
 // data_out
 always @(posedge clk) begin
-    if ((state == STATE_READY) & get_) begin
+    if ((state == STATE_READY) & get) begin
         data_out <= mem[index];
     end
 end
