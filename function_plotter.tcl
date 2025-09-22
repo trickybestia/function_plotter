@@ -26,6 +26,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/ps2.v"]"\
  "[file normalize "$origin_dir/src/fill_drawer.v"]"\
  "[file normalize "$origin_dir/src/line_drawer.v"]"\
+ "[file normalize "$origin_dir/src/input_buffer.v"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/fill_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/line_drawer_tb.v"]"\
@@ -161,7 +162,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "62" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "87" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -180,6 +181,7 @@ set files [list \
  [file normalize "${origin_dir}/src/ps2.v"] \
  [file normalize "${origin_dir}/src/fill_drawer.v"] \
  [file normalize "${origin_dir}/src/line_drawer.v"] \
+ [file normalize "${origin_dir}/src/input_buffer.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
