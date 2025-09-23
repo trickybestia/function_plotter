@@ -37,6 +37,7 @@ initial begin
     symbol_out    = 0;
 end
 
+// left_out, right_out, backspace_out, symbol_out
 always @(posedge clk) begin
     if ((~out_valid) | (out_valid & out_ready)) begin
         left_out      <= left_in;

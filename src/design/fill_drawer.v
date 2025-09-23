@@ -42,12 +42,14 @@ initial begin
     write_addr_reg = 0;
 end
 
+// write_addr_reg
 always @(posedge clk) begin
     if (state == STATE_WORK) begin
         write_addr_reg <= (write_addr_reg == PIXELS_COUNT - 1) ? 0 : write_addr_reg + 1;
     end
 end
 
+// state
 always @(posedge clk) begin
     if (ready & start) begin
         state <= STATE_WORK;

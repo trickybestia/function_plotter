@@ -37,6 +37,7 @@ ps2_rx ps2_rx (
     .new_key     (new_key)
 );
 
+// symbol
 always @(*) begin
     symbol = 0;
     

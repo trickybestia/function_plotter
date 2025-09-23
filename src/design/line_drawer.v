@@ -90,18 +90,21 @@ initial begin
     s     = 0;
 end
 
+// p_direction
 always @(*) begin
     if (p_end > p_start) p_direction = 1;
     else if (p_end < p_start) p_direction = -1;
     else p_direction = 0;
 end
 
+// s_direction
 always @(*) begin
     if (s_end > s_start) s_direction = 1;
     else if (s_end < s_start) s_direction = -1;
     else s_direction = 0;
 end
 
+// state
 always @(posedge clk) begin
     case (state)
         STATE_READY: state <= start ? STATE_WORK : STATE_READY;
@@ -109,6 +112,7 @@ always @(posedge clk) begin
     endcase
 end
 
+// p, s, error
 always @(posedge clk) begin
     if ((state == STATE_READY) & start) begin
         error <= 0;
