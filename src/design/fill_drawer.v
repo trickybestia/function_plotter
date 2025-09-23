@@ -23,32 +23,35 @@ input clk;
 input  start;
 output ready;
 
-output                              write_enable;
-output reg [WRITE_ADDR_WIDTH - 1:0] write_addr;
-output     [WRITE_DATA_WIDTH - 1:0] write_data;
+output                          write_enable;
+output [WRITE_ADDR_WIDTH - 1:0] write_addr;
+output [WRITE_DATA_WIDTH - 1:0] write_data;
 
 reg state;
 
-assign ready = (state == STATE_READY) || (write_addr == PIXELS_COUNT - 1);
+reg [WRITE_ADDR_WIDTH - 1:0] write_addr_reg;
 
-assign write_enable = state == STATE_WORK;
-assign write_data   = COLOR;
+assign ready = (state == STATE_READY) || (write_addr_reg == PIXELS_COUNT - 1);
+
+assign write_enable = (state == STATE_WORK);
+assign write_addr   = write_enable ? write_addr_reg : 0;
+assign write_data   = write_enable ? COLOR : 0;
 
 initial begin
-    state      = STATE_READY;
-    write_addr = 0;
+    state          = STATE_READY;
+    write_addr_reg = 0;
 end
 
 always @(posedge clk) begin
     if (state == STATE_WORK) begin
-        write_addr <= (write_addr == PIXELS_COUNT - 1) ? 0 : write_addr + 1;
+        write_addr_reg <= (write_addr_reg == PIXELS_COUNT - 1) ? 0 : write_addr_reg + 1;
     end
 end
 
 always @(posedge clk) begin
     if (ready & start) begin
         state <= STATE_WORK;
-    end else if (write_addr == PIXELS_COUNT - 1) begin
+    end else if (write_addr_reg == PIXELS_COUNT - 1) begin
         state <= STATE_READY;
     end
 end

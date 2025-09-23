@@ -69,8 +69,8 @@ reg state;
 assign ready = (state == STATE_READY);
 
 assign write_enable = (state == STATE_WORK);
-assign write_addr   = primary_is_x ? (s * HOR_ACTIVE_PIXELS + p) : (p * HOR_ACTIVE_PIXELS + s);
-assign write_data   = COLOR;
+assign write_addr   = write_enable ? (primary_is_x ? (s * HOR_ACTIVE_PIXELS + p) : (p * HOR_ACTIVE_PIXELS + s)) : 0;
+assign write_data   = write_enable ? COLOR : 0;
 
 function [COORD_WIDTH - 1:0] apply_direction;
     input        [COORD_WIDTH - 1:0] value;
