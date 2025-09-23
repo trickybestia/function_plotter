@@ -28,11 +28,13 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/line_drawer.v"]"\
  "[file normalize "$origin_dir/src/text_buffer.v"]"\
  "[file normalize "$origin_dir/src/input_buffer.v"]"\
+ "[file normalize "$origin_dir/src/vga.v"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/fill_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/line_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/vector_tb.v"]"\
  "[file normalize "$origin_dir/src/text_buffer_tb.v"]"\
+ "[file normalize "$origin_dir/src/vga_tb.v"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -164,7 +166,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "211" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "240" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -185,6 +187,7 @@ set files [list \
  [file normalize "${origin_dir}/src/line_drawer.v"] \
  [file normalize "${origin_dir}/src/text_buffer.v"] \
  [file normalize "${origin_dir}/src/input_buffer.v"] \
+ [file normalize "${origin_dir}/src/vga.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -336,6 +339,30 @@ add_files -norecurse -fileset $obj $files
 # Set 'text_buffer_tb' fileset properties
 set obj [get_filesets text_buffer_tb]
 set_property -name "top" -value "text_buffer_tb" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'vga_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet vga_tb] ""]} {
+  create_fileset -simset vga_tb
+}
+
+# Set 'vga_tb' fileset object
+set obj [get_filesets vga_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/vga_tb.v"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'vga_tb' fileset file properties for remote files
+# None
+
+# Set 'vga_tb' fileset file properties for local files
+# None
+
+# Set 'vga_tb' fileset properties
+set obj [get_filesets vga_tb]
+set_property -name "top" -value "vga_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
