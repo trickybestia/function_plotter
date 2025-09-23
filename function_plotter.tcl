@@ -19,22 +19,22 @@ proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
- "[file normalize "$origin_dir/src/top_Nexys_A7_100T.v"]"\
- "[file normalize "$origin_dir/src/vector.v"]"\
- "[file normalize "$origin_dir/src/ps2_raw_rx.v"]"\
- "[file normalize "$origin_dir/src/ps2_rx.v"]"\
- "[file normalize "$origin_dir/src/ps2.v"]"\
- "[file normalize "$origin_dir/src/fill_drawer.v"]"\
- "[file normalize "$origin_dir/src/line_drawer.v"]"\
- "[file normalize "$origin_dir/src/text_buffer.v"]"\
- "[file normalize "$origin_dir/src/input_buffer.v"]"\
- "[file normalize "$origin_dir/src/vga.v"]"\
+ "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
+ "[file normalize "$origin_dir/src/design/vector.v"]"\
+ "[file normalize "$origin_dir/src/design/ps2_raw_rx.v"]"\
+ "[file normalize "$origin_dir/src/design/ps2_rx.v"]"\
+ "[file normalize "$origin_dir/src/design/ps2.v"]"\
+ "[file normalize "$origin_dir/src/design/fill_drawer.v"]"\
+ "[file normalize "$origin_dir/src/design/line_drawer.v"]"\
+ "[file normalize "$origin_dir/src/design/text_buffer.v"]"\
+ "[file normalize "$origin_dir/src/design/input_buffer.v"]"\
+ "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
- "[file normalize "$origin_dir/src/fill_drawer_tb.v"]"\
- "[file normalize "$origin_dir/src/line_drawer_tb.v"]"\
- "[file normalize "$origin_dir/src/vector_tb.v"]"\
- "[file normalize "$origin_dir/src/text_buffer_tb.v"]"\
- "[file normalize "$origin_dir/src/vga_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/line_drawer_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/vector_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/text_buffer_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/vga_tb.v"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -178,16 +178,16 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 set obj [get_filesets sources_1]
 set files [list \
  [file normalize "${origin_dir}/ip/vga_mmcm/vga_mmcm.xci"] \
- [file normalize "${origin_dir}/src/top_Nexys_A7_100T.v"] \
- [file normalize "${origin_dir}/src/vector.v"] \
- [file normalize "${origin_dir}/src/ps2_raw_rx.v"] \
- [file normalize "${origin_dir}/src/ps2_rx.v"] \
- [file normalize "${origin_dir}/src/ps2.v"] \
- [file normalize "${origin_dir}/src/fill_drawer.v"] \
- [file normalize "${origin_dir}/src/line_drawer.v"] \
- [file normalize "${origin_dir}/src/text_buffer.v"] \
- [file normalize "${origin_dir}/src/input_buffer.v"] \
- [file normalize "${origin_dir}/src/vga.v"] \
+ [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
+ [file normalize "${origin_dir}/src/design/vector.v"] \
+ [file normalize "${origin_dir}/src/design/ps2_raw_rx.v"] \
+ [file normalize "${origin_dir}/src/design/ps2_rx.v"] \
+ [file normalize "${origin_dir}/src/design/ps2.v"] \
+ [file normalize "${origin_dir}/src/design/fill_drawer.v"] \
+ [file normalize "${origin_dir}/src/design/line_drawer.v"] \
+ [file normalize "${origin_dir}/src/design/text_buffer.v"] \
+ [file normalize "${origin_dir}/src/design/input_buffer.v"] \
+ [file normalize "${origin_dir}/src/design/vga.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -254,7 +254,7 @@ if {[string equal [get_filesets -quiet fill_drawer_tb] ""]} {
 # Set 'fill_drawer_tb' fileset object
 set obj [get_filesets fill_drawer_tb]
 set files [list \
- [file normalize "${origin_dir}/src/fill_drawer_tb.v"] \
+ [file normalize "${origin_dir}/src/testbench/fill_drawer_tb.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -278,7 +278,7 @@ if {[string equal [get_filesets -quiet line_drawer_tb] ""]} {
 # Set 'line_drawer_tb' fileset object
 set obj [get_filesets line_drawer_tb]
 set files [list \
- [file normalize "${origin_dir}/src/line_drawer_tb.v"] \
+ [file normalize "${origin_dir}/src/testbench/line_drawer_tb.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -302,7 +302,7 @@ if {[string equal [get_filesets -quiet vector_tb] ""]} {
 # Set 'vector_tb' fileset object
 set obj [get_filesets vector_tb]
 set files [list \
- [file normalize "${origin_dir}/src/vector_tb.v"] \
+ [file normalize "${origin_dir}/src/testbench/vector_tb.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -326,7 +326,7 @@ if {[string equal [get_filesets -quiet text_buffer_tb] ""]} {
 # Set 'text_buffer_tb' fileset object
 set obj [get_filesets text_buffer_tb]
 set files [list \
- [file normalize "${origin_dir}/src/text_buffer_tb.v"] \
+ [file normalize "${origin_dir}/src/testbench/text_buffer_tb.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -350,7 +350,7 @@ if {[string equal [get_filesets -quiet vga_tb] ""]} {
 # Set 'vga_tb' fileset object
 set obj [get_filesets vga_tb]
 set files [list \
- [file normalize "${origin_dir}/src/vga_tb.v"] \
+ [file normalize "${origin_dir}/src/testbench/vga_tb.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
