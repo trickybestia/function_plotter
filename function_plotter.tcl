@@ -30,6 +30,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/input_buffer.v"]"\
  "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer.v"]"\
+ "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/line_drawer_tb.v"]"\
@@ -37,6 +38,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/text_buffer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/vga_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/frame_buffer_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/symbol_drawer_mem_tb.v"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -168,7 +170,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "301" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "307" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -191,6 +193,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/input_buffer.v"] \
  [file normalize "${origin_dir}/src/design/vga.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer.v"] \
+ [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -390,6 +393,30 @@ add_files -norecurse -fileset $obj $files
 # Set 'frame_buffer_tb' fileset properties
 set obj [get_filesets frame_buffer_tb]
 set_property -name "top" -value "frame_buffer_tb" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'symbol_drawer_mem_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet symbol_drawer_mem_tb] ""]} {
+  create_fileset -simset symbol_drawer_mem_tb
+}
+
+# Set 'symbol_drawer_mem_tb' fileset object
+set obj [get_filesets symbol_drawer_mem_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/symbol_drawer_mem_tb.v"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'symbol_drawer_mem_tb' fileset file properties for remote files
+# None
+
+# Set 'symbol_drawer_mem_tb' fileset file properties for local files
+# None
+
+# Set 'symbol_drawer_mem_tb' fileset properties
+set obj [get_filesets symbol_drawer_mem_tb]
+set_property -name "top" -value "symbol_drawer_mem_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
