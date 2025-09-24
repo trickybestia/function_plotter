@@ -18,21 +18,23 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
- "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
- "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
- "[file normalize "$origin_dir/src/design/vector.v"]"\
+ "[file normalize "$origin_dir/src/design/fill_drawer.v"]"\
+ "[file normalize "$origin_dir/src/design/frame_buffer.v"]"\
+ "[file normalize "$origin_dir/src/design/frame_buffer_mem.v"]"\
+ "[file normalize "$origin_dir/src/design/graphics_fsm.v"]"\
+ "[file normalize "$origin_dir/src/design/input_buffer.v"]"\
+ "[file normalize "$origin_dir/src/design/line_drawer.v"]"\
+ "[file normalize "$origin_dir/src/design/logic_placeholder.v"]"\
+ "[file normalize "$origin_dir/src/design/ps2.v"]"\
  "[file normalize "$origin_dir/src/design/ps2_raw_rx.v"]"\
  "[file normalize "$origin_dir/src/design/ps2_rx.v"]"\
- "[file normalize "$origin_dir/src/design/ps2.v"]"\
- "[file normalize "$origin_dir/src/design/fill_drawer.v"]"\
- "[file normalize "$origin_dir/src/design/line_drawer.v"]"\
- "[file normalize "$origin_dir/src/design/text_buffer.v"]"\
- "[file normalize "$origin_dir/src/design/input_buffer.v"]"\
- "[file normalize "$origin_dir/src/design/vga.v"]"\
- "[file normalize "$origin_dir/src/design/frame_buffer.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
- "[file normalize "$origin_dir/src/design/logic_placeholder.v"]"\
+ "[file normalize "$origin_dir/src/design/text_buffer.v"]"\
+ "[file normalize "$origin_dir/src/design/vector.v"]"\
+ "[file normalize "$origin_dir/src/design/vga.v"]"\
+ "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
+ "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/line_drawer_tb.v"]"\
@@ -174,7 +176,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "342" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "344" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -185,21 +187,41 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/ip/vga_mmcm/vga_mmcm.xci"] \
- [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
- [file normalize "${origin_dir}/src/design/vector.v"] \
+ [file normalize "${origin_dir}/src/design/fill_drawer.v"] \
+ [file normalize "${origin_dir}/src/design/frame_buffer.v"] \
+ [file normalize "${origin_dir}/src/design/frame_buffer_mem.v"] \
+ [file normalize "${origin_dir}/src/design/graphics_fsm.v"] \
+ [file normalize "${origin_dir}/src/design/input_buffer.v"] \
+ [file normalize "${origin_dir}/src/design/line_drawer.v"] \
+ [file normalize "${origin_dir}/src/design/logic_placeholder.v"] \
+ [file normalize "${origin_dir}/src/design/ps2.v"] \
  [file normalize "${origin_dir}/src/design/ps2_raw_rx.v"] \
  [file normalize "${origin_dir}/src/design/ps2_rx.v"] \
- [file normalize "${origin_dir}/src/design/ps2.v"] \
- [file normalize "${origin_dir}/src/design/fill_drawer.v"] \
- [file normalize "${origin_dir}/src/design/line_drawer.v"] \
- [file normalize "${origin_dir}/src/design/text_buffer.v"] \
- [file normalize "${origin_dir}/src/design/input_buffer.v"] \
- [file normalize "${origin_dir}/src/design/vga.v"] \
- [file normalize "${origin_dir}/src/design/frame_buffer.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
- [file normalize "${origin_dir}/src/design/logic_placeholder.v"] \
+ [file normalize "${origin_dir}/src/design/text_buffer.v"] \
+ [file normalize "${origin_dir}/src/design/vector.v"] \
+ [file normalize "${origin_dir}/src/design/vga.v"] \
+ [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'sources_1' fileset file properties for remote files
+# None
+
+# Set 'sources_1' fileset file properties for local files
+# None
+
+# Set 'sources_1' fileset properties
+set obj [get_filesets sources_1]
+set_property -name "dataflow_viewer_settings" -value "min_width=16" -objects $obj
+set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+
+# Set 'sources_1' fileset object
+set obj [get_filesets sources_1]
+set files [list \
+ [file normalize "${origin_dir}/ip/vga_mmcm/vga_mmcm.xci"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -216,12 +238,6 @@ if { ![get_property "is_locked" $file_obj] } {
 
 # Set 'sources_1' fileset file properties for local files
 # None
-
-# Set 'sources_1' fileset properties
-set obj [get_filesets sources_1]
-set_property -name "dataflow_viewer_settings" -value "min_width=16" -objects $obj
-set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
-set_property -name "top_auto_set" -value "0" -objects $obj
 
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
@@ -507,6 +523,7 @@ if { $obj != "" } {
 
 }
 set obj [get_runs synth_1]
+set_property -name "needs_refresh" -value "1" -objects $obj
 set_property -name "part" -value "xc7a100tcsg324-1" -objects $obj
 set_property -name "auto_incremental_checkpoint" -value "1" -objects $obj
 set_property -name "strategy" -value "Vivado Synthesis Defaults" -objects $obj
@@ -730,6 +747,7 @@ set_property -name "options.warn_on_violation" -value "1" -objects $obj
 
 }
 set obj [get_runs impl_1]
+set_property -name "needs_refresh" -value "1" -objects $obj
 set_property -name "part" -value "xc7a100tcsg324-1" -objects $obj
 set_property -name "strategy" -value "Vivado Implementation Defaults" -objects $obj
 set_property -name "steps.write_bitstream.args.readback_file" -value "0" -objects $obj

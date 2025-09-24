@@ -31,7 +31,7 @@ reg state;
 
 reg [WRITE_ADDR_WIDTH - 1:0] write_addr_reg;
 
-assign ready = (state == STATE_READY) || (write_addr_reg == PIXELS_COUNT - 1);
+assign ready = (state == STATE_READY);
 
 assign write_enable = (state == STATE_WORK);
 assign write_addr   = write_enable ? write_addr_reg : 0;
@@ -51,11 +51,14 @@ end
 
 // state
 always @(posedge clk) begin
-    if (ready & start) begin
-        state <= STATE_WORK;
-    end else if (write_addr_reg == PIXELS_COUNT - 1) begin
-        state <= STATE_READY;
-    end
+    case (state)
+        STATE_READY: begin
+            if (start) state <= STATE_WORK;
+        end
+        STATE_WORK: begin
+            if (write_addr_reg == PIXELS_COUNT - 1) state <= STATE_READY;
+        end
+    endcase
 end
 
 endmodule
