@@ -45,6 +45,8 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/symbol_drawer_mem_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/symbol_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/logic_placeholder_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/top_Nexys_A7_100T_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/top_Nexys_A7_100T_tb_behav.wcfg"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -176,7 +178,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "344" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "361" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -488,6 +490,30 @@ add_files -norecurse -fileset $obj $files
 set obj [get_filesets logic_placeholder_tb]
 set_property -name "top" -value "logic_placeholder_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'top_Nexys_A7_100T_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet top_Nexys_A7_100T_tb] ""]} {
+  create_fileset -simset top_Nexys_A7_100T_tb
+}
+
+# Set 'top_Nexys_A7_100T_tb' fileset object
+set obj [get_filesets top_Nexys_A7_100T_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/top_Nexys_A7_100T_tb.v"] \
+ [file normalize "${origin_dir}/src/testbench/top_Nexys_A7_100T_tb_behav.wcfg"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'top_Nexys_A7_100T_tb' fileset file properties for remote files
+# None
+
+# Set 'top_Nexys_A7_100T_tb' fileset file properties for local files
+# None
+
+# Set 'top_Nexys_A7_100T_tb' fileset properties
+set obj [get_filesets top_Nexys_A7_100T_tb]
+set_property -name "top" -value "top_Nexys_A7_100T_tb" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
 # Set 'utils_1' fileset object

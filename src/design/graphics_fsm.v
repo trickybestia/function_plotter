@@ -30,17 +30,17 @@ parameter VER_ACTIVE_PIXELS = 480;
 localparam X_WIDTH = $clog2(HOR_ACTIVE_PIXELS);
 localparam Y_WIDTH = $clog2(VER_ACTIVE_PIXELS);
 
-localparam STATE_WAIT_SWAP                      = 0;
-localparam STATE_FILL_DRAWER_START              = 1;
-localparam STATE_WAIT_FILL_DRAWER_1             = 2;
-localparam STATE_WAIT_FILL_DRAWER_2             = 3;
-localparam STATE_SYMBOL_ITER_START              = 4;
-localparam STATE_SYMBOL_ITER_NEXT               = 5;
+localparam STATE_WAIT_SWAP                           = 0;
+localparam STATE_FILL_DRAWER_START                   = 1;
+localparam STATE_WAIT_FILL_DRAWER_1                  = 2;
+localparam STATE_WAIT_FILL_DRAWER_2                  = 3;
+localparam STATE_SYMBOL_ITER_START                   = 4;
+localparam STATE_SYMBOL_ITER_NEXT                    = 5;
 localparam STATE_SYMBOL_ITER_DONE_WAIT_SYMBOL_DRAWER = 6;
-localparam STATE_SYMBOL_ITER_WAIT_SYMBOL_DRAWER = 7;
-localparam STATE_LOGIC_START                    = 8;
-localparam STATE_WAIT_LOGIC_1                   = 9;
-localparam STATE_WAIT_LOGIC_2                   = 10;
+localparam STATE_SYMBOL_ITER_WAIT_SYMBOL_DRAWER      = 7;
+localparam STATE_LOGIC_START                         = 8;
+localparam STATE_WAIT_LOGIC_1                        = 9;
+localparam STATE_WAIT_LOGIC_2                        = 10;
 
 input clk;
 

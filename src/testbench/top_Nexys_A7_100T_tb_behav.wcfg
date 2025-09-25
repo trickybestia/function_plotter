@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="top_Nexys_A7_100T_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="top_Nexys_A7_100T_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="12,236,375.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="12,237,107.001 ns"></ZoomEndTime>
+      <Cursor1Time time="12,236,757.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="213"></NameColumnWidth>
+      <ValueColumnWidth column_width="79"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="27" />
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/clk_25M175">
+      <obj_property name="ElementShortName">clk_25M175</obj_property>
+      <obj_property name="ObjectShortName">clk_25M175</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/ps2_clk">
+      <obj_property name="ElementShortName">ps2_clk</obj_property>
+      <obj_property name="ObjectShortName">ps2_clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/ps2_dat">
+      <obj_property name="ElementShortName">ps2_dat</obj_property>
+      <obj_property name="ObjectShortName">ps2_dat</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/vga_r">
+      <obj_property name="ElementShortName">vga_r[3:0]</obj_property>
+      <obj_property name="ObjectShortName">vga_r[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/vga_g">
+      <obj_property name="ElementShortName">vga_g[3:0]</obj_property>
+      <obj_property name="ObjectShortName">vga_g[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/vga_b">
+      <obj_property name="ElementShortName">vga_b[3:0]</obj_property>
+      <obj_property name="ObjectShortName">vga_b[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/vga_hs">
+      <obj_property name="ElementShortName">vga_hs</obj_property>
+      <obj_property name="ObjectShortName">vga_hs</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/vga_vs">
+      <obj_property name="ElementShortName">vga_vs</obj_property>
+      <obj_property name="ObjectShortName">vga_vs</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/logic_start">
+      <obj_property name="ElementShortName">logic_start</obj_property>
+      <obj_property name="ObjectShortName">logic_start</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/logic_ready">
+      <obj_property name="ElementShortName">logic_ready</obj_property>
+      <obj_property name="ObjectShortName">logic_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/state">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">state[1:0]</obj_property>
+      <obj_property name="ObjectShortName">state[1:0]</obj_property>
+      <obj_property name="label">logic_state[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/t">
+      <obj_property name="ElementShortName">t[9:0]</obj_property>
+      <obj_property name="ObjectShortName">t[9:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/line_drawer_start">
+      <obj_property name="ElementShortName">line_drawer_start</obj_property>
+      <obj_property name="ObjectShortName">line_drawer_start</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/line_drawer_ready">
+      <obj_property name="ElementShortName">line_drawer_ready</obj_property>
+      <obj_property name="ObjectShortName">line_drawer_ready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/fill_drawer_start">
+      <obj_property name="ElementShortName">fill_drawer_start</obj_property>
+      <obj_property name="ObjectShortName">fill_drawer_start</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/fill_drawer_ready">
+      <obj_property name="ElementShortName">fill_drawer_ready</obj_property>
+      <obj_property name="ObjectShortName">fill_drawer_ready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/symbol_drawer_start">
+      <obj_property name="ElementShortName">symbol_drawer_start</obj_property>
+      <obj_property name="ObjectShortName">symbol_drawer_start</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/symbol_drawer_ready">
+      <obj_property name="ElementShortName">symbol_drawer_ready</obj_property>
+      <obj_property name="ObjectShortName">symbol_drawer_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/state">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">state[3:0]</obj_property>
+      <obj_property name="ObjectShortName">state[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="label">graphics_fsm_state[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/visible_iter_start">
+      <obj_property name="ElementShortName">visible_iter_start</obj_property>
+      <obj_property name="ObjectShortName">visible_iter_start</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/iter_en">
+      <obj_property name="ElementShortName">iter_en</obj_property>
+      <obj_property name="ObjectShortName">iter_en</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/symbol">
+      <obj_property name="ElementShortName">symbol[6:0]</obj_property>
+      <obj_property name="ObjectShortName">symbol[6:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/symbol_valid">
+      <obj_property name="ElementShortName">symbol_valid</obj_property>
+      <obj_property name="ObjectShortName">symbol_valid</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/symbol_drawer/state">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">state</obj_property>
+      <obj_property name="ObjectShortName">state</obj_property>
+      <obj_property name="label">symbol_drawer_state</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/symbol_drawer/rel_x">
+      <obj_property name="ElementShortName">rel_x[3:0]</obj_property>
+      <obj_property name="ObjectShortName">rel_x[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/symbol_drawer/rel_y">
+      <obj_property name="ElementShortName">rel_y[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rel_y[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+</wave_config>
