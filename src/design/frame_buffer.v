@@ -31,15 +31,18 @@ input swap;
 wire buffer_0_read_data;
 wire buffer_1_read_data;
 
-reg active_buffer;
+reg  active_write_buffer;
+wire active_read_buffer;
 
-assign read_data = active_buffer ? buffer_1_read_data : buffer_0_read_data;
+assign active_read_buffer = ~active_write_buffer;
+
+assign read_data = active_read_buffer ? buffer_1_read_data : buffer_0_read_data;
 
 frame_buffer_mem #(
     .SIZE (TOTAL_PIXELS)
 ) buffer_0 (
     .clk          (clk),
-    .write_enable (write_enable & (active_buffer == 0)),
+    .write_enable (write_enable & (active_write_buffer == 0)),
     .write_addr   (write_addr),
     .write_data   (write_data),
     .read_addr    (read_addr),
@@ -50,7 +53,7 @@ frame_buffer_mem #(
     .SIZE (TOTAL_PIXELS)
 ) buffer_1 (
     .clk          (clk),
-    .write_enable (write_enable & (active_buffer == 1)),
+    .write_enable (write_enable & (active_write_buffer == 1)),
     .write_addr   (write_addr),
     .write_data   (write_data),
     .read_addr    (read_addr),
@@ -58,12 +61,12 @@ frame_buffer_mem #(
 );
 
 initial begin
-    active_buffer = 0;
+    active_write_buffer = 0;
 end
 
-// active_buffer
+// active_write_buffer
 always @(posedge clk) begin
-    if (swap) active_buffer <= ~active_buffer;
+    if (swap) active_write_buffer <= ~active_write_buffer;
 end
 
 endmodule
