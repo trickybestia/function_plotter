@@ -48,9 +48,16 @@ output reg swap;
 reg [X_WIDTH-1:0] x;
 reg [Y_WIDTH-1:0] y;
 
-reg hs_reg;
-reg vs_reg;
-reg swap_reg;
+reg  hs_reg;
+reg  vs_reg;
+reg  swap_reg;
+wire display_time;
+
+wire [3:0] color;
+
+assign display_time = ((hs_reg != HOR_SYNC_POLARITY) & (vs_reg != VER_SYNC_POLARITY));
+
+assign color = (display_time & read_data) ? 4'b1111 : 0;
 
 assign read_addr = y * HOR_ACTIVE_PIXELS + x;
 
@@ -82,9 +89,9 @@ end
 
 // r, g, b
 always @(posedge clk) begin
-    r <= read_data ? 4'b1111 : 0;
-    g <= read_data ? 4'b1111 : 0;
-    b <= read_data ? 4'b1111 : 0;
+    r <= color;
+    g <= color;
+    b <= color;
 end
 
 // hs
@@ -104,12 +111,12 @@ end
 
 // hs_reg
 always @(posedge clk) begin
-    hs_reg <= (x >= HOR_BACK_PORCH_PIXELS + HOR_ACTIVE_PIXELS + HOR_FRONT_PORCH_PIXELS) ? HOR_SYNC_POLARITY : ~HOR_SYNC_POLARITY;
+    hs_reg <= ((x >= HOR_ACTIVE_PIXELS + HOR_FRONT_PORCH_PIXELS) & (x < HOR_ACTIVE_PIXELS + HOR_FRONT_PORCH_PIXELS + HOR_SYNC_PIXELS)) ? HOR_SYNC_POLARITY : ~HOR_SYNC_POLARITY;
 end
 
 // vs_reg
 always @(posedge clk) begin
-    vs_reg <= (y >= VER_BACK_PORCH_PIXELS + VER_ACTIVE_PIXELS + VER_FRONT_PORCH_PIXELS) ? VER_SYNC_POLARITY : ~VER_SYNC_POLARITY;
+    vs_reg <= ((y >= VER_ACTIVE_PIXELS + VER_FRONT_PORCH_PIXELS) & (y < VER_ACTIVE_PIXELS + VER_FRONT_PORCH_PIXELS + VER_SYNC_PIXELS)) ? VER_SYNC_POLARITY : ~VER_SYNC_POLARITY;
 end
 
 // swap_reg
