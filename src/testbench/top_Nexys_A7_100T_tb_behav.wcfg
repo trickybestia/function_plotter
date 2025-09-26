@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="12,236,375.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="12,237,107.001 ns"></ZoomEndTime>
-      <Cursor1Time time="12,236,757.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="29.399839674 ms"></ZoomEndTime>
+      <Cursor1Time time="27.709338642 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="213"></NameColumnWidth>
-      <ValueColumnWidth column_width="79"></ValueColumnWidth>
+      <ValueColumnWidth column_width="75"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="27" />
+   <WVObjectSize size="28" />
    <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -56,6 +56,10 @@
       <obj_property name="ElementShortName">vga_vs</obj_property>
       <obj_property name="ObjectShortName">vga_vs</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/vga_swap">
+      <obj_property name="ElementShortName">vga_swap</obj_property>
+      <obj_property name="ObjectShortName">vga_swap</obj_property>
+   </wvobject>
    <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/logic_start">
       <obj_property name="ElementShortName">logic_start</obj_property>
       <obj_property name="ObjectShortName">logic_start</obj_property>
@@ -71,9 +75,11 @@
       <obj_property name="label">logic_state[1:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/t">
+      <obj_property name="DisplayName">label</obj_property>
       <obj_property name="ElementShortName">t[9:0]</obj_property>
       <obj_property name="ObjectShortName">t[9:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="label">logic_t[9:0]</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/line_drawer_start">
       <obj_property name="ElementShortName">line_drawer_start</obj_property>
@@ -106,13 +112,13 @@
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       <obj_property name="label">graphics_fsm_state[3:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/visible_iter_start">
-      <obj_property name="ElementShortName">visible_iter_start</obj_property>
-      <obj_property name="ObjectShortName">visible_iter_start</obj_property>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm_visible_iter_start">
+      <obj_property name="ElementShortName">graphics_fsm_visible_iter_start</obj_property>
+      <obj_property name="ObjectShortName">graphics_fsm_visible_iter_start</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/iter_en">
-      <obj_property name="ElementShortName">iter_en</obj_property>
-      <obj_property name="ObjectShortName">iter_en</obj_property>
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm_iter_en">
+      <obj_property name="ElementShortName">graphics_fsm_iter_en</obj_property>
+      <obj_property name="ObjectShortName">graphics_fsm_iter_en</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/graphics_fsm/symbol">
       <obj_property name="ElementShortName">symbol[6:0]</obj_property>

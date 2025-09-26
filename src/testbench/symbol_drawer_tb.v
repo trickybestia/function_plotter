@@ -130,11 +130,6 @@ initial begin
     @(posedge clk);
     @(posedge clk);
 
-    swap <= 1;
-    @(posedge clk);
-    swap <= 0;
-    @(posedge clk);
-
     fill_drawer_start <= 1;
     @(posedge clk);
     fill_drawer_start <= 0;
@@ -212,6 +207,11 @@ initial begin
     draw_symbol("x");
     draw_symbol("y");
     draw_symbol("z");
+
+    swap <= 1;
+    @(posedge clk);
+    swap <= 0;
+    @(posedge clk);
 
     dump_frame_buffer();
     // run

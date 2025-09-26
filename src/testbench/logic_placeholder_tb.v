@@ -144,6 +144,11 @@ initial begin
 
     while (~logic_placeholder_ready) @(posedge clk);
 
+    swap <= 1;
+    @(posedge clk);
+    swap <= 0;
+    @(posedge clk);
+
     dump_frame_buffer();
     // run
     // python utils/show_frame_buffer_txt.py vivado_project/function_plotter.sim/logic_placeholder_tb/behav/xsim/frame_buffer.txt

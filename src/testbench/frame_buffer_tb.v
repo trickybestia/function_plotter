@@ -110,11 +110,6 @@ initial begin
     @(posedge clk);
     @(posedge clk);
 
-    swap <= 1;
-    @(posedge clk);
-    swap <= 0;
-    @(posedge clk);
-
     fill_drawer_start <= 1;
     @(posedge clk);
     fill_drawer_start <= 0;
@@ -133,6 +128,11 @@ initial begin
     @(posedge clk);
 
     while (~line_drawer_ready) @(posedge clk);
+
+    swap <= 1;
+    @(posedge clk);
+    swap <= 0;
+    @(posedge clk);
 
     dump_frame_buffer();
     // run
