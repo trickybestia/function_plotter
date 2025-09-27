@@ -210,7 +210,7 @@ task dump_frame_buffer;
 
         for (y = 0; y != 480; y = y + 1) begin
             for (x = 0; x != 640; x = x + 1) begin
-                frame_buffer_read_addr <= y * 640 + x;
+                frame_buffer_read_addr = y * 640 + x;
                 @(posedge clk);
                 $fwrite(file, frame_buffer_read_data);
             end
