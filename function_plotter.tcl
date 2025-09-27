@@ -47,6 +47,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/logic_placeholder_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/top_Nexys_A7_100T_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/top_Nexys_A7_100T_tb_behav.wcfg"]"\
+ "[file normalize "$origin_dir/src/testbench/top_no_io_tb.v"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -502,6 +503,30 @@ add_files -norecurse -fileset $obj $files
 # Set 'top_Nexys_A7_100T_tb' fileset properties
 set obj [get_filesets top_Nexys_A7_100T_tb]
 set_property -name "top" -value "top_Nexys_A7_100T_tb" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'top_no_io_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet top_no_io_tb] ""]} {
+  create_fileset -simset top_no_io_tb
+}
+
+# Set 'top_no_io_tb' fileset object
+set obj [get_filesets top_no_io_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/top_no_io_tb.v"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'top_no_io_tb' fileset file properties for remote files
+# None
+
+# Set 'top_no_io_tb' fileset file properties for local files
+# None
+
+# Set 'top_no_io_tb' fileset properties
+set obj [get_filesets top_no_io_tb]
+set_property -name "top" -value "top_no_io_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
