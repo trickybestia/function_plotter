@@ -59,13 +59,13 @@ assign y2 = y;
 assign symbol_iter_start = 0;
 assign symbol_iter_en    = 0;
 
-assign y = t[0] ? (240 - t * 2) : (240 + t * 2);
+assign y = t[0] ? (VER_ACTIVE_PIXELS / 2 - t * 2) : (VER_ACTIVE_PIXELS / 2 + t * 2);
 
 initial begin
     state             = STATE_READY;
     t                 = 0;
     x1                = 0;
-    y1                = 240;
+    y1                = VER_ACTIVE_PIXELS / 2;
     line_drawer_start = 0;
 end
 
@@ -102,16 +102,26 @@ end
 
 // x1
 always @(posedge clk) begin
-    if ((state == STATE_WAIT_LINE_DRAWER_2) & line_drawer_ready) begin
-        x1 <= x2;
-    end
+    case (state)
+        STATE_READY: begin
+            x1 <= 0;
+        end
+        STATE_WAIT_LINE_DRAWER_2: begin
+            if (line_drawer_ready) x1 <= x2;
+        end
+    endcase
 end
 
 // y1
 always @(posedge clk) begin
-    if ((state == STATE_WAIT_LINE_DRAWER_2) & line_drawer_ready) begin
-        y1 <= y2;
-    end
+    case (state)
+        STATE_READY: begin
+            y1 <= VER_ACTIVE_PIXELS / 2;
+        end
+        STATE_WAIT_LINE_DRAWER_2: begin
+            if (line_drawer_ready) y1 <= y2;
+        end
+    endcase
 end
 
 // line_drawer_start
