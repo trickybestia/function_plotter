@@ -79,7 +79,7 @@ assign symbol_drawer_start = (state == STATE_SYMBOL_ITER_START);
 assign symbol_drawer_y = VER_ACTIVE_PIXELS - 20;
 
 initial begin
-    state           = STATE_WAIT_SWAP;
+    state           = STATE_FILL_DRAWER_START;
     symbol_drawer_x = 0;
 end
 
