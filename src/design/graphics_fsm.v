@@ -74,7 +74,7 @@ assign logic_start = (state == STATE_LOGIC_START);
 
 assign fill_drawer_start = (state == STATE_FILL_DRAWER_START);
 
-assign symbol_drawer_start = (state == STATE_SYMBOL_ITER_START);
+assign symbol_drawer_start = ((state == STATE_SYMBOL_ITER_START) | (state == STATE_SYMBOL_ITER_NEXT)) & symbol_valid;
 
 assign symbol_drawer_y = VER_ACTIVE_PIXELS - 20;
 
@@ -124,7 +124,9 @@ end
 always @(posedge clk) begin
     case (state)
         STATE_SYMBOL_ITER_START: symbol_drawer_x <= 0;
-        STATE_SYMBOL_ITER_NEXT:  symbol_drawer_x <= symbol_drawer_x + 15;
+        STATE_SYMBOL_ITER_WAIT_SYMBOL_DRAWER: begin
+            if (symbol_drawer_ready) symbol_drawer_x <= symbol_drawer_x + 15;
+        end
     endcase
 end
 

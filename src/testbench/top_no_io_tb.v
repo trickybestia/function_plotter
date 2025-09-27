@@ -222,6 +222,24 @@ task dump_frame_buffer;
     end
 endtask
 
+task draw_frame;
+    begin
+        while (~logic_ready) @(posedge clk);
+        while (logic_ready)  @(posedge clk);
+        while (~logic_ready) @(posedge clk);
+
+        swap <= 1;
+        @(posedge clk);
+        swap <= 0;
+        @(posedge clk);
+
+        dump_frame_buffer();
+        // run
+        // python utils/show_frame_buffer_txt.py vivado_project/function_plotter.sim/top_no_io_tb/behav/xsim/frame_buffer.txt
+        // from project root to see frame buffer content
+    end
+endtask
+
 always begin // generate 25.175 MHz clock
     clk = 1'b0;
     #19861;
@@ -239,22 +257,81 @@ initial begin
 
     @(posedge clk);
 
+    // draw 3 frames normally
     repeat (3) begin
-        while (fill_drawer_ready) @(posedge clk);
-        while (~fill_drawer_ready) @(posedge clk);
+        draw_frame();
 
-        while (logic_ready) @(posedge clk);
-        while (~logic_ready) @(posedge clk);
+        $stop;
+    end
 
-        swap <= 1;
-        @(posedge clk);
-        swap <= 0;
-        @(posedge clk);
+    ps2_symbol <= "1";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
 
-        dump_frame_buffer();
-        // run
-        // python utils/show_frame_buffer_txt.py vivado_project/function_plotter.sim/top_no_io_tb/behav/xsim/frame_buffer.txt
-        // from project root to see frame buffer content
+    // draw 3 frames with "1" displayed
+    repeat (3) begin
+        draw_frame();
+
+        $stop;
+    end
+
+    ps2_left <= 1;
+    @(posedge clk);
+    ps2_left <= 0;
+    @(posedge clk);
+
+    // draw 3 frames with "1" displayed, cursor at position 0
+    repeat (3) begin
+        draw_frame();
+
+        $stop;
+    end
+
+    ps2_symbol <= "a";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    // draw 3 frames with "a1" displayed, cursor between "a" and "1"
+    repeat (3) begin
+        draw_frame();
+
+        $stop;
+    end
+
+    ps2_backspace <= 1;
+    @(posedge clk);
+    ps2_backspace <= 0;
+    @(posedge clk);
+
+    // draw 3 frames with "1" displayed, cursor at position 0
+    repeat (3) begin
+        draw_frame();
+
+        $stop;
+    end
+
+    ps2_right <= 1;
+    @(posedge clk);
+    ps2_right <= 0;
+    @(posedge clk);
+
+    // draw 3 frames with "1" displayed, cursor at position 1
+    repeat (3) begin
+        draw_frame();
+
+        $stop;
+    end
+
+    ps2_backspace <= 1;
+    @(posedge clk);
+    ps2_backspace <= 0;
+    @(posedge clk);
+
+    // draw 3 frames
+    repeat (3) begin
+        draw_frame();
 
         $stop;
     end

@@ -119,7 +119,7 @@ always @(*) begin
             if (iter_en & (iter_index == vector_length)) next_state = STATE_ITER_FINISH;
         end
         STATE_ITER_FINISH: begin
-            if (iter_en) next_state = STATE_READY;
+            next_state = STATE_READY;
         end
     endcase
 end
@@ -161,12 +161,16 @@ end
 
 // cursor_left
 always @(posedge clk) begin
-    cursor_left <= (iter_index == cursor_index);
+    if (((state == STATE_ITER) | (state == STATE_ITER_FINISH)) & iter_en) begin
+        cursor_left <= (iter_index == cursor_index);
+    end
 end
 
 // cursor_right
 always @(posedge clk) begin
-    cursor_right <= (cursor_index != 0) & (iter_index == cursor_index - 1);
+    if (((state == STATE_ITER) | (state == STATE_ITER_FINISH)) & iter_en) begin
+        cursor_right <= (cursor_index != 0) & (iter_index == cursor_index - 1);
+    end
 end
 
 endmodule
