@@ -149,7 +149,7 @@ initial begin
     draw_symbol("l");
     draw_symbol("l");
     draw_symbol("o");
-    draw_symbol(0);
+    draw_symbol(" ");
     draw_symbol("w");
     draw_symbol("o");
     draw_symbol("r");
@@ -165,6 +165,7 @@ initial begin
     draw_symbol("-");
     draw_symbol(".");
     draw_symbol("/");
+    draw_symbol(" ");
     draw_symbol("0");
     draw_symbol("1");
     draw_symbol("2");

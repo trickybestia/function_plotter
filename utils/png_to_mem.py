@@ -40,7 +40,7 @@ SOURCES = [
     "x", # GS
     "x", # RS
     "x", # US
-    "x", # SP
+    "font/space.png", # SP
     "x", # !
     "x", # "
     "x", # #

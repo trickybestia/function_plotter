@@ -86,6 +86,7 @@ always @(*) begin
             16'h003A: symbol = "m";
             16'h0049: symbol = ".";
             16'h004A: symbol = "/";
+            16'h0029: symbol = " ";
             16'hE04A: symbol = "/";
             16'h007C: symbol = "*";
             16'h007B: symbol = "-";
