@@ -20,7 +20,7 @@ module graphics_fsm (
     symbol_drawer_ready,
 
     symbol_drawer_x,
-    symbol_drawer_y,
+    symbol_drawer_y
 );
 
 parameter SYMBOL_WIDTH      = 7;
