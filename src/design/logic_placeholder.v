@@ -36,8 +36,8 @@ output ready;
 
 output reg [X_WIDTH - 1:0] x1;
 output reg [Y_WIDTH - 1:0] y1;
-output     [X_WIDTH - 1:0] x2;
-output     [Y_WIDTH - 1:0] y2;
+output reg [X_WIDTH - 1:0] x2;
+output reg [Y_WIDTH - 1:0] y2;
 output reg                 line_drawer_start;
 input                      line_drawer_ready;
 
@@ -48,85 +48,61 @@ input                       symbol_valid;
 
 reg [1:0] state;
 
-reg  [X_WIDTH - 1:0] t;
-wire [Y_WIDTH - 1:0] y;
+reg [X_WIDTH - 1:0] t;
 
 assign ready = (state == STATE_READY);
 
-assign x2 = t * 8;
-assign y2 = y;
-
 assign symbol_iter_start = 0;
 assign symbol_iter_en    = 0;
-
-assign y = t[0] ? (VER_ACTIVE_PIXELS / 2 - t * 2) : (VER_ACTIVE_PIXELS / 2 + t * 2);
 
 initial begin
     state             = STATE_READY;
     t                 = 0;
     x1                = 0;
-    y1                = VER_ACTIVE_PIXELS / 2;
+    y1                = 0;
+    x2                = 0;
+    y2                = 0;
     line_drawer_start = 0;
 end
 
-// state
 always @(posedge clk) begin
     case (state)
         STATE_READY: begin
+            x1 <= 0;
+            y1 <= VER_ACTIVE_PIXELS / 2;
+            x2 <= 0;
+            y2 <= VER_ACTIVE_PIXELS / 2;
+
             if (start) state <= STATE_DRAW_LINE;
         end
         STATE_DRAW_LINE: begin
+            x1 <= x2;
+            y1 <= y2;
+            x2 <= t * 8;
+            y2 <= t[0] ? (VER_ACTIVE_PIXELS / 2 - t * 2) : (VER_ACTIVE_PIXELS / 2 + t * 2);
+            line_drawer_start <= 1;
+
             state <= STATE_WAIT_LINE_DRAWER_1;
         end
         STATE_WAIT_LINE_DRAWER_1: begin
+            line_drawer_start <= 0;
+
             state <= STATE_WAIT_LINE_DRAWER_2;
         end
         STATE_WAIT_LINE_DRAWER_2: begin
             if (line_drawer_ready) begin
                 if (t == HOR_ACTIVE_PIXELS / 8 - 2) begin
+                    t <= 0;
+
                     state <= STATE_READY;
                 end else begin
+                    t <= t + 1;
+
                     state <= STATE_DRAW_LINE;
                 end
             end
         end
     endcase
-end
-
-// t
-always @(posedge clk) begin
-    if ((state == STATE_WAIT_LINE_DRAWER_2) & line_drawer_ready) begin
-        t <= (t == HOR_ACTIVE_PIXELS / 8 - 2) ? 0 : t + 1;
-    end
-end
-
-// x1
-always @(posedge clk) begin
-    case (state)
-        STATE_READY: begin
-            x1 <= 0;
-        end
-        STATE_WAIT_LINE_DRAWER_2: begin
-            if (line_drawer_ready) x1 <= x2;
-        end
-    endcase
-end
-
-// y1
-always @(posedge clk) begin
-    case (state)
-        STATE_READY: begin
-            y1 <= VER_ACTIVE_PIXELS / 2;
-        end
-        STATE_WAIT_LINE_DRAWER_2: begin
-            if (line_drawer_ready) y1 <= y2;
-        end
-    endcase
-end
-
-// line_drawer_start
-always @(posedge clk) begin
-    line_drawer_start <= (state == STATE_DRAW_LINE);
 end
 
 endmodule
