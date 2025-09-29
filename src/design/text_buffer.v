@@ -135,7 +135,7 @@ always @(posedge clk) begin
         if ((left & (cursor_index != 0)) | (backspace & (cursor_index != 0))) begin
             cursor_index <= cursor_index - 1;
         end
-        if ((right & (cursor_index != vector_length)) | ((symbol != 0) & (vector_length != SYMBOLS_COUNT))) begin
+        if (((right | (symbol != 0)) & (cursor_index != vector_length))) begin
             cursor_index <= cursor_index + 1;
         end
     end
