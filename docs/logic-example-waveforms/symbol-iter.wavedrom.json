@@ -1,0 +1,34 @@
+{
+    "signal": [
+        [
+            "inputs",
+            {
+                "name": "clk",
+                "wave": "P.|..|.|..|.|..|.|..."
+            },
+            {
+                "name": "symbol [6:0]",
+                "wave": "2.|2.|.|2.|.|2.|.|2..",
+                "data": "NUL '1' '+' '1' NUL"
+            },
+            {
+                "name": "symbol_valid",
+                "wave": "0.|10|.|10|.|10|.|10."
+            }
+        ],
+        [
+            "outputs",
+            {
+                "name": "symbol_iter_en",
+                "wave": "01|0.|1|0.|1|0.|1|0.."
+            },
+            {}
+        ]
+    ],
+    "head": {
+        "text": "Example for string '1+1'"
+    },
+    "foot": {
+        "text": "NUL is ASCII null character"
+    }
+}

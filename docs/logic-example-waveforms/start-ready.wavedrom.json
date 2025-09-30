@@ -1,0 +1,24 @@
+{
+    "signal": [
+        [
+            "inputs",
+            {
+                "name": "clk",
+                "wave": "P......."
+            },
+            {
+                "name": "start",
+                "wave": "0..10..."
+            },
+            {}
+        ],
+        [
+            "outputs",
+            {
+                "name": "ready",
+                "wave": "1...0..."
+            },
+            {}
+        ]
+    ]
+}
