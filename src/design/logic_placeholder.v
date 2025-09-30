@@ -11,7 +11,6 @@ module logic_placeholder (
     line_drawer_start,
     line_drawer_ready,
 
-    symbol_iter_start,
     symbol_iter_en,
     symbol,
     symbol_valid
@@ -41,7 +40,6 @@ output reg [Y_WIDTH - 1:0] y2;
 output reg                 line_drawer_start;
 input                      line_drawer_ready;
 
-output                      symbol_iter_start;
 output                      symbol_iter_en;
 input  [SYMBOL_WIDTH - 1:0] symbol;
 input                       symbol_valid;
@@ -52,8 +50,7 @@ reg [X_WIDTH - 1:0] t;
 
 assign ready = (state == STATE_READY);
 
-assign symbol_iter_start = 0;
-assign symbol_iter_en    = 0;
+assign symbol_iter_en = 0;
 
 initial begin
     state             = STATE_READY;

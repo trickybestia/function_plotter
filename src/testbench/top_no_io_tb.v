@@ -36,7 +36,6 @@ wire [Y_WIDTH - 1:0] logic_y1;
 wire [X_WIDTH - 1:0] logic_x2;
 wire [Y_WIDTH - 1:0] logic_y2;
 wire                 logic_line_drawer_start;
-wire                 logic_symbol_iter_start;
 wire                 logic_symbol_iter_en;
 
 wire                    line_drawer_ready;
@@ -59,8 +58,7 @@ wire frame_buffer_read_data;
 reg [ADDR_WIDTH - 1:0] frame_buffer_read_addr;
 reg                    swap;
 
-wire                 graphics_fsm_visible_iter_start;
-wire                 graphics_fsm_iter_en;
+wire                 graphics_fsm_visible_iter_en;
 wire                 graphics_fsm_logic_start;
 wire                 graphics_fsm_fill_drawer_start;
 wire                 graphics_fsm_symbol_drawer_start;
@@ -86,19 +84,18 @@ text_buffer #(
     .SYMBOL_WIDTH  (SYMBOL_WIDTH),
     .SYMBOLS_COUNT (40)
 ) text_buffer (
-    .clk                (clk),
-    .left               (input_buffer_left_out),
-    .right              (input_buffer_right_out),
-    .backspace          (input_buffer_backspace_out),
-    .symbol             (input_buffer_symbol_out),
-    .input_ready        (text_buffer_input_ready),
-    .full_iter_start    (logic_symbol_iter_start),
-    .visible_iter_start (graphics_fsm_visible_iter_start),
-    .iter_en            (graphics_fsm_iter_en),
-    .iter_out           (text_buffer_iter_out),
-    .iter_out_valid     (text_buffer_iter_out_valid),
-    .cursor_left        (text_buffer_cursor_left),
-    .cursor_right       (text_buffer_cursor_right)
+    .clk             (clk),
+    .left            (input_buffer_left_out),
+    .right           (input_buffer_right_out),
+    .backspace       (input_buffer_backspace_out),
+    .symbol          (input_buffer_symbol_out),
+    .input_ready     (text_buffer_input_ready),
+    .full_iter_en    (logic_symbol_iter_en),
+    .visible_iter_en (graphics_fsm_visible_iter_en),
+    .iter_out        (text_buffer_iter_out),
+    .iter_out_valid  (text_buffer_iter_out_valid),
+    .cursor_left     (text_buffer_cursor_left),
+    .cursor_right    (text_buffer_cursor_right)
 );
 
 logic_placeholder #(
@@ -115,7 +112,6 @@ logic_placeholder #(
     .y2                (logic_y2),
     .line_drawer_start (logic_line_drawer_start),
     .line_drawer_ready (line_drawer_ready),
-    .symbol_iter_start (logic_symbol_iter_start),
     .symbol_iter_en    (logic_symbol_iter_en),
     .symbol            (text_buffer_iter_out),
     .symbol_valid      (text_buffer_iter_out_valid)
@@ -183,21 +179,19 @@ graphics_fsm #(
     .HOR_ACTIVE_PIXELS (HOR_ACTIVE_PIXELS),
     .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS)
 ) graphics_fsm (
-    .clk                     (clk),
-    .swap                    (swap),
-    .visible_iter_start      (graphics_fsm_visible_iter_start),
-    .iter_en                 (graphics_fsm_iter_en),
-    .symbol                  (text_buffer_iter_out),
-    .symbol_valid            (text_buffer_iter_out_valid),
-    .logic_start             (graphics_fsm_logic_start),
-    .logic_ready             (logic_ready),
-    .logic_symbol_iter_en    (logic_symbol_iter_en),
-    .fill_drawer_start       (graphics_fsm_fill_drawer_start),
-    .fill_drawer_ready       (fill_drawer_ready),
-    .symbol_drawer_start     (graphics_fsm_symbol_drawer_start),
-    .symbol_drawer_ready     (symbol_drawer_ready),
-    .symbol_drawer_x         (graphics_fsm_symbol_drawer_x),
-    .symbol_drawer_y         (graphics_fsm_symbol_drawer_y)
+    .clk                 (clk),
+    .swap                (swap),
+    .visible_iter_en     (graphics_fsm_visible_iter_en),
+    .symbol              (text_buffer_iter_out),
+    .symbol_valid        (text_buffer_iter_out_valid),
+    .logic_start         (graphics_fsm_logic_start),
+    .logic_ready         (logic_ready),
+    .fill_drawer_start   (graphics_fsm_fill_drawer_start),
+    .fill_drawer_ready   (fill_drawer_ready),
+    .symbol_drawer_start (graphics_fsm_symbol_drawer_start),
+    .symbol_drawer_ready (symbol_drawer_ready),
+    .symbol_drawer_x     (graphics_fsm_symbol_drawer_x),
+    .symbol_drawer_y     (graphics_fsm_symbol_drawer_y)
 );
 
 task dump_frame_buffer;

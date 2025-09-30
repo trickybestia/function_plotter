@@ -3,15 +3,12 @@ module graphics_fsm (
 
     swap,
 
-    visible_iter_start,
-    iter_en,
+    visible_iter_en,
     symbol,
     symbol_valid,
 
     logic_start,
     logic_ready,
-
-    logic_symbol_iter_en,
 
     fill_drawer_start,
     fill_drawer_ready,
@@ -49,15 +46,12 @@ input clk;
 
 input swap;
 
-output                      visible_iter_start;
-output                      iter_en;
+output                      visible_iter_en;
 input  [SYMBOL_WIDTH - 1:0] symbol;
 input                       symbol_valid;
 
 output reg logic_start;
 input      logic_ready;
-
-input logic_symbol_iter_en;
 
 output reg fill_drawer_start;
 input      fill_drawer_ready;
@@ -70,8 +64,7 @@ output     [Y_WIDTH - 1:0] symbol_drawer_y;
 
 reg [3:0] state;
 
-assign visible_iter_start = (state == STATE_SYMBOL_ITER_START) & ~symbol_valid;
-assign iter_en            = ((state == STATE_SYMBOL_ITER_START) & ~symbol_valid) | ((state == STATE_SYMBOL_ITER_NEXT) & ~symbol_valid) | logic_symbol_iter_en;
+assign visible_iter_en = ((state == STATE_SYMBOL_ITER_START) | (state == STATE_SYMBOL_ITER_NEXT)) & ~symbol_valid;
 
 assign symbol_drawer_y = VER_ACTIVE_PIXELS - 20;
 

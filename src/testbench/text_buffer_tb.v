@@ -16,9 +16,8 @@ wire [6:0] input_buffer_symbol_out;
 
 wire input_ready;
 
-reg        full_iter_start;
-reg        visible_iter_start;
-reg        iter_en;
+reg        full_iter_en;
+reg        visible_iter_en;
 wire [6:0] iter_out;
 wire       iter_out_valid;
 wire       cursor_left;
@@ -43,19 +42,18 @@ text_buffer #(
     .SYMBOL_WIDTH  (7),
     .SYMBOLS_COUNT (127)
 ) uut (
-    .clk                (clk),
-    .left               (input_buffer_left_out),
-    .right              (input_buffer_right_out),
-    .backspace          (input_buffer_backspace_out),
-    .symbol             (input_buffer_symbol_out),
-    .input_ready        (input_ready),
-    .full_iter_start    (full_iter_start),
-    .visible_iter_start (visible_iter_start),
-    .iter_en            (iter_en),
-    .iter_out           (iter_out),
-    .iter_out_valid     (iter_out_valid),
-    .cursor_left        (cursor_left),
-    .cursor_right       (cursor_right)
+    .clk             (clk),
+    .left            (input_buffer_left_out),
+    .right           (input_buffer_right_out),
+    .backspace       (input_buffer_backspace_out),
+    .symbol          (input_buffer_symbol_out),
+    .input_ready     (input_ready),
+    .full_iter_en    (full_iter_en),
+    .visible_iter_en (visible_iter_en),
+    .iter_out        (iter_out),
+    .iter_out_valid  (iter_out_valid),
+    .cursor_left     (cursor_left),
+    .cursor_right    (cursor_right)
 );
 
 task wait_input_ready;
@@ -74,16 +72,12 @@ task automatic send_symbol;
     end
 endtask
 
-task automatic print_text_buffer;
+task print_text_buffer;
     reg loop_done;
 
     begin
-        assign full_iter_start = ~iter_out_valid;
-        iter_en <= 1;
+        assign full_iter_en = ~iter_out_valid;
 
-        while (~iter_out_valid) @(posedge clk);
-
-        deassign full_iter_start;
         loop_done = 0;
 
         while (~loop_done) begin
@@ -94,7 +88,7 @@ task automatic print_text_buffer;
                     loop_done = 1;
                     $write("NUL");
 
-                    iter_en <= 0;
+                    deassign full_iter_en;
                 end else begin
                     $write("%s", iter_out);
                 end
@@ -119,13 +113,12 @@ always begin
 end
 
 initial begin
-    left               = 0;
-    right              = 0;
-    backspace          = 0;
-    symbol             = 0;
-    full_iter_start    = 0;
-    visible_iter_start = 0;
-    iter_en            = 0;
+    left            = 0;
+    right           = 0;
+    backspace       = 0;
+    symbol          = 0;
+    full_iter_en    = 0;
+    visible_iter_en = 0;
 
     // Test if nothing breaks on idle
     @(posedge clk);
@@ -134,6 +127,8 @@ initial begin
 
     // Expect empty text
     print_text_buffer();
+
+    $stop;
     
     // Check inputs
     left <= 1;
@@ -153,28 +148,18 @@ initial begin
 
     // Expect empty text
     print_text_buffer();
+
+    $stop;
     
     // Simple insertion test
     send_symbol("a");
-
-    print_text_buffer();
-
     send_symbol("b");
     send_symbol("c");
     send_symbol("d");
 
-    // Manual iteration test
-    full_iter_start <= 1;
-    @(posedge clk);
-    full_iter_start <= 0;
+    print_text_buffer();
 
-    @(posedge clk);
-    @(posedge clk);
-    @(posedge clk);
-
-    iter_en <= 1;
-
-    while (~iter_out_valid | iter_out != 0) @(posedge clk);
+    $stop;
 
     @(posedge clk);
     @(posedge clk);
@@ -182,6 +167,8 @@ initial begin
     // print_text_buffer test
     print_text_buffer();
     print_text_buffer();
+
+    $stop;
     
     // request both input and iteration at the same time
     backspace <= 1;
@@ -189,6 +176,9 @@ initial begin
     backspace <= 0;
     print_text_buffer();
 
+    $stop;
+
+    // insertion test
     left <= 1;
     @(posedge clk);
     left <= 0;
@@ -203,6 +193,8 @@ initial begin
     @(posedge clk);
     right <= 0;
     print_text_buffer();
+
+    $stop;
 
     // Test if nothing breaks on idle
     @(posedge clk);
