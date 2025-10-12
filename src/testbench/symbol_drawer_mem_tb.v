@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module symbol_drawer_mem_tb;
 
 localparam SIZE = 38400;
