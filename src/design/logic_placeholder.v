@@ -28,6 +28,13 @@ localparam STATE_DRAW_LINE          = 1;
 localparam STATE_WAIT_LINE_DRAWER_1 = 2;
 localparam STATE_WAIT_LINE_DRAWER_2 = 3;
 
+parameter INTEGER_PART_WIDTH     = 8;
+parameter FRACTIONAL_PART_WIDTH  = 8;
+parameter NUMBER_WIDTH           = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
+parameter OUTPUT_VALUE_WIDTH     = NUMBER_WIDTH + 1;
+
+localparam OUTPUT_QUEUE_SIZE = 64;
+
 input clk;
 
 input  start;
@@ -48,6 +55,9 @@ reg [1:0] state;
 
 reg [X_WIDTH - 1:0] t;
 
+wire [OUTPUT_VALUE_WIDTH - 1:0] output_queue [0:OUTPUT_QUEUE_SIZE - 1];
+wire [OUTPUT_QUEUE_SIZE - 1:0] output_queue_p;   
+
 assign ready = (state == STATE_READY);
 
 assign symbol_iter_en = 0;
@@ -61,6 +71,16 @@ initial begin
     y2                = 0;
     line_drawer_start = 0;
 end
+
+parser parser (
+    .clk            (clk),
+    .ready          (),           
+    .output_queue   (output_queue),
+    .output_queue_p (output_p),
+    .symbol_iter_en (symbol_iter_en),
+    .symbol         (symbol),
+    .symbol_valid   (symbol_valid)               
+);    
 
 always @(posedge clk) begin
     case (state)
