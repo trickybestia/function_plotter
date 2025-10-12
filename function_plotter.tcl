@@ -35,6 +35,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/vector.v"]"\
  "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_alu.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_add.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_sub.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
@@ -55,6 +56,8 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/fixed_point_sub_tb.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_mul_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb_behav.wcfg"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -214,6 +217,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/vector.v"] \
  [file normalize "${origin_dir}/src/design/vga.v"] \
  [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_alu.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_add.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_sub.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_mul.v"] \
@@ -610,6 +614,31 @@ add_files -norecurse -fileset $obj $files
 # Set 'fixed_point_mul_tb' fileset properties
 set obj [get_filesets fixed_point_mul_tb]
 set_property -name "top" -value "fixed_point_mul_tb" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'fixed_point_alu_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet fixed_point_alu_tb] ""]} {
+  create_fileset -simset fixed_point_alu_tb
+}
+
+# Set 'fixed_point_alu_tb' fileset object
+set obj [get_filesets fixed_point_alu_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/fixed_point_alu_tb.v"] \
+ [file normalize "${origin_dir}/src/testbench/fixed_point_alu_tb_behav.wcfg"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'fixed_point_alu_tb' fileset file properties for remote files
+# None
+
+# Set 'fixed_point_alu_tb' fileset file properties for local files
+# None
+
+# Set 'fixed_point_alu_tb' fileset properties
+set obj [get_filesets fixed_point_alu_tb]
+set_property -name "top" -value "fixed_point_alu_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
