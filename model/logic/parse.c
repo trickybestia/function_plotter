@@ -19,10 +19,11 @@ int output_p = 0;
 
 enum {WAIT_FOR_TOKEN = 0, GET_NUMBER, SAVE_NUMBER_TO_OUTPUT, \
       HANDLE_OPERATOR, HANDLE_OPERATOR_2, HANDLE_OPERATOR_3, \
-      HANDLE_LEFT_BRACKET, HANDLE_RIGHT_BRACKET};
+      HANDLE_VAR, HANDLE_LEFT_BRACKET, HANDLE_RIGHT_BRACKET, \
+      RELEASE_STACK, END};
 
 static int is_number(char c) {
-    if ((c > '0' && c < '9') || c == '.')
+    if ((c >= '0' && c <= '9') || c == '.')
         return 1;
     return 0;
 }
@@ -80,6 +81,9 @@ int parse(const char* expr) {
             else if (is_operator(expr[it])) {
                 state = HANDLE_OPERATOR;
             }
+            else if (expr[it] == 'x') {
+                state = HANDLE_VAR;
+            }
             else if (is_left_bracket(expr[it])) {
                 state = HANDLE_LEFT_BRACKET;
             }
@@ -87,7 +91,7 @@ int parse(const char* expr) {
                 state = HANDLE_RIGHT_BRACKET;
             }
             else if (expr[it] == '\0')
-                state = 8;
+                state = RELEASE_STACK;
             else
                 it++;
             break;
@@ -135,6 +139,15 @@ int parse(const char* expr) {
 
             it++;
             break;
+        case HANDLE_VAR:
+            out.val = VAR;
+            out.is_operator = 1;
+
+            output[output_p] = out;
+            output_p++;
+            state = WAIT_FOR_TOKEN;
+            it++;
+            break;
         case HANDLE_LEFT_BRACKET: /* Left bracket, add to stack */
             stack[stack_p] = LEFT_BRACKET;
             stack_p++;
@@ -159,7 +172,8 @@ int parse(const char* expr) {
             state = WAIT_FOR_TOKEN;
             it++;
             break;
-        case 8: /* End of expr, stay in this state until stack isn't empty */
+        case RELEASE_STACK: /* End of expr, stay in this state
+                               until stack isn't empty */
             while (stack_p > 0) {
                 out.val = stack[stack_p - 1];
                 out.is_operator = 1;
@@ -169,9 +183,9 @@ int parse(const char* expr) {
                 stack_p--;
             }
 
-            state = 9;
+            state = END;
             break;
-        case 9: /* End */
+        case END: /* End */
             puts("End of parsing");
             return 0;
         default:

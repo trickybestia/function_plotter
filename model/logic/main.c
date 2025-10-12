@@ -24,6 +24,9 @@ static void print_output() {
             case POWER:
                 printf("^\n");
                 break;
+            case VAR:
+                printf("x\n");
+                break;
             }
 
         else
@@ -43,6 +46,14 @@ int main() {
 
     output_p = 0;
     parse("(12 + (2 - 5)) * 6");
+    print_output();
+
+    output_p = 0;
+    parse("1 + 2 * 6 ^ 3");
+    print_output();
+
+    output_p = 0;
+    parse("(x - 6) + x^2 - 5");
     print_output();
     return 0;
 }
