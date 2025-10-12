@@ -39,21 +39,26 @@ int main() {
     
     parse("2 + 2");
     print_output();
+    printf("Answer: %d\n", evaluate(0));
 
     output_p = 0;
     parse("12 + 2 - 5");
     print_output();
+    printf("Answer: %d\n", evaluate(0));
 
     output_p = 0;
     parse("(12 + (2 - 5)) * 6");
     print_output();
+    printf("Answer: %d\n", evaluate(0));
 
     output_p = 0;
     parse("1 + 2 * 6 ^ 3");
+    printf("Answer: %d\n", evaluate(0));
     print_output();
 
     output_p = 0;
     parse("(x - 6) + x^2 - 5");
+    printf("Answer: %d\n", evaluate(6));
     print_output();
     return 0;
 }

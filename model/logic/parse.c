@@ -11,8 +11,8 @@
 #include <stdio.h>
 
 
-oper_t stack[STACK_SIZE];
-int stack_p = 0;
+static oper_t stack[STACK_SIZE];
+static int stack_p = 0;
 
 output_t output [OUTPUT_SIZE];
 int output_p = 0;
