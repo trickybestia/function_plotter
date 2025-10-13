@@ -37,15 +37,18 @@ initial begin
 
     @(posedge uut.clk_25M175);
 
-    while (uut.fill_drawer.ready) @(posedge uut.clk_25M175);
-    while (~uut.fill_drawer.ready) @(posedge uut.clk_25M175);
+    // Draw 3 frames
+    repeat (3) begin
+        while (uut.fill_drawer.ready) @(posedge uut.clk_25M175);
+        while (~uut.fill_drawer.ready) @(posedge uut.clk_25M175);
 
-    while (uut.logic_placeholder.ready) @(posedge uut.clk_25M175);
-    while (~uut.logic_placeholder.ready) @(posedge uut.clk_25M175);
+        while (uut.logic_placeholder.ready) @(posedge uut.clk_25M175);
+        while (~uut.logic_placeholder.ready) @(posedge uut.clk_25M175);
 
-    $stop;
+        repeat (1000) @(posedge uut.clk_25M175);
 
-    repeat (1000) @(posedge uut.clk_25M175);
+        $stop;
+    end
 
     $finish;
 end
