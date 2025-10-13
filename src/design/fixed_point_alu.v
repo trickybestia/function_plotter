@@ -28,6 +28,8 @@ localparam STATE_ADD       = 1;
 localparam STATE_SUB       = 2;
 localparam STATE_MUL_START = 3;
 localparam STATE_MUL_WAIT  = 4;
+localparam STATE_DIV_START = 5;
+localparam STATE_DIV_WAIT  = 6;
 
 input clk;
 
@@ -49,11 +51,17 @@ wire                      fixed_point_mul_start;
 wire                      fixed_point_mul_done;
 wire [NUMBER_WIDTH - 1:0] fixed_point_mul_result;
 
-integer state;
+wire                      fixed_point_div_start;
+wire                      fixed_point_div_done;
+wire [NUMBER_WIDTH - 1:0] fixed_point_div_result;
+
+reg [2:0] state;
 
 assign done = (state == STATE_READY);
 
 assign fixed_point_mul_start = (state == STATE_MUL_START);
+
+assign fixed_point_div_start = (state == STATE_DIV_START);
 
 fixed_point_add #(
     .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
@@ -85,6 +93,18 @@ fixed_point_mul #(
     .result (fixed_point_mul_result)
 );
 
+fixed_point_div #(
+    .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
+    .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH)
+) fixed_point_div (
+    .clk    (clk),
+    .start  (fixed_point_div_start),
+    .done   (fixed_point_div_done),
+    .a      (a),
+    .b      (b),
+    .result (fixed_point_div_result)
+);
+
 initial begin
     result = 0;
     state  = STATE_READY;
@@ -99,12 +119,15 @@ always @(posedge clk) begin
                     OP_ADD: state <= STATE_ADD;
                     OP_SUB: state <= STATE_SUB;
                     OP_MUL: state <= STATE_MUL_START;
+                    OP_DIV: state <= STATE_DIV_START;
                 endcase
             end
         end
         STATE_ADD, STATE_SUB: state <= STATE_READY;
         STATE_MUL_START: state <= STATE_MUL_WAIT;
         STATE_MUL_WAIT: if (fixed_point_mul_done) state <= STATE_READY;
+        STATE_DIV_START: state <= STATE_DIV_WAIT;
+        STATE_DIV_WAIT: if (fixed_point_div_done) state <= STATE_READY;
     endcase
 end
 
@@ -114,6 +137,7 @@ always @(posedge clk) begin
         STATE_ADD: result <= fixed_point_add_result;
         STATE_SUB: result <= fixed_point_sub_result;
         STATE_MUL_WAIT: if (fixed_point_mul_done) result <= fixed_point_mul_result;
+        STATE_DIV_WAIT: if (fixed_point_div_done) result <= fixed_point_div_result;
     endcase
 end
 

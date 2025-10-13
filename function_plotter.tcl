@@ -39,6 +39,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/fixed_point_add.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_sub.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_div.v"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/line_drawer_tb.v"]"\
@@ -58,6 +59,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/fixed_point_mul_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb_behav.wcfg"]"\
+ "[file normalize "$origin_dir/src/testbench/fixed_point_div_tb.v"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -221,6 +223,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/fixed_point_add.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_sub.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_mul.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_div.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -639,6 +642,30 @@ add_files -norecurse -fileset $obj $files
 # Set 'fixed_point_alu_tb' fileset properties
 set obj [get_filesets fixed_point_alu_tb]
 set_property -name "top" -value "fixed_point_alu_tb" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'fixed_point_div_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet fixed_point_div_tb] ""]} {
+  create_fileset -simset fixed_point_div_tb
+}
+
+# Set 'fixed_point_div_tb' fileset object
+set obj [get_filesets fixed_point_div_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/fixed_point_div_tb.v"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'fixed_point_div_tb' fileset file properties for remote files
+# None
+
+# Set 'fixed_point_div_tb' fileset file properties for local files
+# None
+
+# Set 'fixed_point_div_tb' fileset properties
+set obj [get_filesets fixed_point_div_tb]
+set_property -name "top" -value "fixed_point_div_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
