@@ -57,6 +57,7 @@ reg [X_WIDTH - 1:0] t;
 
 wire [OUTPUT_VALUE_WIDTH - 1:0] output_queue [0:OUTPUT_QUEUE_SIZE - 1];
 wire [OUTPUT_QUEUE_SIZE - 1:0] output_queue_p;   
+wire parser_ready;   
 
 assign ready = (state == STATE_READY);
 
@@ -74,7 +75,7 @@ end
 
 parser parser (
     .clk            (clk),
-    .ready          (),           
+    .ready          (parser_ready),           
     .output_queue   (output_queue),
     .output_queue_p (output_p),
     .symbol_iter_en (symbol_iter_en),

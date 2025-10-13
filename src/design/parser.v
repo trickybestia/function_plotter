@@ -62,7 +62,8 @@ output reg [OUTPUT_VALUE_WIDTH - 1:0] output_queue [0:OUTPUT_QUEUE_SIZE - 1];
 output reg [0:OUTPUT_QUEUE_SIZE - 1] output_queue_p;
    
 output reg ready;   
- 
+
+reg iterate_enable; 
 reg [4:0] state, next_state;
 reg [2:0] fractional_count;   
 reg [NUMBER_WIDTH - 1:0] operand;
@@ -71,29 +72,29 @@ reg [OPERATOR_WIDTH - 1:0] operator;
 reg [OPERATOR_WIDTH - 1:0] stack [0:STACK_SIZE - 1];
 reg [STACK_SIZE - 1:0] stack_p;
 reg acc_number, acc_number_fraction;  
-   
+
+assign symbol_iter_en = (iterate_enable && ~symbol_valid);   
+
 initial begin
    state               = REQUEST_SYMBOLE;
    next_state          = 0; 
    stack_p             = 0;
    acc_number          = 0;
    acc_number_fraction = 0;
-   symbol_iter_en      = 0;
+   iterate_enable      = 0;
    ready               = 0;   
 end
 
-assign symbol_valid = ( && ~symbol_iter_en);
-   
 always @(posedge clk) begin
    case (state)
      REQUEST_SYMBOLE: begin
-        symbol_iter_en <= 1;
+        iterate_enable <= 1;
         state <= WAIT_FOR_SYMBOLE; 
      end
 
      WAIT_FOR_SYMBOLE: begin
         if (symbol_valid) begin
-           symbol_iter_en <= 0;
+           iterate_enable <= 0;
            state <= ANALYZE_SYMBOLE;           
         end
      end
@@ -263,6 +264,7 @@ always @(posedge clk) begin
      end
 
    END: begin
+      ready <= 1;      
    end
 
    endcase
