@@ -40,7 +40,7 @@ output reg                      iter_out_valid;
 output reg                      cursor_left;
 output reg                      cursor_right;
 
-reg [1:0] state, next_state;
+reg [1:0] state;
 
 reg [LENGTH_WIDTH - 1:0] cursor_index;
 reg [LENGTH_WIDTH - 1:0] iter_index;
