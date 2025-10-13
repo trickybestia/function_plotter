@@ -252,7 +252,7 @@ graphics_fsm #(
     .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS)
 ) graphics_fsm (
     .clk                 (clk_25M175),
-    .swap                (swap),
+    .swap                (vga_swap),
     .visible_iter_en     (graphics_fsm_visible_iter_en),
     .symbol              (text_buffer_iter_out),
     .symbol_valid        (text_buffer_iter_out_valid),
