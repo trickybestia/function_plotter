@@ -603,7 +603,6 @@ if {[string equal [get_filesets -quiet fixed_point_mul_tb] ""]} {
 # Set 'fixed_point_mul_tb' fileset object
 set obj [get_filesets fixed_point_mul_tb]
 set files [list \
- [file normalize "${origin_dir}/src/design/fixed_point_mul.v"] \
  [file normalize "${origin_dir}/src/testbench/fixed_point_mul_tb.v"] \
 ]
 add_files -norecurse -fileset $obj $files
