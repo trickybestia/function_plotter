@@ -1,9 +1,9 @@
 #*****************************************************************************************
-# Vivado (TM) v2024.1 (64-bit)
+# Vivado (TM) v2024.2 (64-bit)
 #
 # function_plotter.tcl: Tcl script for re-creating project 'function_plotter'
 #
-# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
 #
 # This file contains the Vivado Tcl commands for re-creating the project to the state*
 # when this script was generated. In order to re-create the project, please source this
@@ -18,7 +18,6 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
- "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/design/fill_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer_mem.v"]"\
@@ -40,6 +39,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/fixed_point_sub.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_div.v"]"\
+ "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/line_drawer_tb.v"]"\
@@ -55,7 +55,6 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/top_no_io_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_add_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_sub_tb.v"]"\
- "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_mul_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb_behav.wcfg"]"\
@@ -168,30 +167,31 @@ set_property -name "revised_directory_structure" -value "1" -objects $obj
 set_property -name "sim.central_dir" -value "$proj_dir/${_xil_proj_name_}.ip_user_files" -objects $obj
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator.activehdl_gcc_version" -value "9.3.0" -objects $obj
-set_property -name "simulator.activehdl_version" -value "14.1" -objects $obj
+set_property -name "simulator.activehdl_version" -value "15.0" -objects $obj
 set_property -name "simulator.ies_gcc_version" -value "6.2.0" -objects $obj
 set_property -name "simulator.ies_version" -value "15.20.083" -objects $obj
 set_property -name "simulator.modelsim_gcc_version" -value "7.4.0" -objects $obj
-set_property -name "simulator.modelsim_version" -value "2023.2" -objects $obj
+set_property -name "simulator.modelsim_version" -value "2024.1" -objects $obj
 set_property -name "simulator.questa_gcc_version" -value "7.4.0" -objects $obj
-set_property -name "simulator.questa_version" -value "2023.2" -objects $obj
+set_property -name "simulator.questa_version" -value "2024.1" -objects $obj
 set_property -name "simulator.riviera_gcc_version" -value "9.3.0" -objects $obj
-set_property -name "simulator.riviera_version" -value "2023.04" -objects $obj
+set_property -name "simulator.riviera_version" -value "2024.04" -objects $obj
 set_property -name "simulator.vcs_gcc_version" -value "9.2.0" -objects $obj
-set_property -name "simulator.vcs_version" -value "U-2023.03-1" -objects $obj
+set_property -name "simulator.vcs_version" -value "V-2023.12-SP1" -objects $obj
 set_property -name "simulator.xcelium_gcc_version" -value "9.3.0" -objects $obj
-set_property -name "simulator.xcelium_version" -value "23.03.002" -objects $obj
+set_property -name "simulator.xcelium_version" -value "24.03.003" -objects $obj
 set_property -name "simulator.xsim_gcc_version" -value "9.3.0" -objects $obj
-set_property -name "simulator.xsim_version" -value "2024.1" -objects $obj
+set_property -name "simulator.xsim_version" -value "2024.2" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 set_property -name "sim_compile_state" -value "1" -objects $obj
+set_property -name "use_inline_hdl_ip" -value "1" -objects $obj
 set_property -name "webtalk.activehdl_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.modelsim_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "382" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "383" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -202,7 +202,6 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/ip/vga_mmcm/vga_mmcm.xci"] \
  [file normalize "${origin_dir}/src/design/fill_drawer.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer_mem.v"] \
@@ -228,6 +227,25 @@ set files [list \
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
+# None
+
+# Set 'sources_1' fileset file properties for local files
+# None
+
+# Set 'sources_1' fileset properties
+set obj [get_filesets sources_1]
+set_property -name "dataflow_viewer_settings" -value "min_width=16" -objects $obj
+set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+
+# Set 'sources_1' fileset object
+set obj [get_filesets sources_1]
+set files [list \
+ [file normalize "${origin_dir}/ip/vga_mmcm/vga_mmcm.xci"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'sources_1' fileset file properties for remote files
 set file "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
@@ -240,12 +258,6 @@ if { ![get_property "is_locked" $file_obj] } {
 
 # Set 'sources_1' fileset file properties for local files
 # None
-
-# Set 'sources_1' fileset properties
-set obj [get_filesets sources_1]
-set_property -name "dataflow_viewer_settings" -value "min_width=16" -objects $obj
-set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
-set_property -name "top_auto_set" -value "0" -objects $obj
 
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
@@ -278,6 +290,7 @@ set obj [get_filesets sim_1]
 
 # Set 'sim_1' fileset properties
 set obj [get_filesets sim_1]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -302,6 +315,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'fill_drawer_tb' fileset properties
 set obj [get_filesets fill_drawer_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "fill_drawer_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -326,6 +340,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'line_drawer_tb' fileset properties
 set obj [get_filesets line_drawer_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "line_drawer_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -350,6 +365,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'vector_tb' fileset properties
 set obj [get_filesets vector_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "vector_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -374,6 +390,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'text_buffer_tb' fileset properties
 set obj [get_filesets text_buffer_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "text_buffer_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -398,6 +415,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'vga_tb' fileset properties
 set obj [get_filesets vga_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "vga_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -422,6 +440,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'frame_buffer_tb' fileset properties
 set obj [get_filesets frame_buffer_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "frame_buffer_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -446,6 +465,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'symbol_drawer_mem_tb' fileset properties
 set obj [get_filesets symbol_drawer_mem_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "symbol_drawer_mem_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -470,6 +490,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'symbol_drawer_tb' fileset properties
 set obj [get_filesets symbol_drawer_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "symbol_drawer_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -494,6 +515,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'logic_placeholder_tb' fileset properties
 set obj [get_filesets logic_placeholder_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "logic_placeholder_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -519,6 +541,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'top_Nexys_A7_100T_tb' fileset properties
 set obj [get_filesets top_Nexys_A7_100T_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "top_Nexys_A7_100T_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -543,6 +566,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'top_no_io_tb' fileset properties
 set obj [get_filesets top_no_io_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "top_no_io_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -567,6 +591,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'fixed_point_add_tb' fileset properties
 set obj [get_filesets fixed_point_add_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "fixed_point_add_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -591,6 +616,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'fixed_point_sub_tb' fileset properties
 set obj [get_filesets fixed_point_sub_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "fixed_point_sub_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -615,6 +641,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'fixed_point_mul_tb' fileset properties
 set obj [get_filesets fixed_point_mul_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "fixed_point_mul_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -640,6 +667,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'fixed_point_alu_tb' fileset properties
 set obj [get_filesets fixed_point_alu_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "fixed_point_alu_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
@@ -664,6 +692,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'fixed_point_div_tb' fileset properties
 set obj [get_filesets fixed_point_div_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "fixed_point_div_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj

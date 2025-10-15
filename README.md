@@ -4,7 +4,7 @@ Display graph of user-defined function using Nexys A7-100T FPGA development boar
 
 ## Vivado project initialization
 
-1. Launch Vivado (developed using v2024.1 but other versions may work too).
+1. Launch Vivado v2024.2.
 2. Using `Tools -> Run Tcl Script...` run [`function_plotter.tcl`](function_plotter.tcl).
 
 ### Committing changes
