@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module logic_placeholder_tb;
+module logic_tb;
 
 reg clk;
 
@@ -10,8 +10,8 @@ wire fill_drawer_ready;
 wire line_drawer_start;
 wire line_drawer_ready;
 
-reg  logic_placeholder_start;
-wire logic_placeholder_ready;
+reg  logic_start;
+wire logic_ready;
 
 wire [9:0] x1;
 wire [8:0] y1;
@@ -39,10 +39,10 @@ assign write_enable = fill_drawer_write_enable | line_drawer_write_enable;
 assign write_addr   = fill_drawer_write_addr | line_drawer_write_addr;
 assign write_data   = fill_drawer_write_data | line_drawer_write_data;
 
-logic_placeholder logic_placeholder (
+logic logic (
     .clk               (clk),
-    .start             (logic_placeholder_start),
-    .ready             (logic_placeholder_ready),
+    .start             (logic_start),
+    .ready             (logic_ready),
     .x1                (x1),
     .y1                (y1),
     .x2                (x2),
@@ -118,7 +118,7 @@ end
 
 initial begin
     fill_drawer_start       = 0;
-    logic_placeholder_start = 0;
+    logic_start             = 0;
     read_addr               = 0;
     swap                    = 0;
 
@@ -137,12 +137,12 @@ initial begin
 
     while (~fill_drawer_ready) @(posedge clk);
 
-    logic_placeholder_start <= 1;
+    logic_start <= 1;
     @(posedge clk);
-    logic_placeholder_start <= 0;
+    logic_start <= 0;
     @(posedge clk);
 
-    while (~logic_placeholder_ready) @(posedge clk);
+    while (~logic_ready) @(posedge clk);
 
     swap <= 1;
     @(posedge clk);
