@@ -55,9 +55,60 @@ reg [1:0] state;
 
 reg [X_WIDTH - 1:0] t;
 
-wire [OUTPUT_VALUE_WIDTH - 1:0] output_queue [0:OUTPUT_QUEUE_SIZE - 1];
-wire [OUTPUT_QUEUE_SIZE - 1:0] output_queue_p;   
-wire parser_ready;   
+// instantiate vector module for output_queue
+wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] parser_index;
+wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] stack_machine_index;
+reg                                    index_switch;   
+
+wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0]  output_queue_index = index_switch ? stack_machine_index : parser_index;
+wire                                    output_queue_get;
+wire                                    output_queue_insert;   
+wire [OUTPUT_VALUE_WIDTH - 1:0]         output_queue_data_in;
+wire [OUTPUT_VALUE_WIDTH - 1:0]         output_queue_data_out;
+wire                                    output_queue_ready;
+   
+   
+vector #(
+    .DATA_WIDTH (OUTPUT_VALUE_WIDTH),
+    .DATA_COUNT (OUTPUT_QUEUE_SIZE),
+) output_queue (
+    .clk        (clk),
+    .index      (output_queue_index),
+    .get        (output_queue_get),
+    .insert     (output_queue_insert),
+    .data_in    (output_queue_data_in),
+    .data_out   (output_queue_data_out),
+    .ready      (output_queue_ready)                    
+);         
+
+// instantiate parser module
+wire parser_ready;
+   
+parser parser (
+    .clk                  (clk),
+    .ready                (parser_ready),           
+    .output_queue_insert  (output_queue_insert),
+    .output_queue_index   (parser_index),
+    .output_queue_data_in (output_queue_data_in),
+    .output_queue_ready   (output_queue_ready),
+    .symbol_iter_en       (symbol_iter_en),
+    .symbol               (symbol),
+    .symbol_valid         (symbol_valid)               
+);    
+
+// instantiate stack_machine module
+wire stack_machine_ready;   
+   
+stack_machine stack_machine (
+    .clk                   (clk),
+    .x                     (),
+    .y                     (),
+    .output_queue_index    (stack_machine_index),
+    .output_queue_get      (output_queue_get),
+    .output_queue_data_out (output_queue_data_out),
+    .output_queue_ready    (output_queue_ready),
+    .ready                 (stack_machine_ready)                        
+);   
 
 assign ready = (state == STATE_READY);
 
@@ -72,16 +123,6 @@ initial begin
     y2                = 0;
     line_drawer_start = 0;
 end
-
-parser parser (
-    .clk            (clk),
-    .ready          (parser_ready),           
-    .output_queue   (output_queue),
-    .output_queue_p (output_p),
-    .symbol_iter_en (symbol_iter_en),
-    .symbol         (symbol),
-    .symbol_valid   (symbol_valid)               
-);    
 
 always @(posedge clk) begin
     case (state)

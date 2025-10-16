@@ -1,9 +1,12 @@
 module parser (
     clk,
 
-    ready,               
-    output_queue,
-    output_queue_p,
+    ready,              
+ 
+    output_queue_insert,
+    output_queue_index,           
+    output_queue_data_in,
+    output_queue_ready,
 
     symbol_iter_en,
     symbol,
@@ -57,21 +60,24 @@ input clk;
 output                      symbol_iter_en;
 input  [SYMBOL_WIDTH - 1:0] symbol;
 input                       symbol_valid;
-
-output reg [OUTPUT_VALUE_WIDTH - 1:0] output_queue [0:OUTPUT_QUEUE_SIZE - 1];
-output reg [0:OUTPUT_QUEUE_SIZE - 1] output_queue_p;
    
-output reg ready;   
+output reg ready;
+
+output reg  [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_index;
+output reg                                    output_queue_insert;
+output reg [OUTPUT_VALUE_WIDTH - 1:0]         output_queue_data_in;
+input                                         output_queue_ready;
 
 reg iterate_enable; 
 reg [4:0] state, next_state;
 reg [2:0] fractional_count;   
-reg [NUMBER_WIDTH - 1:0] operand;
+reg [NUMBER_WIDTH - 1:0]   operand;
 reg [OPERATOR_WIDTH - 1:0] operator;
    
 reg [OPERATOR_WIDTH - 1:0] stack [0:STACK_SIZE - 1];
-reg [STACK_SIZE - 1:0] stack_p;
-reg acc_number, acc_number_fraction;  
+reg [STACK_SIZE - 1:0]     stack_p;
+
+reg acc_number, acc_number_fraction, acc_asterisk;  
 
 assign symbol_iter_en = (iterate_enable && ~symbol_valid);   
 
@@ -81,8 +87,10 @@ initial begin
    stack_p             = 0;
    acc_number          = 0;
    acc_number_fraction = 0;
+   acc_asterisk        = 0;   
    iterate_enable      = 0;
-   ready               = 0;   
+   ready               = 0;
+   output_queue_insert = 0;   
 end
 
 always @(posedge clk) begin
@@ -104,6 +112,17 @@ always @(posedge clk) begin
            if (~((symbol >= "0" && symbol <= "9") || symbol == "."))
              state <= PUT_NUMBER_TO_OUTPUT;           
         end
+        else if (acc_asterisk) begin
+           if (symbol == "*") begin
+              operator <= POW;
+              state <= PUSH_OPERATOR_TO_STACK;
+           end
+           else begin
+              operator <= MUL;
+              state <= HANDLE_MUL;
+           end
+           acc_asterisk <= 0;              
+        end
         else begin
            case (symbol)
              0: begin //null
@@ -118,16 +137,12 @@ always @(posedge clk) begin
                 state <= HANDLE_PLUS_SUB;                
              end
              "*": begin
-                operator <= MUL;
-                state <= HANDLE_MUL_DIV;                
+                acc_asterisk <= 1;
+                state <= REQUEST_SYMBOLE;                
              end
              "/": begin
                 operator <= DIV;
-                state <= HANDLE_MUL_DIV;                
-             end
-             "^": begin
-                operator <= POW;
-                state <= PUSH_OPERATOR_TO_STACK;                
+                state <= HANDLE_DIV;                
              end
              "[": begin
                 state <= PUT_LEFT_BRACKET_TO_STACK;                
@@ -168,25 +183,28 @@ always @(posedge clk) begin
         operator[7:0] <= operator[7:0] + ((symbol - 48) << 
                                           (8 - fractional_count * 4));
         state <= REQUEST_SYMBOLE;
+        fractional_count <= fractional_count + 1; 
      end
-
      PUT_NUMBER_TO_OUTPUT: begin
-        output_queue[output_queue_p] <= {1'b0, operand};
+        output_queue_data_in <= {1'b0, operand};
+        output_queue_insert <= 1;        
         state <= PUT_NUMBER_TO_OUTPUT_2;        
      end
      PUT_NUMBER_TO_OUTPUT_2: begin
-        output_queue_p <= output_queue_p + 1;
-        acc_number <= 0;
-        acc_number_fraction <= 0;
-        state <= ANALYZE_SYMBOLE;        
+        output_queue_insert <= 0;        
+        if (output_queue_ready) begin
+           acc_number <= 0;
+           acc_number_fraction <= 0;
+           state <= ANALYZE_SYMBOLE;    
+        end    
      end
 
      HANDLE_PLUS_SUB: begin
         if (stack_p == 0)
           state <= PUSH_OPERATOR_TO_STACK;
-        else if (stack[stack_p - 1] == "*" ||
-                 stack[stack_p - 1] == "/" ||
-                 stack[stack_p - 1] == "^" ) begin
+        else if (stack[stack_p - 1] == MUL ||
+                 stack[stack_p - 1] == DIV ||
+                 stack[stack_p - 1] == POW ) begin
            next_state <= HANDLE_PLUS_SUB;
            state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
         end
@@ -194,15 +212,26 @@ always @(posedge clk) begin
           state <= REQUEST_SYMBOLE;        
      end
 
-     HANDLE_MUL_DIV: begin
+     HANDLE_MUL: begin
         if (stack_p == 0)
           state <= PUSH_OPERATOR_TO_STACK;
-        else if (stack[stack_p - 1] == "^") begin
+        else if (stack[stack_p - 1] == POW) begin
            next_state <= HANDLE_MUL_DIV;
            state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
         end
         else
-          state <= REQUEST_SYMBOLE;        
+          state <= ANALYZE_SYMBOLE;        
+     end
+
+     HANDLE_DIV: begin
+        if (stack_p == 0)
+          state <= PUSH_OPERATOR_TO_STACK;
+        else if (stack[stack_p - 1] == POW) begin
+           next_state <= HANDLE_MUL_DIV;
+           state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
+        end
+        else
+          state <= REQUEST_SYMBOLE;               
      end
      
      PUSH_OPERATOR_TO_STACK: begin
@@ -215,7 +244,7 @@ always @(posedge clk) begin
      end
      
      PUT_OPERATOR_TO_OUTPUT: begin
-        output_queue[output_queue_p] <= {1'b1, operator};
+        output_queue_data_in <= {1'b1, operator};
         state <= PUT_OPERATOR_TO_OUTPUT_2;        
      end
      PUT_OPERATOR_TO_OUTPUT_2: begin
@@ -225,11 +254,8 @@ always @(posedge clk) begin
 
      PUT_LEFT_BRACKET_TO_STACK: begin
         stack[stack_p] <= LEFT_BRACKET;
-        state <= PUT_LEFT_BRACKET_TO_STACK_2;        
-     end
-     PUT_LEFT_BRACKET_TO_STACK_2: begin
         stack_p <= stack_p + 1;
-        state <= REQUEST_SYMBOLE;        
+        state <= REQUEST_SYMBOLE;
      end
 
      HANDLE_RIGHT_BRACKET: begin
@@ -254,13 +280,16 @@ always @(posedge clk) begin
      end
 
      MOVE_OP_FROM_STACK_TO_OUTPUT: begin
-        output_queue[output_queue_p] <= {1'b1, stack[stack_p - 1]};
+        output_queue_data_in <= {1'b1, stack[stack_p - 1]};
+        output_queue_insert <= 1;        
         state <= MOVE_OP_FROM_STACK_TO_OUTPUT_2;        
      end
      MOVE_OP_FROM_STACK_TO_OUTPUT_2: begin
-        output_queue_p <= output_queue_p + 1;
-        stack_p <= stack_p - 1;
-        state <= next_state;        
+        output_queue_insert <= 0;        
+        if (output_queue_ready) begin
+           stack_p <= stack_p - 1;
+           state <= next_state;
+        end
      end
 
    END: begin
