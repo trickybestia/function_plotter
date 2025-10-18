@@ -1,6 +1,7 @@
 module parser (
     clk,
 
+    start,               
     ready,              
  
     output_queue_insert,
@@ -17,9 +18,10 @@ parameter SYMBOL_WIDTH      = 7;
    
 parameter INTEGER_PART_WIDTH     = 8;
 parameter FRACTIONAL_PART_WIDTH  = 8;
-parameter NUMBER_WIDTH           = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
-parameter OUTPUT_VALUE_WIDTH     = NUMBER_WIDTH + 1;
 parameter OUTPUT_QUEUE_SIZE      = 64;
+
+localparam NUMBER_WIDTH           = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
+localparam OUTPUT_VALUE_WIDTH     = NUMBER_WIDTH + 1;
 
 localparam STACK_SIZE = 64;
 
@@ -33,22 +35,22 @@ localparam POW          = 4;
 localparam LEFT_BRACKET = 5;
 localparam VAR          = 6;   
 
-localparam REQUEST_SYMBOLE                = 0;   
-localparam WAIT_FOR_SYMBOLE               = 1;
-localparam ANALYZE_SYMBOLE                = 2;
-localparam ACCUMULATE_NUMBER              = 3;
-localparam ACCUMULATE_INTEGER_PART        = 4;
-localparam ACCUMULATE_FRACTION_PART       = 5;
-localparam PUT_NUMBER_TO_OUTPUT           = 6;
-localparam PUT_NUMBER_TO_OUTPUT_2         = 7;
-localparam HANDLE_PLUS_SUB                = 8;
-localparam HANDLE_MUL_DIV                 = 9;
-localparam PUSH_OPERATOR_TO_STACK         = 10;
-localparam PUSH_OPERATOR_TO_STACK_2       = 11;
-localparam PUT_OPERATOR_TO_OUTPUT         = 12;
-localparam PUT_OPERATOR_TO_OUTPUT_2       = 13;
-localparam PUT_LEFT_BRACKET_TO_STACK      = 14;
-localparam PUT_LEFT_BRACKET_TO_STACK_2    = 15;
+localparam READY                          = 0;   
+localparam REQUEST_SYMBOLE                = 1;   
+localparam WAIT_FOR_SYMBOLE               = 2;
+localparam ANALYZE_SYMBOLE                = 3;
+localparam ACCUMULATE_NUMBER              = 4;
+localparam ACCUMULATE_INTEGER_PART        = 5;
+localparam ACCUMULATE_FRACTION_PART       = 6;
+localparam PUT_NUMBER_TO_OUTPUT           = 7;
+localparam PUT_NUMBER_TO_OUTPUT_2         = 8;
+localparam HANDLE_PLUS_SUB                = 9;
+localparam HANDLE_MUL                     = 10;
+localparam HANDLE_DIV                     = 11;
+localparam PUSH_OPERATOR_TO_STACK         = 12;
+localparam PUT_OPERATOR_TO_OUTPUT         = 13;
+localparam PUT_OPERATOR_TO_OUTPUT_2       = 14;
+localparam PUT_LEFT_BRACKET_TO_STACK      = 15;
 localparam HANDLE_RIGHT_BRACKET           = 16;
 localparam RELEASE_STACK_TO_OUTPUT        = 17;
 localparam MOVE_OP_FROM_STACK_TO_OUTPUT   = 18;
@@ -60,7 +62,8 @@ input clk;
 output                      symbol_iter_en;
 input  [SYMBOL_WIDTH - 1:0] symbol;
 input                       symbol_valid;
-   
+
+input      start;    
 output reg ready;
 
 output reg  [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_index;
@@ -95,6 +98,10 @@ end
 
 always @(posedge clk) begin
    case (state)
+     READY: begin
+        if (start)
+          state <= REQUEST_SYMBOLE;        
+     end 
      REQUEST_SYMBOLE: begin
         iterate_enable <= 1;
         state <= WAIT_FOR_SYMBOLE; 
@@ -115,6 +122,7 @@ always @(posedge clk) begin
         else if (acc_asterisk) begin
            if (symbol == "*") begin
               operator <= POW;
+              next_state <= REQUEST_SYMBOLE;              
               state <= PUSH_OPERATOR_TO_STACK;
            end
            else begin
@@ -208,8 +216,10 @@ always @(posedge clk) begin
            next_state <= HANDLE_PLUS_SUB;
            state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
         end
-        else
-          state <= REQUEST_SYMBOLE;        
+        else begin
+           state <= PUSH_OPERATOR_TO_STACK;           
+           next_state <= REQUEST_SYMBOLE;
+        end
      end
 
      HANDLE_MUL: begin
@@ -219,8 +229,10 @@ always @(posedge clk) begin
            next_state <= HANDLE_MUL_DIV;
            state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
         end
-        else
-          state <= ANALYZE_SYMBOLE;        
+        else begin
+           state <= PUSH_OPERATOR_TO_STACK;
+           next_state <= ANALYZE_SYMBOLE;           
+        end
      end
 
      HANDLE_DIV: begin
@@ -230,26 +242,29 @@ always @(posedge clk) begin
            next_state <= HANDLE_MUL_DIV;
            state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
         end
-        else
-          state <= REQUEST_SYMBOLE;               
+        else begin
+           state <= PUSH_OPERATOR_TO_STACK;           
+           state <= REQUEST_SYMBOLE;
+        end
      end
      
      PUSH_OPERATOR_TO_STACK: begin
         stack[stack_p] <= operator;
-        state <= PUSH_OPERATOR_TO_STACK_2;        
-     end
-     PUSH_OPERATOR_TO_STACK_2: begin
         stack_p <= stack_p + 1;
-        state <= REQUEST_SYMBOLE;        
+        state <= next_state;
      end
      
      PUT_OPERATOR_TO_OUTPUT: begin
         output_queue_data_in <= {1'b1, operator};
+        output_queue_insert <= 1;        
         state <= PUT_OPERATOR_TO_OUTPUT_2;        
      end
      PUT_OPERATOR_TO_OUTPUT_2: begin
-        output_queue_p <= output_queue_p + 1;
-        state <= next_state;        
+        output_queue_insert <= 0;
+        if (output_queue_ready) begin
+           output_queue_index <= output_queue_index + 1;           
+           state <= next_state;
+        end
      end
 
      PUT_LEFT_BRACKET_TO_STACK: begin
@@ -289,6 +304,7 @@ always @(posedge clk) begin
         if (output_queue_ready) begin
            stack_p <= stack_p - 1;
            state <= next_state;
+           output_queue_index <= output_queue_index + 1;           
         end
      end
 

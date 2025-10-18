@@ -23,15 +23,25 @@ parameter SYMBOL_WIDTH      = 7;
 localparam X_WIDTH = $clog2(HOR_ACTIVE_PIXELS);
 localparam Y_WIDTH = $clog2(VER_ACTIVE_PIXELS);
 
+/* -----\/----- EXCLUDED -----\/-----
 localparam STATE_READY              = 0;
 localparam STATE_DRAW_LINE          = 1;
 localparam STATE_WAIT_LINE_DRAWER_1 = 2;
 localparam STATE_WAIT_LINE_DRAWER_2 = 3;
+ -----/\----- EXCLUDED -----/\----- */
 
-parameter INTEGER_PART_WIDTH     = 8;
-parameter FRACTIONAL_PART_WIDTH  = 8;
-parameter NUMBER_WIDTH           = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
-parameter OUTPUT_VALUE_WIDTH     = NUMBER_WIDTH + 1;
+localparam READY              = 0;
+localparam PARSE_EXPRESSION   = 1;
+localparam PARSE_EXPRESSION_2 = 2;
+localparam CALCULATE          = 3;
+localparam CALCULATE_2        = 4;
+localparam DRAW               = 5;
+localparam DRAW_2             = 6;   
+
+localparam INTEGER_PART_WIDTH     = 11;
+localparam FRACTIONAL_PART_WIDTH  = 8;
+localparam NUMBER_WIDTH           = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
+localparam OUTPUT_VALUE_WIDTH     = NUMBER_WIDTH + 1;
 
 localparam OUTPUT_QUEUE_SIZE = 64;
 
@@ -52,19 +62,20 @@ input  [SYMBOL_WIDTH - 1:0] symbol;
 input                       symbol_valid;
 
 reg [1:0] state;
-
-reg [X_WIDTH - 1:0] t;
+reg       is_first_iter;   
 
 // instantiate vector module for output_queue
 wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] parser_index;
 wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] stack_machine_index;
 reg                                    index_switch;   
 
-wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0]  output_queue_index = index_switch ? stack_machine_index : parser_index;
+wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0]  output_queue_index = 
+index_switch ? stack_machine_index : parser_index;
 wire                                    output_queue_get;
 wire                                    output_queue_insert;   
 wire [OUTPUT_VALUE_WIDTH - 1:0]         output_queue_data_in;
 wire [OUTPUT_VALUE_WIDTH - 1:0]         output_queue_data_out;
+wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0]  output_queue_length;
 wire                                    output_queue_ready;
    
    
@@ -82,10 +93,17 @@ vector #(
 );         
 
 // instantiate parser module
+reg  parser_start;   
 wire parser_ready;
    
-parser parser (
+parser #(
+    .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
+    .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH),
+    .OUTPUT_QUEUE_SIZE     (OUTPUT_QUEUE_SIZE),
+    .SYMBOL_WIDTH          (SYMBOL_WIDTH)         
+) parser (
     .clk                  (clk),
+    .start                (parser_start),
     .ready                (parser_ready),           
     .output_queue_insert  (output_queue_insert),
     .output_queue_index   (parser_index),
@@ -97,71 +115,141 @@ parser parser (
 );    
 
 // instantiate stack_machine module
-wire stack_machine_ready;   
-   
-stack_machine stack_machine (
+wire stack_machine_ready;
+reg  stack_machine_start;
+wire [NUMBER_WIDTH - 1:0] stack_machine_result;   
+reg  [NUMBER_WIDTH - 1:0] x;
+    
+stack_machine #(
+    .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
+    .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH),
+    .OUTPUT_QUEUE_SIZE     (OUTPUT_QUEUE_SIZE),
+    .HOR_ACTIVE_PIXELS     (HOR_ACTIVE_PIXELS),
+    .VER_ACTIVE_PIXELS     (VER_ACTIVE_PIXELS)                
+) stack_machine (
     .clk                   (clk),
-    .x                     (),
-    .y                     (),
+    .ready                 (stack_machine_ready),
+    .start                 (stack_machine_start),                         
+    .x_input               (x),
+    .y_output              (stack_machine_result),
     .output_queue_index    (stack_machine_index),
     .output_queue_get      (output_queue_get),
     .output_queue_data_out (output_queue_data_out),
     .output_queue_ready    (output_queue_ready),
-    .ready                 (stack_machine_ready)                        
 );   
 
-assign ready = (state == STATE_READY);
-
-assign symbol_iter_en = 0;
+assign ready = (state == READY);
 
 initial begin
-    state             = STATE_READY;
-    t                 = 0;
-    x1                = 0;
-    y1                = 0;
-    x2                = 0;
-    y2                = 0;
-    line_drawer_start = 0;
+   state               = 0;
+   x1                  = 0;
+   y1                  = 0;
+   x2                  = 0;
+   y2                  = 0;
+   line_drawer_start   = 0;
+   parser_start        = 0;
+   index_switch        = 0;
+   stack_machine_start = 0;
+   is_first_iter       = 0;   
 end
 
 always @(posedge clk) begin
-    case (state)
-        STATE_READY: begin
-            x1 <= 0;
-            y1 <= VER_ACTIVE_PIXELS / 2;
-            x2 <= 0;
-            y2 <= VER_ACTIVE_PIXELS / 2;
+   case (state)
+     READY: begin
+/* -----\/----- EXCLUDED -----\/-----
+        x1 <= 0;
+        y1 <= VER_ACTIVE_PIXELS / 2;
+        x2 <= 0;
+        y2 <= VER_ACTIVE_PIXELS / 2;
+ -----/\----- EXCLUDED -----/\----- */
+        if (start) state <= PARSE_EXPRESSION;
+     end
 
-            if (start) state <= STATE_DRAW_LINE;
+     PARSE_EXPRESSION: begin
+        parser_start <= 1;
+        state <= PARSE_EXPRESSION_2;        
+     end
+     PARSE_EXPRESSION_2: begin
+        parser_start <= 0;
+        
+        if (parser_ready) begin
+           state <= CALCULATE;
+           index_switch <= 1;           
+        end 
+     end
+
+     CALCULATE: begin
+        if (x >= HOR_ACTIVE_PIXELS)
+          state <= READY;
+        else begin
+           stack_machine_start <= 1;
+           state <= CALCULATE_2;
         end
-        STATE_DRAW_LINE: begin
-            x1 <= x2;
-            y1 <= y2;
-            x2 <= t * 8;
-            y2 <= t[0] ? (VER_ACTIVE_PIXELS / 2 - t * 2) : (VER_ACTIVE_PIXELS / 2 + t * 2);
-            line_drawer_start <= 1;
+     end
+     CALCULATE_2: begin
+        stack_machine_start <= 0;
 
-            state <= STATE_WAIT_LINE_DRAWER_1;
+        if (stack_machine_ready) begin
+           state <= DRAW;
         end
-        STATE_WAIT_LINE_DRAWER_1: begin
-            line_drawer_start <= 0;
+     end
 
-            state <= STATE_WAIT_LINE_DRAWER_2;
+     DRAW: begin 
+        if (is_first_iter) begin
+           x2 <= x;
+           y2 <= stack_machine_result;
+           x <= x + 1; 
+           state <= CALCULATE;           
         end
-        STATE_WAIT_LINE_DRAWER_2: begin
-            if (line_drawer_ready) begin
-                if (t == HOR_ACTIVE_PIXELS / 8 - 2) begin
-                    t <= 0;
-
-                    state <= STATE_READY;
-                end else begin
-                    t <= t + 1;
-
-                    state <= STATE_DRAW_LINE;
-                end
-            end
+        else begin
+           x1 <= x2;
+           y1 <= y2;
+           x2 <= x;
+           y2 <= stack_machine_result;
+           line_drawer_start <= 1;
+           state <= DRAW_2;           
         end
-    endcase
+     end
+
+     DRAW_2: begin
+        line_drawer_start <= 0;
+
+        if (line_drawer_ready) begin
+           x <= x + 1;
+           state <= CALCULATE;           
+        end
+     end
+
+/* -----\/----- EXCLUDED -----\/-----
+     STATE_DRAW_LINE: begin
+        x1 <= x2;
+        y1 <= y2;
+        x2 <= t * 8;
+        y2 <= t[0] ? (VER_ACTIVE_PIXELS / 2 - t * 2) : (VER_ACTIVE_PIXELS / 2 + t * 2);
+        line_drawer_start <= 1;
+
+        state <= STATE_WAIT_LINE_DRAWER_1;
+     end
+     STATE_WAIT_LINE_DRAWER_1: begin
+        line_drawer_start <= 0;
+
+        state <= STATE_WAIT_LINE_DRAWER_2;
+     end
+     STATE_WAIT_LINE_DRAWER_2: begin
+        if (line_drawer_ready) begin
+           if (t == HOR_ACTIVE_PIXELS / 8 - 2) begin
+              t <= 0;
+
+              state <= STATE_READY;
+           end else begin
+              t <= t + 1;
+
+              state <= STATE_DRAW_LINE;
+           end
+        end
+     end
+ -----/\----- EXCLUDED -----/\----- */
+   endcase
 end
 
 endmodule
