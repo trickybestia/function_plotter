@@ -81,7 +81,7 @@ wire                                    output_queue_ready;
    
 vector #(
     .DATA_WIDTH (OUTPUT_VALUE_WIDTH),
-    .DATA_COUNT (OUTPUT_QUEUE_SIZE),
+    .DATA_COUNT (OUTPUT_QUEUE_SIZE)
 ) output_queue (
     .clk        (clk),
     .index      (output_queue_index),
@@ -135,7 +135,7 @@ stack_machine #(
     .output_queue_index    (stack_machine_index),
     .output_queue_get      (output_queue_get),
     .output_queue_data_out (output_queue_data_out),
-    .output_queue_ready    (output_queue_ready),
+    .output_queue_ready    (output_queue_ready)
 );   
 
 assign ready = (state == READY);

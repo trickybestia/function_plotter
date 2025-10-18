@@ -226,7 +226,7 @@ always @(posedge clk) begin
         if (stack_p == 0)
           state <= PUSH_OPERATOR_TO_STACK;
         else if (stack[stack_p - 1] == POW) begin
-           next_state <= HANDLE_MUL_DIV;
+           next_state <= HANDLE_MUL;
            state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
         end
         else begin
@@ -239,7 +239,7 @@ always @(posedge clk) begin
         if (stack_p == 0)
           state <= PUSH_OPERATOR_TO_STACK;
         else if (stack[stack_p - 1] == POW) begin
-           next_state <= HANDLE_MUL_DIV;
+           next_state <= HANDLE_DIV;
            state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
         end
         else begin

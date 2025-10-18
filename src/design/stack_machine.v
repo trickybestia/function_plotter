@@ -5,7 +5,7 @@ module stack_machine (
     ready,
 
     x_input,
-    y_ouput,
+    y_output,
 
     output_queue_index,
     output_queue_get,
@@ -46,7 +46,7 @@ input clk;
 input      [NUMBER_WIDTH - 1:0] x_input;
 reg        [NUMBER_WIDTH - 1:0] x;
 reg        [NUMBER_WIDTH - 1:0] y;   
-output reg [NUMBER_WIDTH - 1:0] y_ouput;
+output reg [NUMBER_WIDTH - 1:0] y_output;
    
 output reg [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_index;
 output reg                                   output_queue_get;
@@ -62,7 +62,7 @@ output reg ready;
 reg [NUMBER_WIDTH - 1:0]         stack [0:STACK_SIZE - 1];
 reg [$clog2(STACK_SIZE) + 1:0]   stack_p;
 reg [NUMBER_WIDTH - 1:0]         a, b;
-reg [NUMBER_WIDTH - 1:0]         result;
+wire [NUMBER_WIDTH - 1:0]        result;
    
 reg [OPERATOR_WIDTH - 1:0] operator;
 
@@ -219,7 +219,7 @@ always @(posedge clk) begin
      TRANSFORM_Y_4: begin
         alu_start <= 0;
         if (alu_done) begin
-           y_ouput <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];
+           y_output <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];
            state <= READY;
 
            stack_p <= 0;           

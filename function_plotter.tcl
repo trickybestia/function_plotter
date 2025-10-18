@@ -25,7 +25,9 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/graphics_fsm.v"]"\
  "[file normalize "$origin_dir/src/design/input_buffer.v"]"\
  "[file normalize "$origin_dir/src/design/line_drawer.v"]"\
- "[file normalize "$origin_dir/src/design/logic_placeholder.v"]"\
+ "[file normalize "$origin_dir/src/design/logic.v"]"\
+ "[file normalize "$origin_dir/src/design/parser.v"]"\
+ "[file normalize "$origin_dir/src/design/stack_machine.v"]"\   
  "[file normalize "$origin_dir/src/design/ps2.v"]"\
  "[file normalize "$origin_dir/src/design/ps2_raw_rx.v"]"\
  "[file normalize "$origin_dir/src/design/ps2_rx.v"]"\
@@ -49,7 +51,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/frame_buffer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/symbol_drawer_mem_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/symbol_drawer_tb.v"]"\
- "[file normalize "$origin_dir/src/testbench/logic_placeholder_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/logic_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/top_Nexys_A7_100T_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/top_Nexys_A7_100T_tb_behav.wcfg"]"\
  "[file normalize "$origin_dir/src/testbench/top_no_io_tb.v"]"\
@@ -193,7 +195,9 @@ set files [list \
  [file normalize "${origin_dir}/src/design/graphics_fsm.v"] \
  [file normalize "${origin_dir}/src/design/input_buffer.v"] \
  [file normalize "${origin_dir}/src/design/line_drawer.v"] \
- [file normalize "${origin_dir}/src/design/logic_placeholder.v"] \
+ [file normalize "${origin_dir}/src/design/logic.v"] \
+ [file normalize "${origin_dir}/src/design/parser.v"] \
+ [file normalize "${origin_dir}/src/design/stack_machine.v"] \
  [file normalize "${origin_dir}/src/design/ps2.v"] \
  [file normalize "${origin_dir}/src/design/ps2_raw_rx.v"] \
  [file normalize "${origin_dir}/src/design/ps2_rx.v"] \
@@ -455,30 +459,6 @@ add_files -norecurse -fileset $obj $files
 # Set 'symbol_drawer_tb' fileset properties
 set obj [get_filesets symbol_drawer_tb]
 set_property -name "top" -value "symbol_drawer_tb" -objects $obj
-set_property -name "top_auto_set" -value "0" -objects $obj
-set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
-
-# Create 'logic_placeholder_tb' fileset (if not found)
-if {[string equal [get_filesets -quiet logic_placeholder_tb] ""]} {
-  create_fileset -simset logic_placeholder_tb
-}
-
-# Set 'logic_placeholder_tb' fileset object
-set obj [get_filesets logic_placeholder_tb]
-set files [list \
- [file normalize "${origin_dir}/src/testbench/logic_placeholder_tb.v"] \
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'logic_placeholder_tb' fileset file properties for remote files
-# None
-
-# Set 'logic_placeholder_tb' fileset file properties for local files
-# None
-
-# Set 'logic_placeholder_tb' fileset properties
-set obj [get_filesets logic_placeholder_tb]
-set_property -name "top" -value "logic_placeholder_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
