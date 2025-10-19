@@ -87,6 +87,7 @@ vector #(
     .insert     (output_queue_insert),
     .data_in    (output_queue_data_in),
     .data_out   (output_queue_data_out),
+    .length     (output_queue_length),                
     .ready      (output_queue_ready)                    
 );         
 
@@ -115,8 +116,8 @@ parser #(
 // instantiate stack_machine module
 wire                      stack_machine_ready;
 reg                       stack_machine_start;
-reg  [X_WIDTH - 1:0] x;
-wire [Y_WIDTH - 1:0] stack_machine_result;   
+reg  [X_WIDTH - 1:0]      x;
+wire [Y_WIDTH - 1:0]      stack_machine_result;   
     
 stack_machine #(
     .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
@@ -149,7 +150,7 @@ initial begin
    parser_start        = 0;
    index_switch        = 0;
    stack_machine_start = 0;
-   is_first_iter       = 0;
+   is_first_iter       = 1;
 end
 
 always @(posedge clk) begin

@@ -108,15 +108,16 @@ fixed_point_alu #(
 );
    
 initial begin
-   state            = READY;
-   ready            = 0;
-   output_queue_get = 0;
-   stack_p          = 0; 
-   alu_start        = 0;
-   a                = 0;
-   b                = 0;
-   x                = 0;
-   y                = 0;   
+   state               = READY;
+   ready               = 0;
+   output_queue_get    = 0;
+   output_queue_index  = 0;   
+   stack_p             = 0; 
+   alu_start           = 0;
+   a                   = 0;
+   b                   = 0;
+   x                   = 0;
+   y                   = 0;   
 end
 
 always @(posedge clk) begin

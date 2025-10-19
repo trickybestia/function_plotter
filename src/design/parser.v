@@ -105,6 +105,7 @@ initial begin
    iterate_enable       = 0;
    ready                = 0;
    output_queue_insert  = 0;
+   output_queue_index   = 0;   
 end
 
 always @(posedge clk) begin

@@ -61,7 +61,7 @@ initial begin
    start <= 1;
    
    #100;
-   symbol <= "1";
+   symbol <= "5";
    symbol_valid <= 1;
    #10;
    symbol_valid <= 0;
@@ -73,6 +73,24 @@ initial begin
    symbol_valid <= 0;   
 
    #100;
+   symbol <= "-";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #100;
+   symbol <= "1";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #100;
+   symbol <= 0;
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #1050;   
    
    $finish;
 end   
