@@ -2,8 +2,8 @@
 
 module fixed_point_div_tb;
 
-parameter INTEGER_PART_WIDTH    = 2;
-parameter FRACTIONAL_PART_WIDTH = 1;
+parameter INTEGER_PART_WIDTH    = 3;
+parameter FRACTIONAL_PART_WIDTH = 2;
 
 localparam NUMBER_WIDTH = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
 
@@ -53,10 +53,14 @@ always begin
     #5;
 end
 
+integer file;
+
 integer i;
 integer j;
 
 initial begin
+    file = $fopen("fixed_point_div_tb.log", "w");
+
     a     = 0;
     b     = 0;
     start = 0;
@@ -69,6 +73,8 @@ initial begin
     for (i = 0; i != 2 ** NUMBER_WIDTH; i = i + 1) begin
         for (j = 0; j != 2 ** NUMBER_WIDTH; j = j + 1) begin
             test(i, j);
+
+            $fdisplay(file, "a: %0d, b: %0d, result: %0d", $unsigned(a), $unsigned(b), $unsigned(result));
         end
     end
 
@@ -76,6 +82,8 @@ initial begin
     @(posedge clk);
     @(posedge clk);
     @(posedge clk);
+
+    $fclose(file);
 
     $finish;
 end

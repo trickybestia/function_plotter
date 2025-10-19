@@ -146,6 +146,44 @@ class Unsigned:
         else:
             return result.truncate(number_width)
 
+    def fixed_point_saturating_div(
+        self,
+        other: "Unsigned",
+        integer_part_width: int,
+        fractional_part_width: int,
+    ) -> "Unsigned":
+        assert self.width == other.width
+
+        a = self.sign_extend(self.width + 1)
+
+        sign = 0
+
+        if a.signed_value() < 0:
+            sign ^= 1
+            a = -a
+
+        b = other.sign_extend(other.width + 1)
+
+        if b.signed_value() < 0:
+            sign ^= 1
+            b = -b
+
+        a = a * Unsigned(2**fractional_part_width, fractional_part_width + 1)
+        b = b * Unsigned(1, fractional_part_width + 1)
+
+        quotient = a // b
+
+        if sign:
+            if quotient.value > -Unsigned.min_signed(self.width).signed_value():
+                return Unsigned.min_signed(self.width)
+            else:
+                return (-quotient).truncate(self.width)
+        else:
+            if quotient.value > Unsigned.max_signed(self.width).value:
+                return Unsigned.max_signed(self.width)
+            else:
+                return quotient.truncate(self.width)
+
     def __add__(self, other: "Unsigned") -> "Unsigned":
         assert self.width == other.width
 
@@ -163,6 +201,14 @@ class Unsigned:
 
     def __mul__(self, other: "Unsigned") -> "Unsigned":
         return Unsigned(self.value * other.value, self.width + other.width)
+
+    def __floordiv__(self, other: "Unsigned") -> "Unsigned":
+        assert self.width == other.width
+
+        if other.value == 0:
+            return Unsigned(2**self.width - 1, self.width)
+        else:
+            return Unsigned(self.value // other.value, self.width)
 
     def __invert__(self) -> "Unsigned":
         return Unsigned(2**self.width - self.value - 1, self.width)

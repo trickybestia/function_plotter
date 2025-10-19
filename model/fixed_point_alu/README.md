@@ -27,3 +27,9 @@ python sub.py > sub.log
 ```bash
 python mul.py > mul.log
 ```
+
+## fixed_point_div model
+
+```bash
+python div.py > div.log
+```
