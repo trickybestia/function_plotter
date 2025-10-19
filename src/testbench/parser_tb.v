@@ -57,7 +57,7 @@ initial begin
    start <= 1;
 
    // 1
-   #50;
+   #70;
    symbol <= "1";
    symbol_valid <= 1;
 
@@ -65,7 +65,7 @@ initial begin
    symbol_valid <= 0;
 
    // ' '
-   #50;
+   #70;
    symbol <= " ";
    symbol_valid <= 1;
 
@@ -73,7 +73,7 @@ initial begin
    symbol_valid <= 0;
 
    // '+'
-   #50;
+   #70;
    symbol <= "+";
    symbol_valid <= 1;
 
@@ -81,7 +81,7 @@ initial begin
    symbol_valid <= 0;
 
    // ' '
-   #50;
+   #70;
    symbol <= " ";
    symbol_valid <= 1;
 
@@ -89,7 +89,7 @@ initial begin
    symbol_valid <= 0;
 
    // '1'
-   #50;
+   #70;
    symbol <= "1";
    symbol_valid <= 1;
 
@@ -97,7 +97,7 @@ initial begin
    symbol_valid <= 0;
 
    // null
-   #50;
+   #70;
    symbol <= 0;
    symbol_valid <= 1;
 
