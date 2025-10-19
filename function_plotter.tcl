@@ -39,6 +39,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/fixed_point_sub.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_div.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_pow.v"]"\
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
@@ -59,6 +60,8 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb_behav.wcfg"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_div_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/fixed_point_pow_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/fixed_point_pow_tb_behav.wcfg"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -191,7 +194,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "383" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "390" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -223,6 +226,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/fixed_point_sub.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_mul.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_div.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_pow.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -694,6 +698,32 @@ add_files -norecurse -fileset $obj $files
 set obj [get_filesets fixed_point_div_tb]
 set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "fixed_point_div_tb" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'fixed_point_pow_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet fixed_point_pow_tb] ""]} {
+  create_fileset -simset fixed_point_pow_tb
+}
+
+# Set 'fixed_point_pow_tb' fileset object
+set obj [get_filesets fixed_point_pow_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/fixed_point_pow_tb.v"] \
+ [file normalize "${origin_dir}/src/testbench/fixed_point_pow_tb_behav.wcfg"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'fixed_point_pow_tb' fileset file properties for remote files
+# None
+
+# Set 'fixed_point_pow_tb' fileset file properties for local files
+# None
+
+# Set 'fixed_point_pow_tb' fileset properties
+set obj [get_filesets fixed_point_pow_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
+set_property -name "top" -value "fixed_point_pow_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
