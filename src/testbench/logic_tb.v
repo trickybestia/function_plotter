@@ -54,14 +54,14 @@ end
 
 initial begin
    start             = 0;
-   line_drawer_ready = 0;
+   line_drawer_ready = 1;
    symbol_valid      = 0;
 
    #100;
    start <= 1;
    
    #100;
-   symbol <= "5";
+   symbol <= "x";
    symbol_valid <= 1;
    #10;
    symbol_valid <= 0;
@@ -73,7 +73,7 @@ initial begin
    symbol_valid <= 0;   
 
    #100;
-   symbol <= "-";
+   symbol <= "+";
    symbol_valid <= 1;
    #10;
    symbol_valid <= 0;
@@ -90,7 +90,7 @@ initial begin
    #10;
    symbol_valid <= 0;
 
-   #1050;   
+   #650000;   
    
    $finish;
 end   

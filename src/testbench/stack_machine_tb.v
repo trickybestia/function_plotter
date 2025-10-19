@@ -17,11 +17,11 @@ wire ready;
 reg        [NUMBER_WIDTH - 1:0] x_input;
 wire       [NUMBER_WIDTH - 1:0] y_output; 
 
-wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_index;
-wire                                   output_queue_get;
-reg  [OUTPUT_VALUE_WIDTH - 1:0]        output_queue_data_out;
-reg  [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_length;
-reg                                    output_queue_ready;    
+wire [$clog2(OUTPUT_QUEUE_SIZE) - 1:0]     output_queue_index;
+wire                                       output_queue_get;
+reg  [OUTPUT_VALUE_WIDTH - 1:0]            output_queue_data_out;
+reg  [$clog2(OUTPUT_QUEUE_SIZE + 1) - 1:0] output_queue_length;
+reg                                        output_queue_ready;    
 
 stack_machine #(
     .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
@@ -63,8 +63,8 @@ initial begin
    start <= 0;
    #1000;   
 
-   // 1
-   output_queue_data_out[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 1;
+   // 5
+   output_queue_data_out[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 2;
    output_queue_ready <= 1;
 
    #10;
@@ -73,7 +73,7 @@ initial begin
    #100;
 
    // 1
-   output_queue_data_out[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 1;
+   output_queue_data_out[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 5;
    output_queue_ready <= 1;
 
    #10;
@@ -81,8 +81,10 @@ initial begin
 
    #100;
 
-   // +
-   output_queue_data_out[NUMBER_WIDTH:FRACTIONAL_PART_WIDTH] <= {1'b1, 11'b0};
+   // -
+   output_queue_data_out[NUMBER_WIDTH] <= 1;
+   output_queue_data_out[NUMBER_WIDTH - 1:0] <= 1;
+   
    output_queue_ready <= 1;
 
    #10;

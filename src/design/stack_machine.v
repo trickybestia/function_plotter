@@ -68,8 +68,8 @@ input clk;
 input      start;
 output reg ready;
 
-input      [NUMBER_WIDTH - 1:0] x_input;
-output reg [NUMBER_WIDTH - 1:0] y_output;
+input      [$clog2(HOR_ACTIVE_PIXELS) - 1:0] x_input;
+output reg [$clog2(VER_ACTIVE_PIXELS) - 1:0] y_output;
 
 output reg [$clog2(OUTPUT_QUEUE_SIZE) - 1:0]     output_queue_index;
 output reg                                       output_queue_get;
@@ -123,6 +123,7 @@ end
 always @(posedge clk) begin
    case (state)
      READY: begin
+        ready <= 0;
         if (start) begin
            output_queue_index <= 0;           
            state <= TRANSFORM_X;
@@ -212,8 +213,8 @@ always @(posedge clk) begin
 
      // todo: add check for division by zero
      PERFORM_MATN_OP: begin
-        a <= stack[stack_p - 1];
-        b <= stack[stack_p - 2];
+        a <= stack[stack_p - 2];
+        b <= stack[stack_p - 1];
         alu_start <= 1;        
         state <= PERFORM_MATN_OP_2;        
      end
@@ -261,7 +262,7 @@ always @(posedge clk) begin
         if (alu_done) begin
            y_output <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];
            state <= READY;
-           ready <= 1;           
+           ready <= 1;
            stack_p <= 0;           
         end
      end

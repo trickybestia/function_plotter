@@ -146,6 +146,7 @@ initial begin
    y1                  = 0;
    x2                  = 0;
    y2                  = 0;
+   x                   = 0;   
    line_drawer_start   = 0;
    parser_start        = 0;
    index_switch        = 0;
@@ -193,7 +194,8 @@ always @(posedge clk) begin
            x2 <= x;
            y2 <= stack_machine_result;
            x <= x + 1; 
-           state <= CALCULATE;           
+           state <= CALCULATE;
+           is_first_iter <= 0;
         end
         else begin
            x1 <= x2;
