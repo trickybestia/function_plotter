@@ -85,7 +85,7 @@ reg acc_number, acc_number_fraction, acc_asterisk;
 assign symbol_iter_en = (iterate_enable && ~symbol_valid);   
 
 initial begin
-   state               = REQUEST_SYMBOLE;
+   state               = READY;
    next_state          = 0; 
    stack_p             = 0;
    acc_number          = 0;
@@ -93,7 +93,7 @@ initial begin
    acc_asterisk        = 0;   
    iterate_enable      = 0;
    ready               = 0;
-   output_queue_insert = 0;   
+   output_queue_insert = 0;
 end
 
 always @(posedge clk) begin
@@ -116,8 +116,19 @@ always @(posedge clk) begin
 
      ANALYZE_SYMBOLE: begin
         if (acc_number) begin
-           if (~((symbol >= "0" && symbol <= "9") || symbol == "."))
-             state <= PUT_NUMBER_TO_OUTPUT;           
+           if (symbol == 0) begin
+              acc_number <= 0;
+              state <= PUT_NUMBER_TO_OUTPUT;
+              next_state <= RELEASE_STACK_TO_OUTPUT;              
+           end
+           else if (~((symbol >= "0" && symbol <= "9") || symbol == ".")) begin
+              acc_number <= 0;              
+              state <= PUT_NUMBER_TO_OUTPUT;
+              next_state <= ANALYZE_SYMBOLE;              
+           end
+           else begin
+              state <= ACCUMULATE_NUMBER;              
+           end
         end
         else if (acc_asterisk) begin
            if (symbol == "*") begin
@@ -164,7 +175,9 @@ always @(posedge clk) begin
                 state <= PUT_OPERATOR_TO_OUTPUT;                
              end
              "0", "1", "2", "3", "4", "5", "6", "7", "8", "9": begin
+                acc_number <= 1; 
                 state <= ACCUMULATE_NUMBER;
+                operand <= 0;                
                 // prepare value (val - 48)
              end
              ".": begin
@@ -184,11 +197,11 @@ always @(posedge clk) begin
           state <= ACCUMULATE_INTEGER_PART;        
      end
      ACCUMULATE_INTEGER_PART: begin
-        operator[15:8] <= operator[15:8] * 10 + (symbol - 48);
+        operand[15:8] <= operand[15:8] * 10 + (symbol - 48);
         state <= REQUEST_SYMBOLE;        
      end
      ACCUMULATE_FRACTION_PART: begin
-        operator[7:0] <= operator[7:0] + ((symbol - 48) << 
+        operand[7:0] <= operand[7:0] + ((symbol - 48) << 
                                           (8 - fractional_count * 4));
         state <= REQUEST_SYMBOLE;
         fractional_count <= fractional_count + 1; 
@@ -203,13 +216,15 @@ always @(posedge clk) begin
         if (output_queue_ready) begin
            acc_number <= 0;
            acc_number_fraction <= 0;
-           state <= ANALYZE_SYMBOLE;    
+           state <= next_state;    
         end    
      end
 
      HANDLE_PLUS_SUB: begin
-        if (stack_p == 0)
-          state <= PUSH_OPERATOR_TO_STACK;
+        if (stack_p == 0) begin
+           state <= PUSH_OPERATOR_TO_STACK;
+           next_state <= REQUEST_SYMBOLE;           
+        end
         else if (stack[stack_p - 1] == MUL ||
                  stack[stack_p - 1] == DIV ||
                  stack[stack_p - 1] == POW ) begin
