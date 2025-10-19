@@ -71,11 +71,11 @@ output reg ready;
 input      [NUMBER_WIDTH - 1:0] x_input;
 output reg [NUMBER_WIDTH - 1:0] y_output;
 
-output reg [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_index;
-output reg                                   output_queue_get;
-input      [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_length;
-input      [OUTPUT_VALUE_WIDTH - 1:0]        output_queue_data_out;
-input                                        output_queue_ready;
+output reg [$clog2(OUTPUT_QUEUE_SIZE) - 1:0]     output_queue_index;
+output reg                                       output_queue_get;
+input      [$clog2(OUTPUT_QUEUE_SIZE + 1) - 1:0] output_queue_length;
+input      [OUTPUT_VALUE_WIDTH - 1:0]            output_queue_data_out;
+input                                            output_queue_ready;
 
 // reg/wire
 reg [4:0] state;
@@ -85,7 +85,7 @@ reg  [NUMBER_WIDTH - 1:0]       y;
 reg  [OUTPUT_VALUE_WIDTH - 1:0] fetched_value;   
    
 reg [NUMBER_WIDTH - 1:0]       stack [0:STACK_SIZE - 1];
-reg [$clog2(STACK_SIZE) + 1:0] stack_p;
+reg [$clog2(STACK_SIZE) - 1:0] stack_p;
 
 // instantiate alu module
 reg                       alu_start;

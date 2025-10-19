@@ -64,18 +64,18 @@ reg [2:0] state;
 reg       is_first_iter;   
 
 // instantiate vector module for output_queue
-wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] parser_index;
-wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] stack_machine_index;
+wire [$clog2(OUTPUT_QUEUE_SIZE) - 1:0] parser_index;
+wire [$clog2(OUTPUT_QUEUE_SIZE) - 1:0] stack_machine_index;
 reg                                    index_switch;   
 
-wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0]  output_queue_index = 
+wire [$clog2(OUTPUT_QUEUE_SIZE) - 1:0]     output_queue_index = 
  index_switch ? stack_machine_index : parser_index;
-wire                                    output_queue_get;
-wire                                    output_queue_insert;   
-wire [OUTPUT_VALUE_WIDTH - 1:0]         output_queue_data_in;
-wire [OUTPUT_VALUE_WIDTH - 1:0]         output_queue_data_out;
-wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0]  output_queue_length;
-wire                                    output_queue_ready;
+wire                                       output_queue_get;
+wire                                       output_queue_insert;   
+wire [OUTPUT_VALUE_WIDTH - 1:0]            output_queue_data_in;
+wire [OUTPUT_VALUE_WIDTH - 1:0]            output_queue_data_out;
+wire [$clog2(OUTPUT_QUEUE_SIZE + 1) - 1:0] output_queue_length;
+wire                                       output_queue_ready;
    
 vector #(
     .DATA_WIDTH (OUTPUT_VALUE_WIDTH),
@@ -160,7 +160,7 @@ always @(posedge clk) begin
 
      PARSE_EXPRESSION: begin
         parser_start <= 1;
-        state <= PARSE_EXPRESSION_2;        
+        state <= PARSE_EXPRESSION_2;
      end
      PARSE_EXPRESSION_2: begin
         parser_start <= 0;

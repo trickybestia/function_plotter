@@ -71,7 +71,7 @@ input      start;
 output reg ready;
 
 output reg                                    output_queue_insert;
-output reg  [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_index;
+output reg  [$clog2(OUTPUT_QUEUE_SIZE) - 1:0] output_queue_index;
 output reg  [OUTPUT_VALUE_WIDTH - 1:0]        output_queue_data_in;
 input                                         output_queue_ready;
 
@@ -87,7 +87,7 @@ reg [OPERATOR_WIDTH - 1:0] operator;
 
 // stack   
 reg [OPERATOR_WIDTH - 1:0]     stack [0:STACK_SIZE - 1];
-reg [$clog2(STACK_SIZE) + 1:0] stack_p;
+reg [$clog2(STACK_SIZE) - 1:0] stack_p;
 
 // flags   
 reg acc_operand, acc_operand_fraction, acc_asterisk;  

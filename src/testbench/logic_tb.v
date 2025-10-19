@@ -2,6 +2,88 @@
 
 module logic_tb;
 
+localparam SYMBOL_WIDTH       = 7;
+localparam OUTPUT_QUEUE_SIZE  = 64;
+localparam INTEGER_PART_WIDTH     = 8;
+localparam FRACTIONAL_PART_WIDTH  = 8;
+
+localparam NUMBER_WIDTH           = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
+localparam OUTPUT_VALUE_WIDTH     = NUMBER_WIDTH + 1;
+
+localparam HOR_ACTIVE_PIXELS = 640;
+localparam VER_ACTIVE_PIXELS = 480;
+localparam X_WIDTH           = $clog2(HOR_ACTIVE_PIXELS);
+localparam Y_WIDTH           = $clog2(VER_ACTIVE_PIXELS);
+
+reg  clk, start;
+wire ready;
+
+wire [X_WIDTH - 1:0] x1;
+wire [Y_WIDTH - 1:0] y1;
+wire [X_WIDTH - 1:0] x2;
+wire [Y_WIDTH - 1:0] y2;
+
+wire line_drawer_start;
+reg  line_drawer_ready;
+
+wire                      symbol_iter_en;
+reg  [SYMBOL_WIDTH - 1:0] symbol;
+reg                       symbol_valid;
+
+logic logic (
+    .clk               (clk),
+    .start             (start),
+    .ready             (ready),
+    .x1                (x1),
+    .y1                (y1),
+    .x2                (x2),
+    .y2                (y2),
+    .line_drawer_start (line_drawer_start),
+    .line_drawer_ready (line_drawer_ready),
+    .symbol_iter_en    (symbol_iter_en),
+    .symbol            (symbol),
+    .symbol_valid      (symbol_valid)
+);
+
+always begin
+    clk = 1'b0;
+    #5;
+    clk = 1'b1;
+    #5;
+end
+
+initial begin
+   start             = 0;
+   line_drawer_ready = 0;
+   symbol_valid      = 0;
+
+   #100;
+   start <= 1;
+   
+   #100;
+   symbol <= "1";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #100;
+   symbol <= " ";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;   
+
+   #100;
+   
+   $finish;
+end   
+   
+endmodule   
+
+/* -----\/----- EXCLUDED -----\/-----
+`timescale 1ns / 1ps
+
+module logic_tb;
+
 reg clk;
 
 reg  fill_drawer_start;
@@ -38,22 +120,6 @@ reg swap;
 assign write_enable = fill_drawer_write_enable | line_drawer_write_enable;
 assign write_addr   = fill_drawer_write_addr | line_drawer_write_addr;
 assign write_data   = fill_drawer_write_data | line_drawer_write_data;
-
-logic logic (
-    .clk               (clk),
-    .start             (logic_start),
-    .ready             (logic_ready),
-    .x1                (x1),
-    .y1                (y1),
-    .x2                (x2),
-    .y2                (y2),
-    .line_drawer_start (line_drawer_start),
-    .line_drawer_ready (line_drawer_ready),
-    .symbol_iter_start (),
-    .symbol_iter_en    (),
-    .symbol            (),
-    .symbol_valid      ()
-);
 
 fill_drawer fill_drawer (
     .clk          (clk),
@@ -160,3 +226,4 @@ initial begin
 end
 
 endmodule
+ -----/\----- EXCLUDED -----/\----- */
