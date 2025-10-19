@@ -22,3 +22,8 @@ python add.py > add.log
 python sub.py > sub.log
 ```
 
+## fixed_point_mul model
+
+```bash
+python mul.py > mul.log
+```

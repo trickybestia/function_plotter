@@ -46,6 +46,13 @@ class Unsigned:
 
         return Unsigned(self.value & (2**width - 1), width)
 
+    def slice(self, lsb: int, width: int) -> "Unsigned":
+        assert 0 <= lsb < self.width
+        assert width >= 1
+        assert 0 <= lsb + width <= self.width
+
+        return Unsigned((self.value >> lsb) & (2**width - 1), width)
+
     def saturating_add(self, other: "Unsigned") -> "Unsigned":
         assert self.width == other.width
 
@@ -86,6 +93,59 @@ class Unsigned:
         else:
             return result_with_overflow.truncate(self.width)
 
+    def fixed_point_saturating_mul(
+        self,
+        other: "Unsigned",
+        integer_part_width: int,
+        fractional_part_width: int,
+    ) -> "Unsigned":
+        assert self.width == other.width
+
+        number_width = integer_part_width + fractional_part_width
+
+        a = self.sign_extend(self.width + 1)
+
+        sign = 0
+
+        if a.signed_value() < 0:
+            sign ^= 1
+            a = -a
+
+        b = other.sign_extend(other.width + 1)
+
+        if b.signed_value() < 0:
+            sign ^= 1
+            b = -b
+
+        full_precision_result_abs = a * b
+
+        full_precision_result_abs_rounded = full_precision_result_abs.slice(
+            fractional_part_width, 2 * number_width - fractional_part_width + 1
+        )
+
+        if full_precision_result_abs[fractional_part_width - 1]:
+            full_precision_result_abs_rounded += Unsigned(
+                1, full_precision_result_abs_rounded.width
+            )
+
+        if sign:
+            result = -full_precision_result_abs_rounded
+        else:
+            result = full_precision_result_abs_rounded
+
+        if (
+            result.signed_value()
+            > Unsigned.max_signed(number_width).signed_value()
+        ):
+            return Unsigned.max_signed(number_width)
+        elif (
+            result.signed_value()
+            < Unsigned.min_signed(number_width).signed_value()
+        ):
+            return Unsigned.min_signed(number_width)
+        else:
+            return result.truncate(number_width)
+
     def __add__(self, other: "Unsigned") -> "Unsigned":
         assert self.width == other.width
 
@@ -100,6 +160,9 @@ class Unsigned:
             (2**self.width + self.value - other.value) % (2**self.width),
             self.width,
         )
+
+    def __mul__(self, other: "Unsigned") -> "Unsigned":
+        return Unsigned(self.value * other.value, self.width + other.width)
 
     def __invert__(self) -> "Unsigned":
         return Unsigned(2**self.width - self.value - 1, self.width)
