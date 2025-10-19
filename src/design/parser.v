@@ -44,18 +44,21 @@ localparam ACCUMULATE_INTEGER_PART        = 5;
 localparam ACCUMULATE_FRACTION_PART       = 6;
 localparam PUT_NUMBER_TO_OUTPUT           = 7;
 localparam PUT_NUMBER_TO_OUTPUT_2         = 8;
-localparam HANDLE_PLUS_SUB                = 9;
-localparam HANDLE_MUL                     = 10;
-localparam HANDLE_DIV                     = 11;
-localparam PUSH_OPERATOR_TO_STACK         = 12;
-localparam PUT_OPERATOR_TO_OUTPUT         = 13;
-localparam PUT_OPERATOR_TO_OUTPUT_2       = 14;
-localparam PUT_LEFT_BRACKET_TO_STACK      = 15;
-localparam HANDLE_RIGHT_BRACKET           = 16;
-localparam RELEASE_STACK_TO_OUTPUT        = 17;
-localparam MOVE_OP_FROM_STACK_TO_OUTPUT   = 18;
-localparam MOVE_OP_FROM_STACK_TO_OUTPUT_2 = 19;
-localparam END                            = 20;   
+localparam PUT_NUMBER_TO_OUTPUT_3         = 9;
+localparam HANDLE_PLUS_SUB                = 10;
+localparam HANDLE_MUL                     = 11;
+localparam HANDLE_DIV                     = 12;
+localparam PUSH_OPERATOR_TO_STACK         = 13;
+localparam PUT_OPERATOR_TO_OUTPUT         = 14;
+localparam PUT_OPERATOR_TO_OUTPUT_2       = 15;
+localparam PUT_OPERATOR_TO_OUTPUT_3       = 16;   
+localparam PUT_LEFT_BRACKET_TO_STACK      = 17;
+localparam HANDLE_RIGHT_BRACKET           = 18;
+localparam RELEASE_STACK_TO_OUTPUT        = 19;
+localparam MOVE_OP_FROM_STACK_TO_OUTPUT   = 20;
+localparam MOVE_OP_FROM_STACK_TO_OUTPUT_2 = 21;
+localparam MOVE_OP_FROM_STACK_TO_OUTPUT_3 = 22;   
+localparam END                            = 23;   
    
 input clk;
 
@@ -71,9 +74,9 @@ output reg                                    output_queue_insert;
 output reg [OUTPUT_VALUE_WIDTH - 1:0]         output_queue_data_in;
 input                                         output_queue_ready;
 
-reg iterate_enable; 
-reg [4:0] state, next_state;
-reg [2:0] fractional_count;   
+reg                        iterate_enable; 
+reg [4:0]                  state, next_state;
+reg [2:0]                  fractional_count;   
 reg [NUMBER_WIDTH - 1:0]   operand;
 reg [OPERATOR_WIDTH - 1:0] operator;
    
@@ -211,8 +214,11 @@ always @(posedge clk) begin
         output_queue_insert <= 1;        
         state <= PUT_NUMBER_TO_OUTPUT_2;        
      end
-     PUT_NUMBER_TO_OUTPUT_2: begin
+     PUT_NUMBER_TO_OUTPUT_3: begin
         output_queue_insert <= 0;        
+        state <= PUT_NUMBER_TO_OUTPUT_3;        
+     end
+     PUT_NUMBER_TO_OUTPUT_2: begin
         if (output_queue_ready) begin
            acc_number <= 0;
            acc_number_fraction <= 0;
@@ -276,6 +282,9 @@ always @(posedge clk) begin
      end
      PUT_OPERATOR_TO_OUTPUT_2: begin
         output_queue_insert <= 0;
+        state <= PUT_OPERATOR_TO_OUTPUT_3;        
+     end
+     PUT_OPERATOR_TO_OUTPUT_3: begin        
         if (output_queue_ready) begin
            output_queue_index <= output_queue_index + 1;           
            state <= next_state;
@@ -315,7 +324,10 @@ always @(posedge clk) begin
         state <= MOVE_OP_FROM_STACK_TO_OUTPUT_2;        
      end
      MOVE_OP_FROM_STACK_TO_OUTPUT_2: begin
-        output_queue_insert <= 0;        
+        output_queue_insert <= 0;
+        state <= MOVE_OP_FROM_STACK_TO_OUTPUT_3;        
+     end
+     MOVE_OP_FROM_STACK_TO_OUTPUT_3: begin
         if (output_queue_ready) begin
            stack_p <= stack_p - 1;
            state <= next_state;

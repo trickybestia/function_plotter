@@ -134,6 +134,7 @@ stack_machine #(
     .y_output              (stack_machine_result),
     .output_queue_index    (stack_machine_index),
     .output_queue_get      (output_queue_get),
+    .output_queue_length   (output_queue_length),                 
     .output_queue_data_out (output_queue_data_out),
     .output_queue_ready    (output_queue_ready)
 );   

@@ -9,6 +9,7 @@ module stack_machine (
 
     output_queue_index,
     output_queue_get,
+    output_queue_length,                      
     output_queue_data_out,
     output_queue_ready
 );
@@ -29,17 +30,23 @@ localparam READY              = 0;
 localparam TRANSFORM_X        = 1;
 localparam TRANSFORM_X_2      = 2;
 localparam TRANSFORM_X_3      = 3;
-localparam FETCH_OUTPUT_VAL   = 4;
-localparam FETCH_OUTPUT_VAL_2 = 5;
-localparam ANALYZE_OUTPUT_VAL = 6;
-localparam PUT_VAR_TO_STACK   = 7;
-localparam PUT_VAL_TO_STACK   = 8;
-localparam PERFORM_MATN_OP    = 9;
-localparam PERFORM_MATN_OP_2  = 10;
-localparam TRANSFORM_Y        = 11;
-localparam TRANSFORM_Y_2      = 12;
-localparam TRANSFORM_Y_3      = 13;
-localparam TRANSFORM_Y_4      = 14;
+localparam TRANSFORM_X_4      = 4;
+localparam TRANSFORM_X_5      = 5;
+localparam TRANSFORM_X_6      = 6;
+localparam FETCH_OUTPUT_VAL   = 7;
+localparam FETCH_OUTPUT_VAL_2 = 8;
+localparam ANALYZE_OUTPUT_VAL = 9;
+localparam PUT_VAR_TO_STACK   = 10;
+localparam PUT_VAL_TO_STACK   = 11;
+localparam PERFORM_MATN_OP    = 12;
+localparam PERFORM_MATN_OP_2  = 13;
+localparam PERFORM_MATN_OP_3  = 14;   
+localparam TRANSFORM_Y        = 15;
+localparam TRANSFORM_Y_2      = 16;
+localparam TRANSFORM_Y_3      = 17;
+localparam TRANSFORM_Y_4      = 18;
+localparam TRANSFORM_Y_5      = 19;
+localparam TRANSFORM_Y_6      = 20;   
 
 input clk;
 
@@ -51,7 +58,7 @@ output reg [NUMBER_WIDTH - 1:0] y_output;
 output reg [$clog2(OUTPUT_QUEUE_SIZE) + 1:0] output_queue_index;
 output reg                                   output_queue_get;
 input [OUTPUT_VALUE_WIDTH - 1:0]             output_queue_data_out;
-wire [$clog2(OUTPUT_QUEUE_SIZE) + 1:0]       output_queue_length;
+input [$clog2(OUTPUT_QUEUE_SIZE) + 1:0]      output_queue_length;
 input                                        output_queue_ready;    
 
 reg [OUTPUT_VALUE_WIDTH - 1:0] fetched_value;   
@@ -74,7 +81,7 @@ localparam POW  = 3'b100;
 
 reg [2:0] op_for_alu;   
    
-reg [2:0] state;
+reg [4:0] state;
 
 // instantiate alu module 
 reg  alu_start;
@@ -99,7 +106,11 @@ initial begin
    output_queue_get   = 0;
    output_queue_index = 0;
    stack_p            = 0; 
-   alu_start          = 0;   
+   alu_start          = 0;
+   a                  = 0;
+   b                  = 0;
+   x                  = 0;
+   y                  = 0;   
 end
 
 always @(posedge clk) begin
@@ -113,26 +124,32 @@ always @(posedge clk) begin
      TRANSFORM_X: begin
         op_for_alu <= SUB;
         a <= x;
-        b <= HOR_ACTIVE_PIXELS / 2;
+        b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= HOR_ACTIVE_PIXELS / 2;
         alu_start <= 1;
         state <= TRANSFORM_X_2;        
      end
      TRANSFORM_X_2: begin
         alu_start <= 0;
+        state <= TRANSFORM_X_3;        
+     end
+     TRANSFORM_X_3: begin
         if (alu_done) begin
-           state <= TRANSFORM_Y_3;
+           state <= TRANSFORM_X_4;
            x <= result;           
         end
      end
-     TRANSFORM_X_3: begin
+     TRANSFORM_X_4: begin
         op_for_alu <= DIV;
         a <= x;
-        b <= 20;
+        b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
         alu_start <= 1;
-        state <= TRANSFORM_X_3;                
+        state <= TRANSFORM_X_5;                
      end
-     TRANSFORM_X_3: begin
+     TRANSFORM_X_5: begin
         alu_start <= 0;
+        state <= TRANSFORM_X_6;        
+     end
+     TRANSFORM_X_6: begin        
         if (alu_done) begin
            state <= FETCH_OUTPUT_VAL;
            x <= result;           
@@ -140,7 +157,7 @@ always @(posedge clk) begin
      end
      
      FETCH_OUTPUT_VAL: begin
-        if (output_queue_length < output_queue_index)
+        if (output_queue_length <= output_queue_index)
           state <= TRANSFORM_Y;
         else begin
            output_queue_get <= 1;
@@ -156,10 +173,10 @@ always @(posedge clk) begin
         end          
      end
      ANALYZE_OUTPUT_VAL: begin
-        if (fetched_value[NUMBER_WIDTH - 1] && 
+        if (fetched_value[NUMBER_WIDTH] && 
             fetched_value[NUMBER_WIDTH - 2:0] == 6)
           state <= PUT_VAR_TO_STACK;
-        else if (fetched_value[NUMBER_WIDTH - 1]) begin
+        else if (fetched_value[NUMBER_WIDTH]) begin
            op_for_alu <= fetched_value[2:0];
            state <= PERFORM_MATN_OP;     
         end
@@ -188,6 +205,9 @@ always @(posedge clk) begin
      end
      PERFORM_MATN_OP_2: begin
         alu_start <= 0;
+        state <= PERFORM_MATN_OP_3;        
+     end
+     PERFORM_MATN_OP_3: begin        
         if (alu_done) begin
            stack[stack_p - 2] <= result;
            stack_p <= stack_p - 1;
@@ -196,28 +216,34 @@ always @(posedge clk) begin
      end
 
      TRANSFORM_Y: begin
-        op_for_alu <= DIV; 
+        op_for_alu <= MUL; 
         a <= stack[0];
-        b <= 20;
+        b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
         alu_start <= 1;
         state <= TRANSFORM_Y_2;    
      end
      TRANSFORM_Y_2: begin
         alu_start <= 0;
+        state <= TRANSFORM_Y_3;        
+     end
+     TRANSFORM_Y_3: begin        
         if (alu_done) begin
            y <= result;
-           state <= TRANSFORM_Y_3;           
+           state <= TRANSFORM_Y_4;           
         end
      end
-     TRANSFORM_Y_3: begin
-        op_for_alu <= PLUS; 
-        a <= y;
-        b <= VER_ACTIVE_PIXELS / 2;
-        alu_start <= 1;
-        state <= TRANSFORM_Y_2;            
-     end
      TRANSFORM_Y_4: begin
+        op_for_alu <= SUB;
+        a[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= VER_ACTIVE_PIXELS / 2;
+        b <= y;        
+        alu_start <= 1;
+        state <= TRANSFORM_Y_5;            
+     end
+     TRANSFORM_Y_5: begin
         alu_start <= 0;
+        state <= TRANSFORM_Y_6;        
+     end
+     TRANSFORM_Y_6: begin        
         if (alu_done) begin
            y_output <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];
            state <= READY;
