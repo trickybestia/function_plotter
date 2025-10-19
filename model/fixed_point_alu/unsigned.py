@@ -35,26 +35,33 @@ class Unsigned:
 
         return Unsigned(self.value, width)
 
+    def signed_value(self) -> int:
+        if self[self.width - 1]:
+            return -(-self.sign_extend(self.width + 1)).value
+        else:
+            return self.value
+
+    def truncate(self, width: int) -> "Unsigned":
+        assert 1 <= width <= self.width
+
+        return Unsigned(self.value & (2**width - 1), width)
+
     def saturating_add(self, other: "Unsigned") -> "Unsigned":
         assert self.width == other.width
 
         result_with_overflow = self + other
 
         if (
-            not self[self.width - 1]
-            and not other[other.width - 1]
-            and result_with_overflow[result_with_overflow.width - 1]
+            self.signed_value() >= 0
+            and other.signed_value() >= 0
+            and result_with_overflow.signed_value() < 0
         ):
-            # a >= 0 && b >= 0 && result_with_overflow < 0
-
             return Unsigned.max_signed(self.width)
         elif (
-            self[self.width - 1]
-            and other[other.width - 1]
-            and not result_with_overflow[result_with_overflow.width - 1]
+            self.signed_value() < 0
+            and other.signed_value() < 0
+            and result_with_overflow.signed_value() >= 0
         ):
-            # a < 0 && b < 0 && result_with_overflow >= 0
-
             return Unsigned.min_signed(self.width)
         else:
             return result_with_overflow
