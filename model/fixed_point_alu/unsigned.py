@@ -66,6 +66,26 @@ class Unsigned:
         else:
             return result_with_overflow
 
+    def saturating_sub(self, other: "Unsigned") -> "Unsigned":
+        assert self.width == other.width
+
+        result_with_overflow = self.sign_extend(
+            self.width + 1
+        ) - other.sign_extend(other.width + 1)
+
+        if (
+            result_with_overflow.signed_value()
+            < Unsigned.min_signed(self.width).signed_value()
+        ):
+            return Unsigned.min_signed(self.width)
+        elif (
+            result_with_overflow.signed_value()
+            > Unsigned.max_signed(self.width).signed_value()
+        ):
+            return Unsigned.max_signed(self.width)
+        else:
+            return result_with_overflow.truncate(self.width)
+
     def __add__(self, other: "Unsigned") -> "Unsigned":
         assert self.width == other.width
 

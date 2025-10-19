@@ -2,8 +2,8 @@
 
 module fixed_point_sub_tb;
 
-parameter INTEGER_PART_WIDTH    = 2;
-parameter FRACTIONAL_PART_WIDTH = 1;
+parameter INTEGER_PART_WIDTH    = 3;
+parameter FRACTIONAL_PART_WIDTH = 2;
 
 localparam NUMBER_WIDTH = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
 
@@ -21,18 +21,26 @@ fixed_point_sub #(
     .result (result)
 );
 
+integer file;
+
 integer i;
 integer j;
 
 initial begin
+    file = $fopen("fixed_point_sub_tb.log", "w");
+
     for (i = 0; i != 2 ** NUMBER_WIDTH; i = i + 1) begin
         for (j = 0; j != 2 ** NUMBER_WIDTH; j = j + 1) begin
             a = i;
             b = j;
 
             #10;
+
+            $fdisplay(file, "a: %0d, b: %0d, result: %0d", $unsigned(a), $unsigned(b), $unsigned(result));
         end
     end
+
+    $fclose(file);
 
     $finish;
 end
