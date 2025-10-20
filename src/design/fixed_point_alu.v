@@ -57,10 +57,6 @@ wire                             fixed_point_div_start;
 wire                             fixed_point_div_done;
 wire signed [NUMBER_WIDTH - 1:0] fixed_point_div_result;
 
-wire                             fixed_point_div_start;
-wire                             fixed_point_div_done;
-wire signed [NUMBER_WIDTH - 1:0] fixed_point_div_result;
-
 wire                             fixed_point_pow_start;
 wire                             fixed_point_pow_done;
 wire signed [NUMBER_WIDTH - 1:0] fixed_point_pow_result;
