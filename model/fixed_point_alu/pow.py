@@ -49,7 +49,7 @@ def main():
             b = Unsigned(j, NUMBER_WIDTH)
 
             print(
-                f"a: {a.to_str_fixed_point_signed(INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH)}, b: {b.to_str_fixed_point_signed(INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH)}, result: {a.fixed_point_saturating_pow(b, INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH).to_str_fixed_point_signed(INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH)}"
+                f"a: {int(a)}, b: {int(b)}, result: {int(a.fixed_point_saturating_pow(b, INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH))}"
             )
 
 
