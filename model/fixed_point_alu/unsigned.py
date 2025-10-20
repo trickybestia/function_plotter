@@ -184,6 +184,28 @@ class Unsigned:
             else:
                 return quotient.truncate(self.width)
 
+    def fixed_point_saturating_pow(
+        self,
+        other: "Unsigned",
+        integer_part_width: int,
+        fractional_part_width: int,
+    ) -> "Unsigned":
+        assert self.width == other.width
+
+        number_width = integer_part_width + fractional_part_width
+
+        # ignore fractional part, treat integer part as unsigned
+        power = other.value >> fractional_part_width
+
+        result = Unsigned(2**fractional_part_width, number_width)
+
+        for _ in range(power):
+            result = result.fixed_point_saturating_mul(
+                self, integer_part_width, fractional_part_width
+            )
+
+        return result
+
     def __add__(self, other: "Unsigned") -> "Unsigned":
         assert self.width == other.width
 
@@ -209,6 +231,13 @@ class Unsigned:
             return Unsigned(2**self.width - 1, self.width)
         else:
             return Unsigned(self.value // other.value, self.width)
+
+    def __pow__(self, other: "Unsigned") -> "Unsigned":
+        assert self.width == other.width
+
+        return Unsigned(
+            (self.value**other.value) & (2**self.width - 1), self.width
+        )
 
     def __invert__(self) -> "Unsigned":
         return Unsigned(2**self.width - self.value - 1, self.width)
@@ -251,6 +280,11 @@ class Unsigned:
         ), Unsigned(
             self.value & (2**fractional_part_width - 1), fractional_part_width
         )
+
+    def fixed_point_to_float(
+        self, integer_part_width: int, fractional_part_width: int
+    ) -> float:
+        return self.signed_value() / (2**fractional_part_width)
 
     def to_str_fixed_point_signed(
         self, integer_part_width: int, fractional_part_width: int

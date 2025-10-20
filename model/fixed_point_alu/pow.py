@@ -1,5 +1,13 @@
+from unsigned import Unsigned
+
+
 # https://en.wikipedia.org/wiki/Exponentiation_by_squaring
 def pow(value: int, power: int) -> int:
+    """Custom __pow__ implementation close to one used in Verilog module fixed_point_div.
+
+    Need to check that it behaves similarly.
+    """
+
     if power == 0:
         return 1
 
@@ -15,15 +23,34 @@ def pow(value: int, power: int) -> int:
     return result
 
 
+def check_pow():
+    NUMBER_WIDTH = 5
+
+    for i in range(2**NUMBER_WIDTH):
+        a = Unsigned(i, NUMBER_WIDTH)
+
+        for j in range(2**NUMBER_WIDTH):
+            b = Unsigned(j, NUMBER_WIDTH)
+
+            assert (a**b).value == pow(i, j) % (2**NUMBER_WIDTH)
+
+
 def main():
-    for value in range(10):
-        for power in range(10):
-            print(f"{value} ** {power} = {pow(value, power)}")
+    check_pow()
 
-            if pow(value, power) != value**power:
-                print(f"Error: {value ** power} expected")
+    INTEGER_PART_WIDTH = 3
+    FRACTIONAL_PART_WIDTH = 2
+    NUMBER_WIDTH = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH
 
-                return
+    for i in range(2**NUMBER_WIDTH):
+        a = Unsigned(i, NUMBER_WIDTH)
+
+        for j in range(2**NUMBER_WIDTH):
+            b = Unsigned(j, NUMBER_WIDTH)
+
+            print(
+                f"a: {a.to_str_fixed_point_signed(INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH)}, b: {b.to_str_fixed_point_signed(INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH)}, result: {a.fixed_point_saturating_pow(b, INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH).to_str_fixed_point_signed(INTEGER_PART_WIDTH, FRACTIONAL_PART_WIDTH)}"
+            )
 
 
 main()

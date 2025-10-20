@@ -33,3 +33,9 @@ python mul.py > mul.log
 ```bash
 python div.py > div.log
 ```
+
+## fixed_point_pow model
+
+```bash
+python pow.py > pow.log
+```
