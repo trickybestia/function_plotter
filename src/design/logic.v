@@ -36,11 +36,13 @@ localparam OUTPUT_QUEUE_SIZE = 64;
 localparam READY              = 0;
 localparam PARSE_EXPRESSION   = 1;
 localparam PARSE_EXPRESSION_2 = 2;
-localparam CALCULATE          = 3;
-localparam CALCULATE_2        = 4;
-localparam DRAW               = 5;
-localparam DRAW_2             = 6;
-localparam DRAW_3             = 7;   
+localparam PARSE_EXPRESSION_3 = 3;   
+localparam CALCULATE          = 4;
+localparam CALCULATE_2        = 5;
+localparam CALCULATE_3        = 6;   
+localparam DRAW               = 7;
+localparam DRAW_2             = 8;
+localparam DRAW_3             = 9;   
 
 // input/output
 input clk;
@@ -60,7 +62,7 @@ input  [SYMBOL_WIDTH - 1:0] symbol;
 input                       symbol_valid;
 
 // reg/wire
-reg [2:0] state;
+reg [3:0] state;
 reg       is_first_iter;   
 
 // instantiate vector module for output_queue
@@ -141,7 +143,7 @@ stack_machine #(
 assign ready = (state == READY);
 
 initial begin
-   state               = 0;
+   state               = READY;
    x1                  = 0;
    y1                  = 0;
    x2                  = 0;
@@ -157,7 +159,16 @@ end
 always @(posedge clk) begin
    case (state)
      READY: begin
-        if (start) state <= PARSE_EXPRESSION;
+        if (start) begin
+           state <= PARSE_EXPRESSION;
+           x <= 0;
+           x1 <= 0;
+           y1 <= 0;
+           x2 <= 0;
+           y2 <= 0;
+           index_switch <= 0;
+           is_first_iter <= 1;
+        end
      end
 
      PARSE_EXPRESSION: begin
@@ -166,7 +177,9 @@ always @(posedge clk) begin
      end
      PARSE_EXPRESSION_2: begin
         parser_start <= 0;
-        
+        state <= PARSE_EXPRESSION_3;
+     end
+     PARSE_EXPRESSION_3: begin        
         if (parser_ready) begin
            state <= CALCULATE;
            index_switch <= 1;           
@@ -174,7 +187,7 @@ always @(posedge clk) begin
      end
 
      CALCULATE: begin
-        if (x >= HOR_ACTIVE_PIXELS)
+        if (x > HOR_ACTIVE_PIXELS)
           state <= READY;
         else begin
            stack_machine_start <= 1;
@@ -183,7 +196,9 @@ always @(posedge clk) begin
      end
      CALCULATE_2: begin
         stack_machine_start <= 0;
-
+        state <= CALCULATE_3;
+     end
+     CALCULATE_3: begin
         if (stack_machine_ready) begin
            state <= DRAW;
         end

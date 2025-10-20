@@ -62,13 +62,12 @@ localparam RELEASE_STACK_TO_OUTPUT        = 19;
 localparam MOVE_OP_FROM_STACK_TO_OUTPUT   = 20;
 localparam MOVE_OP_FROM_STACK_TO_OUTPUT_2 = 21;
 localparam MOVE_OP_FROM_STACK_TO_OUTPUT_3 = 22;   
-localparam END                            = 23;   
 
 // input/output
 input clk;
 
-input      start;    
-output reg ready;
+input  start;    
+output ready;
 
 output reg                                    output_queue_insert;
 output reg  [$clog2(OUTPUT_QUEUE_SIZE) - 1:0] output_queue_index;
@@ -95,6 +94,8 @@ reg acc_operand, acc_operand_fraction, acc_asterisk;
 reg iterate_enable; 
 assign symbol_iter_en = (iterate_enable && ~symbol_valid);   
 
+assign ready = (state == READY);
+
 initial begin
    state                = READY;
    next_state           = 0; 
@@ -103,7 +104,6 @@ initial begin
    acc_operand_fraction = 0;
    acc_asterisk         = 0;   
    iterate_enable       = 0;
-   ready                = 0;
    output_queue_insert  = 0;
    output_queue_index   = 0;   
 end
@@ -111,9 +111,13 @@ end
 always @(posedge clk) begin
    case (state)
      READY: begin
-        if (start)
-          state <= REQUEST_SYMBOLE;        
+        if (start) begin
+           state <= REQUEST_SYMBOLE;
+           stack_p <= 0;       
+           output_queue_index <= 0;       
+        end
      end 
+
      REQUEST_SYMBOLE: begin
         iterate_enable <= 1;
         state <= WAIT_FOR_SYMBOLE; 
@@ -328,7 +332,7 @@ always @(posedge clk) begin
 
      RELEASE_STACK_TO_OUTPUT: begin
         if (stack_p == 0) begin
-           state <= END;
+           state <= READY;
         end
         else begin
            next_state <= RELEASE_STACK_TO_OUTPUT;
@@ -355,10 +359,6 @@ always @(posedge clk) begin
            output_queue_index <= output_queue_index + 1;
         end
      end
-
-   END: begin
-      ready <= 1;      
-   end
 
    endcase
 end
