@@ -259,7 +259,13 @@ always @(posedge clk) begin
      end
      TRANSFORM_Y_6: begin        
         if (alu_done) begin
-           y_output <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];
+           if (result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] > VER_ACTIVE_PIXELS) begin
+              y_output <= VER_ACTIVE_PIXELS;              
+           end
+           else begin
+              y_output <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];   
+           end
+           
            state <= READY;
            stack_p <= 0;  
            x <= 0;           

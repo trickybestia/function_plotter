@@ -53,7 +53,7 @@ initial begin
    start                 = 0;
    output_queue_ready    = 0;
    output_queue_length   = 3;
-   x_input               = 512;
+   x_input               = 300; // quiet correct result with this x
    output_queue_data_out = 0;   
 
    #20;
@@ -63,8 +63,9 @@ initial begin
    start <= 0;
    #1000;   
 
-   // 5
-   output_queue_data_out[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 2;
+   // x
+   output_queue_data_out[NUMBER_WIDTH] <= 1;
+   output_queue_data_out[NUMBER_WIDTH - 1:0] <= 6;
    output_queue_ready <= 1;
 
    #10;
@@ -73,7 +74,9 @@ initial begin
    #100;
 
    // 1
-   output_queue_data_out[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 5;
+   output_queue_data_out[NUMBER_WIDTH] <= 0;
+   output_queue_data_out[FRACTIONAL_PART_WIDTH - 1:0] <= 0;
+   output_queue_data_out[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 1;
    output_queue_ready <= 1;
 
    #10;
@@ -81,7 +84,7 @@ initial begin
 
    #100;
 
-   // -
+   // +
    output_queue_data_out[NUMBER_WIDTH] <= 1;
    output_queue_data_out[NUMBER_WIDTH - 1:0] <= 1;
    

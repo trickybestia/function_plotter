@@ -57,40 +57,48 @@ initial begin
    line_drawer_ready = 1;
    symbol_valid      = 0;
 
-   #100;
+   #200;
    start <= 1;
    
-   #100;
-   symbol <= "x";
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;
-
-   #100;
-   symbol <= " ";
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;   
-
-   #100;
-   symbol <= "+";
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;
-
-   #100;
+   #200;
+   start <= 0;
+   
    symbol <= "1";
    symbol_valid <= 1;
    #10;
    symbol_valid <= 0;
 
-   #100;
+   #200;   
+   symbol <= "*";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #200;
+   symbol <= "2";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;   
+
+   #200;
+   symbol <= "+";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #200;
+   symbol <= "3";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #200;
    symbol <= 0;
    symbol_valid <= 1;
    #10;
    symbol_valid <= 0;
 
-   #650000;   
+   #1000000;   
    
    $finish;
 end   

@@ -48,7 +48,7 @@ always begin
 end
 
 initial begin
-   // 1 + 1
+   // 1 * 2 + 3
    start              = 0;
    symbol_valid       = 0;
    output_queue_ready = 1;   
@@ -57,7 +57,9 @@ initial begin
    start <= 1;
 
    // 1
-   #70;
+   #200;
+   start <= 0;
+
    symbol <= "1";
    symbol_valid <= 1;
 
@@ -65,46 +67,46 @@ initial begin
    symbol_valid <= 0;
 
    // ' '
-   #70;
-   symbol <= " ";
+   #200;
+   symbol <= "*";
    symbol_valid <= 1;
 
    #10;
    symbol_valid <= 0;
 
    // '+'
-   #70;
-   symbol <= "+";
+   #200;
+   symbol <= "2";
    symbol_valid <= 1;
 
    #10;
    symbol_valid <= 0;
 
    // ' '
-   #70;
-   symbol <= " ";
+   #200;
+   symbol <= "+";
    symbol_valid <= 1;
 
    #10;
    symbol_valid <= 0;
 
    // '1'
-   #70;
-   symbol <= "1";
+   #200;
+   symbol <= "3";
    symbol_valid <= 1;
 
    #10;
    symbol_valid <= 0;
 
    // null
-   #70;
+   #200;
    symbol <= 0;
    symbol_valid <= 1;
 
    #10;
    symbol_valid <= 0;
 
-   #100;   
+   #200;   
 
    $finish;
 end
