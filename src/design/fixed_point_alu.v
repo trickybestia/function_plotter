@@ -30,6 +30,8 @@ localparam STATE_MUL_START = 3;
 localparam STATE_MUL_WAIT  = 4;
 localparam STATE_DIV_START = 5;
 localparam STATE_DIV_WAIT  = 6;
+localparam STATE_POW_START = 7;
+localparam STATE_POW_WAIT  = 8;
 
 input clk;
 
@@ -38,30 +40,40 @@ output done;
 
 input [2:0] op;
 
-input [NUMBER_WIDTH - 1:0] a;
-input [NUMBER_WIDTH - 1:0] b;
+input signed [NUMBER_WIDTH - 1:0] a;
+input signed [NUMBER_WIDTH - 1:0] b;
 
-output reg [NUMBER_WIDTH - 1:0] result;
+output reg signed [NUMBER_WIDTH - 1:0] result;
 
-wire [NUMBER_WIDTH - 1:0] fixed_point_add_result;
+wire signed [NUMBER_WIDTH - 1:0] fixed_point_add_result;
 
-wire [NUMBER_WIDTH - 1:0] fixed_point_sub_result;
+wire signed [NUMBER_WIDTH - 1:0] fixed_point_sub_result;
 
-wire                      fixed_point_mul_start;
-wire                      fixed_point_mul_done;
-wire [NUMBER_WIDTH - 1:0] fixed_point_mul_result;
+wire                             fixed_point_mul_start;
+wire                             fixed_point_mul_done;
+wire signed [NUMBER_WIDTH - 1:0] fixed_point_mul_result;
 
-wire                      fixed_point_div_start;
-wire                      fixed_point_div_done;
-wire [NUMBER_WIDTH - 1:0] fixed_point_div_result;
+wire                             fixed_point_div_start;
+wire                             fixed_point_div_done;
+wire signed [NUMBER_WIDTH - 1:0] fixed_point_div_result;
 
-reg [2:0] state;
+wire                             fixed_point_div_start;
+wire                             fixed_point_div_done;
+wire signed [NUMBER_WIDTH - 1:0] fixed_point_div_result;
+
+wire                             fixed_point_pow_start;
+wire                             fixed_point_pow_done;
+wire signed [NUMBER_WIDTH - 1:0] fixed_point_pow_result;
+
+reg [3:0] state;
 
 assign done = (state == STATE_READY);
 
 assign fixed_point_mul_start = (state == STATE_MUL_START);
 
 assign fixed_point_div_start = (state == STATE_DIV_START);
+
+assign fixed_point_pow_start = (state == STATE_POW_START);
 
 fixed_point_add #(
     .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
@@ -105,6 +117,18 @@ fixed_point_div #(
     .result (fixed_point_div_result)
 );
 
+fixed_point_pow #(
+    .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
+    .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH)
+) fixed_point_pow (
+    .clk    (clk),
+    .start  (fixed_point_pow_start),
+    .done   (fixed_point_pow_done),
+    .a      (a),
+    .b      (b),
+    .result (fixed_point_pow_result)
+);
+
 initial begin
     result = 0;
     state  = STATE_READY;
@@ -120,6 +144,7 @@ always @(posedge clk) begin
                     OP_SUB: state <= STATE_SUB;
                     OP_MUL: state <= STATE_MUL_START;
                     OP_DIV: state <= STATE_DIV_START;
+                    OP_POW: state <= STATE_POW_START;
                 endcase
             end
         end
@@ -128,16 +153,19 @@ always @(posedge clk) begin
         STATE_MUL_WAIT: if (fixed_point_mul_done) state <= STATE_READY;
         STATE_DIV_START: state <= STATE_DIV_WAIT;
         STATE_DIV_WAIT: if (fixed_point_div_done) state <= STATE_READY;
+        STATE_POW_START: state <= STATE_POW_WAIT;
+        STATE_POW_WAIT: if (fixed_point_pow_done) state <= STATE_READY;
     endcase
 end
 
 // result
 always @(posedge clk) begin
     case (state)
-        STATE_ADD: result <= fixed_point_add_result;
-        STATE_SUB: result <= fixed_point_sub_result;
+        STATE_ADD:                                result <= fixed_point_add_result;
+        STATE_SUB:                                result <= fixed_point_sub_result;
         STATE_MUL_WAIT: if (fixed_point_mul_done) result <= fixed_point_mul_result;
         STATE_DIV_WAIT: if (fixed_point_div_done) result <= fixed_point_div_result;
+        STATE_POW_WAIT: if (fixed_point_pow_done) result <= fixed_point_pow_result;
     endcase
 end
 

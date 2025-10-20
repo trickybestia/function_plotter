@@ -84,6 +84,7 @@ initial begin
             test(i, j, OP_SUB);
             test(i, j, OP_MUL);
             test(i, j, OP_DIV);
+            test(i, j, OP_POW);
         end
     end
 
