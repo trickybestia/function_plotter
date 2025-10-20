@@ -144,11 +144,11 @@ text_buffer #(
     .cursor_right    (text_buffer_cursor_right)
 );
 
-logic_placeholder #(
+logic #(
     .HOR_ACTIVE_PIXELS (HOR_ACTIVE_PIXELS),
     .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS),
     .SYMBOL_WIDTH      (SYMBOL_WIDTH)
-) logic_placeholder (
+) logic (
     .clk               (clk_25M175),
     .start             (graphics_fsm_logic_start),
     .ready             (logic_ready),

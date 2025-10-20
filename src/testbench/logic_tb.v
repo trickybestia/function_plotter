@@ -1,6 +1,114 @@
 `timescale 1ns / 1ps
 
-module logic_placeholder_tb;
+module logic_tb;
+
+localparam SYMBOL_WIDTH       = 7;
+localparam OUTPUT_QUEUE_SIZE  = 64;
+localparam INTEGER_PART_WIDTH     = 8;
+localparam FRACTIONAL_PART_WIDTH  = 8;
+
+localparam NUMBER_WIDTH           = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
+localparam OUTPUT_VALUE_WIDTH     = NUMBER_WIDTH + 1;
+
+localparam HOR_ACTIVE_PIXELS = 640;
+localparam VER_ACTIVE_PIXELS = 480;
+localparam X_WIDTH           = $clog2(HOR_ACTIVE_PIXELS);
+localparam Y_WIDTH           = $clog2(VER_ACTIVE_PIXELS);
+
+reg  clk, start;
+wire ready;
+
+wire [X_WIDTH - 1:0] x1;
+wire [Y_WIDTH - 1:0] y1;
+wire [X_WIDTH - 1:0] x2;
+wire [Y_WIDTH - 1:0] y2;
+
+wire line_drawer_start;
+reg  line_drawer_ready;
+
+wire                      symbol_iter_en;
+reg  [SYMBOL_WIDTH - 1:0] symbol;
+reg                       symbol_valid;
+
+logic logic (
+    .clk               (clk),
+    .start             (start),
+    .ready             (ready),
+    .x1                (x1),
+    .y1                (y1),
+    .x2                (x2),
+    .y2                (y2),
+    .line_drawer_start (line_drawer_start),
+    .line_drawer_ready (line_drawer_ready),
+    .symbol_iter_en    (symbol_iter_en),
+    .symbol            (symbol),
+    .symbol_valid      (symbol_valid)
+);
+
+always begin
+    clk = 1'b0;
+    #5;
+    clk = 1'b1;
+    #5;
+end
+
+initial begin
+   start             = 0;
+   line_drawer_ready = 1;
+   symbol_valid      = 0;
+
+   #200;
+   start <= 1;
+   
+   #200;
+   start <= 0;
+   
+   symbol <= "1";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #200;   
+   symbol <= "*";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #200;
+   symbol <= "2";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;   
+
+   #200;
+   symbol <= "+";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #200;
+   symbol <= "3";
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #200;
+   symbol <= 0;
+   symbol_valid <= 1;
+   #10;
+   symbol_valid <= 0;
+
+   #1000000;   
+   
+   $finish;
+end   
+   
+endmodule   
+
+/* -----\/----- EXCLUDED -----\/-----
+`timescale 1ns / 1ps
+
+module logic_tb;
 
 reg clk;
 
@@ -10,8 +118,8 @@ wire fill_drawer_ready;
 wire line_drawer_start;
 wire line_drawer_ready;
 
-reg  logic_placeholder_start;
-wire logic_placeholder_ready;
+reg  logic_start;
+wire logic_ready;
 
 wire [9:0] x1;
 wire [8:0] y1;
@@ -38,22 +146,6 @@ reg swap;
 assign write_enable = fill_drawer_write_enable | line_drawer_write_enable;
 assign write_addr   = fill_drawer_write_addr | line_drawer_write_addr;
 assign write_data   = fill_drawer_write_data | line_drawer_write_data;
-
-logic_placeholder logic_placeholder (
-    .clk               (clk),
-    .start             (logic_placeholder_start),
-    .ready             (logic_placeholder_ready),
-    .x1                (x1),
-    .y1                (y1),
-    .x2                (x2),
-    .y2                (y2),
-    .line_drawer_start (line_drawer_start),
-    .line_drawer_ready (line_drawer_ready),
-    .symbol_iter_start (),
-    .symbol_iter_en    (),
-    .symbol            (),
-    .symbol_valid      ()
-);
 
 fill_drawer fill_drawer (
     .clk          (clk),
@@ -118,7 +210,7 @@ end
 
 initial begin
     fill_drawer_start       = 0;
-    logic_placeholder_start = 0;
+    logic_start             = 0;
     read_addr               = 0;
     swap                    = 0;
 
@@ -137,12 +229,12 @@ initial begin
 
     while (~fill_drawer_ready) @(posedge clk);
 
-    logic_placeholder_start <= 1;
+    logic_start <= 1;
     @(posedge clk);
-    logic_placeholder_start <= 0;
+    logic_start <= 0;
     @(posedge clk);
 
-    while (~logic_placeholder_ready) @(posedge clk);
+    while (~logic_ready) @(posedge clk);
 
     swap <= 1;
     @(posedge clk);
@@ -151,7 +243,7 @@ initial begin
 
     dump_frame_buffer();
     // run
-    // python utils/show_frame_buffer_txt.py vivado_project/function_plotter.sim/logic_placeholder_tb/behav/xsim/frame_buffer.txt
+    // python utils/show_frame_buffer_txt.py vivado_project/function_plotter.sim/logic_tb/behav/xsim/frame_buffer.txt
     // from project root to see frame buffer content
 
     repeat (10) @(posedge clk);
@@ -160,3 +252,4 @@ initial begin
 end
 
 endmodule
+ -----/\----- EXCLUDED -----/\----- */
