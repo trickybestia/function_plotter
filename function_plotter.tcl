@@ -63,7 +63,6 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb_behav.wcfg"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_div_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_pow_tb.v"]"\
- "[file normalize "$origin_dir/src/testbench/fixed_point_pow_tb_behav.wcfg"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -714,7 +713,6 @@ if {[string equal [get_filesets -quiet fixed_point_pow_tb] ""]} {
 set obj [get_filesets fixed_point_pow_tb]
 set files [list \
  [file normalize "${origin_dir}/src/testbench/fixed_point_pow_tb.v"] \
- [file normalize "${origin_dir}/src/testbench/fixed_point_pow_tb_behav.wcfg"] \
 ]
 add_files -norecurse -fileset $obj $files
 
