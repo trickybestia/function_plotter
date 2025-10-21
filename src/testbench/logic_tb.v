@@ -53,56 +53,56 @@ always begin
 end
 
 initial begin
-   start             = 0;
-   line_drawer_ready = 1;
-   symbol_valid      = 0;
+    start             = 0;
+    line_drawer_ready = 1;
+    symbol_valid      = 0;
 
-   #200;
-   start <= 1;
-   
-   #200;
-   start <= 0;
-   
-   symbol <= "1";
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;
+    #200;
+    start <= 1;
+    
+    #200;
+    start <= 0;
+    
+    symbol <= "1";
+    symbol_valid <= 1;
+    #10;
+    symbol_valid <= 0;
 
-   #200;   
-   symbol <= "*";
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;
+    #200;   
+    symbol <= "*";
+    symbol_valid <= 1;
+    #10;
+    symbol_valid <= 0;
 
-   #200;
-   symbol <= "2";
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;   
+    #200;
+    symbol <= "2";
+    symbol_valid <= 1;
+    #10;
+    symbol_valid <= 0;   
 
-   #200;
-   symbol <= "+";
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;
+    #200;
+    symbol <= "+";
+    symbol_valid <= 1;
+    #10;
+    symbol_valid <= 0;
 
-   #200;
-   symbol <= "3";
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;
+    #200;
+    symbol <= "3";
+    symbol_valid <= 1;
+    #10;
+    symbol_valid <= 0;
 
-   #200;
-   symbol <= 0;
-   symbol_valid <= 1;
-   #10;
-   symbol_valid <= 0;
+    #200;
+    symbol <= 0;
+    symbol_valid <= 1;
+    #10;
+    symbol_valid <= 0;
 
-   #1000000;   
-   
-   $finish;
+    #1000000;   
+    
+    $finish;
 end   
-   
+
 endmodule   
 
 /* -----\/----- EXCLUDED -----\/-----

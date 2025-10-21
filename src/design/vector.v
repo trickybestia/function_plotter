@@ -1,5 +1,6 @@
 module vector (
     clk,
+    reset,
     
     index,
     
@@ -31,6 +32,8 @@ localparam STATE_REMOVE_WRITE = 5;
 localparam STATE_REMOVE_DONE  = 6;
 
 input clk;
+
+input reset;
 
 input [INDEX_WIDTH - 1:0] index;
 
@@ -64,18 +67,27 @@ end
 
 // state
 always @(posedge clk) begin
-    case (state)
-        STATE_READY: begin
-            if (insert) state <= (index != length) ? STATE_INSERT_READ : STATE_INSERT_DONE;
-            if (remove) state <= (index != length - 1) ? STATE_REMOVE_READ : STATE_REMOVE_DONE;
-        end
-        STATE_INSERT_READ:  state <= STATE_INSERT_WRITE;
-        STATE_INSERT_WRITE: state <= (j == index) ? STATE_INSERT_DONE : STATE_INSERT_READ;
-        STATE_INSERT_DONE:  state <= STATE_READY;
-        STATE_REMOVE_READ:  state <= STATE_REMOVE_WRITE;
-        STATE_REMOVE_WRITE: state <= (j == length - 2) ? STATE_REMOVE_DONE : STATE_REMOVE_READ;
-        STATE_REMOVE_DONE:  state <= STATE_READY;
-    endcase
+    if (reset) begin
+        data_out <= 0;
+        length   <= 0;
+        state    <= STATE_READY;
+        j        <= 0;
+        tmp      <= 0;
+    end
+    else begin
+        case (state)
+            STATE_READY: begin
+                if (insert) state <= (index != length) ? STATE_INSERT_READ : STATE_INSERT_DONE;
+                if (remove) state <= (index != length - 1) ? STATE_REMOVE_READ : STATE_REMOVE_DONE;
+            end
+            STATE_INSERT_READ:  state <= STATE_INSERT_WRITE;
+            STATE_INSERT_WRITE: state <= (j == index) ? STATE_INSERT_DONE : STATE_INSERT_READ;
+            STATE_INSERT_DONE:  state <= STATE_READY;
+            STATE_REMOVE_READ:  state <= STATE_REMOVE_WRITE;
+            STATE_REMOVE_WRITE: state <= (j == length - 2) ? STATE_REMOVE_DONE : STATE_REMOVE_READ;
+            STATE_REMOVE_DONE:  state <= STATE_READY;
+        endcase
+    end
 end
 
 // j

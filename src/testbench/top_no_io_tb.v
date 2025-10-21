@@ -258,11 +258,13 @@ initial begin
         $stop;
     end
 
-    ps2_symbol <= "1";
+    ps2_symbol <= "x";
     @(posedge clk);
     ps2_symbol <= 0;
     @(posedge clk);
 
+    draw_frame();
+/* -----\/----- EXCLUDED -----\/-----
     // draw 3 frames with "1" displayed
     repeat (3) begin
         draw_frame();
@@ -281,19 +283,32 @@ initial begin
 
         $stop;
     end
+ -----/\----- EXCLUDED -----/\----- */
 
-    ps2_symbol <= "a";
+    ps2_symbol <= "+";
     @(posedge clk);
     ps2_symbol <= 0;
     @(posedge clk);
 
+    draw_frame();
+
+    ps2_symbol <= "1";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+/* -----\/----- EXCLUDED -----\/-----
     // draw 3 frames with "a1" displayed, cursor between "a" and "1"
     repeat (3) begin
         draw_frame();
 
         $stop;
     end
+ -----/\----- EXCLUDED -----/\----- */
 
+/* -----\/----- EXCLUDED -----\/-----
     ps2_backspace <= 1;
     @(posedge clk);
     ps2_backspace <= 0;
@@ -329,6 +344,7 @@ initial begin
 
         $stop;
     end
+ -----/\----- EXCLUDED -----/\----- */
 
     $finish;
 end

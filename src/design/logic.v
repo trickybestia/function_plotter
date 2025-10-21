@@ -72,6 +72,7 @@ reg                                    index_switch;
 
 wire [$clog2(OUTPUT_QUEUE_SIZE) - 1:0]     output_queue_index = 
  index_switch ? stack_machine_index : parser_index;
+reg                                        output_queue_reset;
 wire                                       output_queue_get;
 wire                                       output_queue_insert;   
 wire [OUTPUT_VALUE_WIDTH - 1:0]            output_queue_data_in;
@@ -84,6 +85,7 @@ vector #(
     .DATA_COUNT (OUTPUT_QUEUE_SIZE)
 ) output_queue (
     .clk        (clk),
+    .reset      (reset),
     .index      (output_queue_index),
     .get        (output_queue_get),
     .insert     (output_queue_insert),
@@ -154,6 +156,7 @@ initial begin
     index_switch        = 0;
     stack_machine_start = 0;
     is_first_iter       = 1;
+    output_queue_reset  = 0;
 end
 
 always @(posedge clk) begin
@@ -168,10 +171,12 @@ always @(posedge clk) begin
                 y2 <= 0;
                 index_switch <= 0;
                 is_first_iter <= 1;
+                output_queue_reset <= 1;
             end
         end
 
         PARSE_EXPRESSION: begin
+            output_queue_reset <= 0;
             parser_start <= 1;
             state <= PARSE_EXPRESSION_2;
         end

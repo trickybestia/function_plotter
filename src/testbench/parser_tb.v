@@ -48,67 +48,67 @@ always begin
 end
 
 initial begin
-   // 1 * 2 + 3
-   start              = 0;
-   symbol_valid       = 0;
-   output_queue_ready = 1;   
+    // 1 * 2 + 3
+    start              = 0;
+    symbol_valid       = 0;
+    output_queue_ready = 1;   
 
-   #20;
-   start <= 1;
+    #20;
+    start <= 1;
 
-   // 1
-   #200;
-   start <= 0;
+    // 1
+    #200;
+    start <= 0;
 
-   symbol <= "1";
-   symbol_valid <= 1;
+    symbol <= "1";
+    symbol_valid <= 1;
 
-   #10;
-   symbol_valid <= 0;
+    #10;
+    symbol_valid <= 0;
 
-   // ' '
-   #200;
-   symbol <= "*";
-   symbol_valid <= 1;
+    // ' '
+    #200;
+    symbol <= "*";
+    symbol_valid <= 1;
 
-   #10;
-   symbol_valid <= 0;
+    #10;
+    symbol_valid <= 0;
 
-   // '+'
-   #200;
-   symbol <= "2";
-   symbol_valid <= 1;
+    // '+'
+    #200;
+    symbol <= "2";
+    symbol_valid <= 1;
 
-   #10;
-   symbol_valid <= 0;
+    #10;
+    symbol_valid <= 0;
 
-   // ' '
-   #200;
-   symbol <= "+";
-   symbol_valid <= 1;
+    // ' '
+    #200;
+    symbol <= "+";
+    symbol_valid <= 1;
 
-   #10;
-   symbol_valid <= 0;
+    #10;
+    symbol_valid <= 0;
 
-   // '1'
-   #200;
-   symbol <= "3";
-   symbol_valid <= 1;
+    // '1'
+    #200;
+    symbol <= "3";
+    symbol_valid <= 1;
 
-   #10;
-   symbol_valid <= 0;
+    #10;
+    symbol_valid <= 0;
 
-   // null
-   #200;
-   symbol <= 0;
-   symbol_valid <= 1;
+    // null
+    #200;
+    symbol <= 0;
+    symbol_valid <= 1;
 
-   #10;
-   symbol_valid <= 0;
+    #10;
+    symbol_valid <= 0;
 
-   #200;   
+    #200;   
 
-   $finish;
+    $finish;
 end
 
 endmodule

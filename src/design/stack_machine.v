@@ -110,15 +110,15 @@ fixed_point_alu #(
 assign ready = (state == READY);
 
 initial begin
-    state               = READY;
-    output_queue_get    = 0;
-    output_queue_index  = 0;   
-    stack_p             = 0; 
-    alu_start           = 0;
-    a                   = 0;
-    b                   = 0;
-    x                   = 0;
-    y                   = 0;   
+    state              = READY;
+    output_queue_get   = 0;
+    output_queue_index = 0;   
+    stack_p            = 0; 
+    alu_start          = 0;
+    a                  = 0;
+    b                  = 0;
+    x                  = 0;
+    y                  = 0;
 end
 
 always @(posedge clk) begin
@@ -126,6 +126,7 @@ always @(posedge clk) begin
         READY: begin
             if (start) begin
                 output_queue_index <= 0;
+                y_output <= 0;
                 state <= TRANSFORM_X;
                 x[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= x_input;
             end
@@ -212,10 +213,15 @@ always @(posedge clk) begin
 
         // todo: add check for division by zero
         PERFORM_MATN_OP: begin
-            a <= stack[stack_p - 2];
-            b <= stack[stack_p - 1];
-            alu_start <= 1;        
-            state <= PERFORM_MATN_OP_2;        
+            if (stack_p < 2) begin
+                state <= TRANSFORM_Y;
+            end
+            else begin
+                a <= stack[stack_p - 2];
+                b <= stack[stack_p - 1];
+                alu_start <= 1;        
+                state <= PERFORM_MATN_OP_2;
+            end
         end
         PERFORM_MATN_OP_2: begin
             alu_start <= 0;
@@ -230,8 +236,13 @@ always @(posedge clk) begin
         end
 
         TRANSFORM_Y: begin
-            op_for_alu <= MUL; 
-            a <= stack[0];
+            op_for_alu <= MUL;
+
+            if (stack_p > 0)
+              a <= stack[0];
+            else
+              a <= 0;
+
             b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
             alu_start <= 1;
             state <= TRANSFORM_Y_2;    
