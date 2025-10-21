@@ -108,171 +108,172 @@ fixed_point_alu #(
 );
 
 assign ready = (state == READY);
-   
+
 initial begin
-   state               = READY;
-   output_queue_get    = 0;
-   output_queue_index  = 0;   
-   stack_p             = 0; 
-   alu_start           = 0;
-   a                   = 0;
-   b                   = 0;
-   x                   = 0;
-   y                   = 0;   
+    state               = READY;
+    output_queue_get    = 0;
+    output_queue_index  = 0;   
+    stack_p             = 0; 
+    alu_start           = 0;
+    a                   = 0;
+    b                   = 0;
+    x                   = 0;
+    y                   = 0;   
 end
 
 always @(posedge clk) begin
-   case (state)
-     READY: begin
-        if (start) begin
-           output_queue_index <= 0;
-           state <= TRANSFORM_X;
-           x[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= x_input;
+    case (state)
+        READY: begin
+            if (start) begin
+                output_queue_index <= 0;
+                state <= TRANSFORM_X;
+                x[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= x_input;
+            end
         end
-     end
 
-     TRANSFORM_X: begin
-        op_for_alu <= SUB;
-        a <= x;
-        b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= HOR_ACTIVE_PIXELS / 2;
-        alu_start <= 1;
-        state <= TRANSFORM_X_2;        
-     end
-     TRANSFORM_X_2: begin
-        alu_start <= 0;
-        state <= TRANSFORM_X_3;        
-     end
-     TRANSFORM_X_3: begin
-        if (alu_done) begin
-           state <= TRANSFORM_X_4;
-           x <= result;           
+        TRANSFORM_X: begin
+            op_for_alu <= SUB;
+            a <= x;
+            b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= HOR_ACTIVE_PIXELS / 2;
+            alu_start <= 1;
+            state <= TRANSFORM_X_2;        
         end
-     end
-     TRANSFORM_X_4: begin
-        op_for_alu <= DIV;
-        a <= x;
-        b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
-        alu_start <= 1;
-        state <= TRANSFORM_X_5;                
-     end
-     TRANSFORM_X_5: begin
-        alu_start <= 0;
-        state <= TRANSFORM_X_6;        
-     end
-     TRANSFORM_X_6: begin        
-        if (alu_done) begin
-           state <= FETCH_OUTPUT_VAL;
-           x <= result;           
+        TRANSFORM_X_2: begin
+            alu_start <= 0;
+            state <= TRANSFORM_X_3;        
         end
-     end
-     
-     FETCH_OUTPUT_VAL: begin
-        if (output_queue_length <= output_queue_index)
-          state <= TRANSFORM_Y;
-        else begin
-           output_queue_get <= 1;
-           state <= FETCH_OUTPUT_VAL_2;
+        TRANSFORM_X_3: begin
+            if (alu_done) begin
+                state <= TRANSFORM_X_4;
+                x <= result;           
+            end
         end
-     end
-     FETCH_OUTPUT_VAL_2: begin
-        output_queue_get <= 0;
-        state <= FETCH_OUTPUT_VAL_3;        
-     end
-     FETCH_OUTPUT_VAL_3: begin        
-        if (output_queue_ready) begin
-           output_queue_index <= output_queue_index + 1;
-           fetched_value <= output_queue_data_out;           
-           state <= ANALYZE_OUTPUT_VAL;           
-        end          
-     end
-     ANALYZE_OUTPUT_VAL: begin
-        if (fetched_value[NUMBER_WIDTH] && 
-            fetched_value[OPERATOR_WIDTH - 1:0] == VAR)
-          state <= PUT_VAR_TO_STACK;
-        else if (fetched_value[NUMBER_WIDTH]) begin
-           op_for_alu <= fetched_value[OPERATOR_WIDTH - 1:0];
-           state <= PERFORM_MATN_OP;     
+        TRANSFORM_X_4: begin
+            op_for_alu <= DIV;
+            a <= x;
+            b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
+            alu_start <= 1;
+            state <= TRANSFORM_X_5;                
         end
-        else begin
-           state <= PUT_VAL_TO_STACK;           
+        TRANSFORM_X_5: begin
+            alu_start <= 0;
+            state <= TRANSFORM_X_6;        
         end
-     end
+        TRANSFORM_X_6: begin        
+            if (alu_done) begin
+                state <= FETCH_OUTPUT_VAL;
+                x <= result;           
+            end
+        end
+        
+        FETCH_OUTPUT_VAL: begin
+            if (output_queue_length <= output_queue_index)
+              state <= TRANSFORM_Y;
+            else begin
+                output_queue_get <= 1;
+                state <= FETCH_OUTPUT_VAL_2;
+            end
+        end
+        FETCH_OUTPUT_VAL_2: begin
+            output_queue_get <= 0;
+            state <= FETCH_OUTPUT_VAL_3;        
+        end
+        FETCH_OUTPUT_VAL_3: begin        
+            if (output_queue_ready) begin
+                output_queue_index <= output_queue_index + 1;
+                fetched_value <= output_queue_data_out;           
+                state <= ANALYZE_OUTPUT_VAL;           
+            end          
+        end
+        ANALYZE_OUTPUT_VAL: begin
+            if (fetched_value[NUMBER_WIDTH] && 
+                fetched_value[OPERATOR_WIDTH - 1:0] == VAR)
+              state <= PUT_VAR_TO_STACK;
+            else if (fetched_value[NUMBER_WIDTH]) begin
+                op_for_alu <= fetched_value[OPERATOR_WIDTH - 1:0];
+                state <= PERFORM_MATN_OP;     
+            end
+            else begin
+                state <= PUT_VAL_TO_STACK;           
+            end
+        end
 
-     PUT_VAR_TO_STACK: begin
-        stack[stack_p] <= x;
-        stack_p <= stack_p + 1;
-        state <= FETCH_OUTPUT_VAL;        
-     end
-
-     PUT_VAL_TO_STACK: begin
-        stack[stack_p] <= fetched_value[NUMBER_WIDTH - 1:0];
-        stack_p <= stack_p + 1;        
-        state <= FETCH_OUTPUT_VAL;        
-     end
-
-     // todo: add check for division by zero
-     PERFORM_MATN_OP: begin
-        a <= stack[stack_p - 2];
-        b <= stack[stack_p - 1];
-        alu_start <= 1;        
-        state <= PERFORM_MATN_OP_2;        
-     end
-     PERFORM_MATN_OP_2: begin
-        alu_start <= 0;
-        state <= PERFORM_MATN_OP_3;        
-     end
-     PERFORM_MATN_OP_3: begin        
-        if (alu_done) begin
-           stack[stack_p - 2] <= result;
-           stack_p <= stack_p - 1;
-           state <= FETCH_OUTPUT_VAL;        
+        PUT_VAR_TO_STACK: begin
+            stack[stack_p] <= x;
+            stack_p <= stack_p + 1;
+            state <= FETCH_OUTPUT_VAL;        
         end
-     end
 
-     TRANSFORM_Y: begin
-        op_for_alu <= MUL; 
-        a <= stack[0];
-        b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
-        alu_start <= 1;
-        state <= TRANSFORM_Y_2;    
-     end
-     TRANSFORM_Y_2: begin
-        alu_start <= 0;
-        state <= TRANSFORM_Y_3;        
-     end
-     TRANSFORM_Y_3: begin        
-        if (alu_done) begin
-           y <= result;
-           state <= TRANSFORM_Y_4;           
+        PUT_VAL_TO_STACK: begin
+            stack[stack_p] <= fetched_value[NUMBER_WIDTH - 1:0];
+            stack_p <= stack_p + 1;        
+            state <= FETCH_OUTPUT_VAL;        
         end
-     end
-     TRANSFORM_Y_4: begin
-        op_for_alu <= SUB;
-        a[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= VER_ACTIVE_PIXELS / 2;
-        b <= y;        
-        alu_start <= 1;
-        state <= TRANSFORM_Y_5;            
-     end
-     TRANSFORM_Y_5: begin
-        alu_start <= 0;
-        state <= TRANSFORM_Y_6;        
-     end
-     TRANSFORM_Y_6: begin        
-        if (alu_done) begin
-           if (result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] > VER_ACTIVE_PIXELS) begin
-              y_output <= VER_ACTIVE_PIXELS;              
-           end
-           else begin
-              y_output <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];   
-           end
-           
-           state <= READY;
-           stack_p <= 0;  
-           x <= 0;           
+
+        // todo: add check for division by zero
+        PERFORM_MATN_OP: begin
+            a <= stack[stack_p - 2];
+            b <= stack[stack_p - 1];
+            alu_start <= 1;        
+            state <= PERFORM_MATN_OP_2;        
         end
-     end
-     
-   endcase
+        PERFORM_MATN_OP_2: begin
+            alu_start <= 0;
+            state <= PERFORM_MATN_OP_3;        
+        end
+        PERFORM_MATN_OP_3: begin        
+            if (alu_done) begin
+                stack[stack_p - 2] <= result;
+                stack_p <= stack_p - 1;
+                state <= FETCH_OUTPUT_VAL;        
+            end
+        end
+
+        TRANSFORM_Y: begin
+            op_for_alu <= MUL; 
+            a <= stack[0];
+            b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
+            alu_start <= 1;
+            state <= TRANSFORM_Y_2;    
+        end
+        TRANSFORM_Y_2: begin
+            alu_start <= 0;
+            state <= TRANSFORM_Y_3;        
+        end
+        TRANSFORM_Y_3: begin        
+            if (alu_done) begin
+                y <= result;
+                state <= TRANSFORM_Y_4;           
+            end
+        end
+        TRANSFORM_Y_4: begin
+            op_for_alu <= SUB;
+            a[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= VER_ACTIVE_PIXELS / 2;
+            b <= y;        
+            alu_start <= 1;
+            state <= TRANSFORM_Y_5;            
+        end
+        TRANSFORM_Y_5: begin
+            alu_start <= 0;
+            state <= TRANSFORM_Y_6;        
+        end
+        TRANSFORM_Y_6: begin        
+            if (alu_done) begin
+                if (result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] > 
+                    VER_ACTIVE_PIXELS) begin
+                    y_output <= VER_ACTIVE_PIXELS;              
+                end
+                else begin
+                    y_output <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];
+                end
+                
+                state <= READY;
+                stack_p <= 0;  
+                x <= 0;           
+            end
+        end
+        
+    endcase
 end
 
 endmodule

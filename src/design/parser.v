@@ -97,270 +97,270 @@ assign symbol_iter_en = (iterate_enable && ~symbol_valid);
 assign ready = (state == READY);
 
 initial begin
-   state                = READY;
-   next_state           = 0; 
-   stack_p              = 0;
-   acc_operand          = 0;
-   acc_operand_fraction = 0;
-   acc_asterisk         = 0;   
-   iterate_enable       = 0;
-   output_queue_insert  = 0;
-   output_queue_index   = 0;   
+    state                = READY;
+    next_state           = 0; 
+    stack_p              = 0;
+    acc_operand          = 0;
+    acc_operand_fraction = 0;
+    acc_asterisk         = 0;   
+    iterate_enable       = 0;
+    output_queue_insert  = 0;
+    output_queue_index   = 0;   
 end
 
 always @(posedge clk) begin
-   case (state)
-     READY: begin
-        if (start) begin
-           state <= REQUEST_SYMBOLE;
-           stack_p <= 0;       
-           output_queue_index <= 0;       
-        end
-     end 
+    case (state)
+        READY: begin
+            if (start) begin
+                state <= REQUEST_SYMBOLE;
+                stack_p <= 0;       
+                output_queue_index <= 0;       
+            end
+        end 
 
-     REQUEST_SYMBOLE: begin
-        iterate_enable <= 1;
-        state <= WAIT_FOR_SYMBOLE; 
-     end
+        REQUEST_SYMBOLE: begin
+            iterate_enable <= 1;
+            state <= WAIT_FOR_SYMBOLE; 
+        end
 
-     WAIT_FOR_SYMBOLE: begin
-        if (symbol_valid) begin
-           iterate_enable <= 0;
-           state <= ANALYZE_SYMBOLE;           
+        WAIT_FOR_SYMBOLE: begin
+            if (symbol_valid) begin
+                iterate_enable <= 0;
+                state <= ANALYZE_SYMBOLE;           
+            end
         end
-     end
 
-     ANALYZE_SYMBOLE: begin
-        if (acc_operand) begin
-           if (symbol == 0) begin // null
-              acc_operand <= 0;
-              state <= PUT_OPERAND_TO_OUTPUT;
-              next_state <= RELEASE_STACK_TO_OUTPUT;              
-           end
-           else if (~((symbol >= "0" && symbol <= "9") || symbol == ".")) begin
-              acc_operand <= 0;
-              state <= PUT_OPERAND_TO_OUTPUT;
-              next_state <= ANALYZE_SYMBOLE;
-           end
-           else begin
-              state <= ACCUMULATE_NUMBER;
-           end
+        ANALYZE_SYMBOLE: begin
+            if (acc_operand) begin
+                if (symbol == 0) begin // null
+                    acc_operand <= 0;
+                    state <= PUT_OPERAND_TO_OUTPUT;
+                    next_state <= RELEASE_STACK_TO_OUTPUT;              
+                end
+                else if (~((symbol >= "0" && symbol <= "9") || 
+                           symbol == ".")) begin
+                    acc_operand <= 0;
+                    state <= PUT_OPERAND_TO_OUTPUT;
+                    next_state <= ANALYZE_SYMBOLE;
+                end
+                else begin
+                    state <= ACCUMULATE_NUMBER;
+                end
+            end
+            else if (acc_asterisk) begin
+                if (symbol == "*") begin
+                    operator <= POW;
+                    next_state <= REQUEST_SYMBOLE;
+                    state <= PUSH_OPERATOR_TO_STACK;
+                end
+                else begin
+                    operator <= MUL;
+                    state <= HANDLE_MUL;
+                end
+                acc_asterisk <= 0;
+            end
+            else begin
+                case (symbol)
+                    0: begin //null
+                        state <= RELEASE_STACK_TO_OUTPUT;
+                    end
+                    "+": begin
+                        operator <= PLUS;
+                        state <= HANDLE_PLUS_SUB;                
+                    end
+                    "-": begin
+                        operator <= SUB;
+                        state <= HANDLE_PLUS_SUB;                
+                    end
+                    "*": begin
+                        acc_asterisk <= 1;
+                        state <= REQUEST_SYMBOLE;                
+                    end
+                    "/": begin
+                        operator <= DIV;
+                        state <= HANDLE_DIV;                
+                    end
+                    "[": begin
+                        state <= PUT_LEFT_BRACKET_TO_STACK;                
+                    end
+                    "]": begin
+                        state <= HANDLE_RIGHT_BRACKET;
+                    end
+                    "x": begin
+                        operator <= VAR;
+                        next_state <= REQUEST_SYMBOLE;
+                        state <= PUT_OPERATOR_TO_OUTPUT;                
+                    end
+                    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9": begin
+                        acc_operand <= 1; 
+                        state <= ACCUMULATE_NUMBER;
+                        operand <= 0;                
+                        // prepare value (val - 48)
+                    end
+                    ".": begin
+                        acc_operand_fraction <= 1;
+                        state <= ACCUMULATE_FRACTION_PART;                
+                    end
+                    default:
+                      state <= REQUEST_SYMBOLE;             
+                endcase
+            end
         end
-        else if (acc_asterisk) begin
-           if (symbol == "*") begin
-              operator <= POW;
-              next_state <= REQUEST_SYMBOLE;
-              state <= PUSH_OPERATOR_TO_STACK;
-           end
-           else begin
-              operator <= MUL;
-              state <= HANDLE_MUL;
-           end
-           acc_asterisk <= 0;
+
+        ACCUMULATE_NUMBER: begin
+            if (acc_operand_fraction)
+              state <= ACCUMULATE_FRACTION_PART;
+            else
+              state <= ACCUMULATE_INTEGER_PART;        
         end
-        else begin
-           case (symbol)
-             0: begin //null
-                state <= RELEASE_STACK_TO_OUTPUT;
-             end
-             "+": begin
-                operator <= PLUS;
-                state <= HANDLE_PLUS_SUB;                
-             end
-             "-": begin
-                operator <= SUB;
-                state <= HANDLE_PLUS_SUB;                
-             end
-             "*": begin
-                acc_asterisk <= 1;
-                state <= REQUEST_SYMBOLE;                
-             end
-             "/": begin
-                operator <= DIV;
-                state <= HANDLE_DIV;                
-             end
-             "[": begin
-                state <= PUT_LEFT_BRACKET_TO_STACK;                
-             end
-             "]": begin
-                state <= HANDLE_RIGHT_BRACKET;
-             end
-             "x": begin
-                operator <= VAR;
+        ACCUMULATE_INTEGER_PART: begin
+            operand[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <=
+             operand[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH]
+              * 10 + (symbol - 48);
+            state <= REQUEST_SYMBOLE;        
+        end
+        ACCUMULATE_FRACTION_PART: begin
+            operand[FRACTIONAL_PART_WIDTH - 1:0] <= 
+             operand[FRACTIONAL_PART_WIDTH - 1:0] + 
+              ((symbol - 48) << (8 - fractional_count * 4));
+            state <= REQUEST_SYMBOLE;
+            fractional_count <= fractional_count + 1; 
+        end
+        PUT_OPERAND_TO_OUTPUT: begin
+            output_queue_data_in[NUMBER_WIDTH] <= 1'b0;
+            output_queue_data_in[NUMBER_WIDTH - 1:0] <= operand;
+
+            output_queue_insert <= 1;
+            state <= PUT_OPERAND_TO_OUTPUT_2;
+        end
+        PUT_OPERAND_TO_OUTPUT_2: begin
+            output_queue_insert <= 0;
+            state <= PUT_OPERATOR_TO_OUTPUT_3;
+        end
+        PUT_OPERAND_TO_OUTPUT_3: begin
+            if (output_queue_ready) begin
+                acc_operand <= 0;
+                acc_operand_fraction <= 0;
+                state <= next_state;
+            end
+        end
+
+        HANDLE_PLUS_SUB: begin
+            if (stack_p == 0) begin
+                state <= PUSH_OPERATOR_TO_STACK;
+                next_state <= REQUEST_SYMBOLE;           
+            end
+            else if (stack[stack_p - 1] == MUL ||
+                     stack[stack_p - 1] == DIV ||
+                     stack[stack_p - 1] == POW ) begin
+                next_state <= HANDLE_PLUS_SUB;
+                state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
+            end
+            else begin
+                state <= PUSH_OPERATOR_TO_STACK;           
                 next_state <= REQUEST_SYMBOLE;
-                state <= PUT_OPERATOR_TO_OUTPUT;                
-             end
-             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9": begin
-                acc_operand <= 1; 
-                state <= ACCUMULATE_NUMBER;
-                operand <= 0;                
-                // prepare value (val - 48)
-             end
-             ".": begin
-                acc_operand_fraction <= 1;
-                state <= ACCUMULATE_FRACTION_PART;                
-             end
-             default:
-               state <= REQUEST_SYMBOLE;             
-           endcase
+            end
         end
-     end
 
-     ACCUMULATE_NUMBER: begin
-        if (acc_operand_fraction)
-          state <= ACCUMULATE_FRACTION_PART;
-        else
-          state <= ACCUMULATE_INTEGER_PART;        
-     end
-     ACCUMULATE_INTEGER_PART: begin
-        operand[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 
-         operand[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] * 10 + (symbol - 48);
+        HANDLE_MUL: begin
+            if (stack_p == 0)
+              state <= PUSH_OPERATOR_TO_STACK;
+            else if (stack[stack_p - 1] == POW) begin
+                next_state <= HANDLE_MUL;
+                state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
+            end
+            else begin
+                state <= PUSH_OPERATOR_TO_STACK;
+                next_state <= ANALYZE_SYMBOLE;           
+            end
+        end
 
-        state <= REQUEST_SYMBOLE;        
-     end
-     ACCUMULATE_FRACTION_PART: begin
-        operand[FRACTIONAL_PART_WIDTH - 1:0] <= 
-         operand[FRACTIONAL_PART_WIDTH - 1:0] + 
-           ((symbol - 48) << (8 - fractional_count * 4));
+        HANDLE_DIV: begin
+            if (stack_p == 0)
+              state <= PUSH_OPERATOR_TO_STACK;
+            else if (stack[stack_p - 1] == POW) begin
+                next_state <= HANDLE_DIV;
+                state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
+            end
+            else begin
+                state <= PUSH_OPERATOR_TO_STACK;           
+                state <= REQUEST_SYMBOLE;
+            end
+        end
+        
+        PUSH_OPERATOR_TO_STACK: begin
+            stack[stack_p] <= operator;
+            stack_p <= stack_p + 1;
+            state <= next_state;
+        end
+        
+        PUT_OPERATOR_TO_OUTPUT: begin
+            output_queue_data_in[NUMBER_WIDTH] <= 1'b1;
+            output_queue_data_in[NUMBER_WIDTH - 1:OPERATOR_WIDTH] <= 0;
+            output_queue_data_in[OPERATOR_WIDTH - 1:0] <= operator;
 
-        state <= REQUEST_SYMBOLE;
-        fractional_count <= fractional_count + 1; 
-     end
-     PUT_OPERAND_TO_OUTPUT: begin
-        output_queue_data_in[NUMBER_WIDTH] <= 1'b0;
-        output_queue_data_in[NUMBER_WIDTH - 1:0] <= operand;
+            output_queue_insert <= 1;        
+            state <= PUT_OPERATOR_TO_OUTPUT_2;        
+        end
+        PUT_OPERATOR_TO_OUTPUT_2: begin
+            output_queue_insert <= 0;
+            state <= PUT_OPERATOR_TO_OUTPUT_3;        
+        end
+        PUT_OPERATOR_TO_OUTPUT_3: begin        
+            if (output_queue_ready) begin
+                output_queue_index <= output_queue_index + 1;           
+                state <= next_state;
+            end
+        end
 
-        output_queue_insert <= 1;
-        state <= PUT_OPERAND_TO_OUTPUT_2;
-     end
-     PUT_OPERAND_TO_OUTPUT_2: begin
-        output_queue_insert <= 0;
-        state <= PUT_OPERATOR_TO_OUTPUT_3;
-     end
-     PUT_OPERAND_TO_OUTPUT_3: begin
-        if (output_queue_ready) begin
-           acc_operand <= 0;
-           acc_operand_fraction <= 0;
-           state <= next_state;
+        PUT_LEFT_BRACKET_TO_STACK: begin
+            stack[stack_p] <= LEFT_BRACKET;
+            stack_p <= stack_p + 1;
+            state <= REQUEST_SYMBOLE;
         end
-     end
 
-     HANDLE_PLUS_SUB: begin
-        if (stack_p == 0) begin
-           state <= PUSH_OPERATOR_TO_STACK;
-           next_state <= REQUEST_SYMBOLE;           
+        HANDLE_RIGHT_BRACKET: begin
+            if (stack[stack_p - 1] == LEFT_BRACKET) begin
+                stack_p <= stack_p - 1;
+                state <= REQUEST_SYMBOLE;            
+            end
+            else begin
+                next_state <= HANDLE_RIGHT_BRACKET;
+                state <=  MOVE_OP_FROM_STACK_TO_OUTPUT;
+            end
         end
-        else if (stack[stack_p - 1] == MUL ||
-                 stack[stack_p - 1] == DIV ||
-                 stack[stack_p - 1] == POW ) begin
-           next_state <= HANDLE_PLUS_SUB;
-           state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
-        end
-        else begin
-           state <= PUSH_OPERATOR_TO_STACK;           
-           next_state <= REQUEST_SYMBOLE;
-        end
-     end
 
-     HANDLE_MUL: begin
-        if (stack_p == 0)
-          state <= PUSH_OPERATOR_TO_STACK;
-        else if (stack[stack_p - 1] == POW) begin
-           next_state <= HANDLE_MUL;
-           state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
+        RELEASE_STACK_TO_OUTPUT: begin
+            if (stack_p == 0) begin
+                state <= READY;
+            end
+            else begin
+                next_state <= RELEASE_STACK_TO_OUTPUT;
+                state <= MOVE_OP_FROM_STACK_TO_OUTPUT;
+            end
         end
-        else begin
-           state <= PUSH_OPERATOR_TO_STACK;
-           next_state <= ANALYZE_SYMBOLE;           
-        end
-     end
 
-     HANDLE_DIV: begin
-        if (stack_p == 0)
-          state <= PUSH_OPERATOR_TO_STACK;
-        else if (stack[stack_p - 1] == POW) begin
-           next_state <= HANDLE_DIV;
-           state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
-        end
-        else begin
-           state <= PUSH_OPERATOR_TO_STACK;           
-           state <= REQUEST_SYMBOLE;
-        end
-     end
-     
-     PUSH_OPERATOR_TO_STACK: begin
-        stack[stack_p] <= operator;
-        stack_p <= stack_p + 1;
-        state <= next_state;
-     end
-     
-     PUT_OPERATOR_TO_OUTPUT: begin
-        output_queue_data_in[NUMBER_WIDTH] <= 1'b1;
-        output_queue_data_in[NUMBER_WIDTH - 1:OPERATOR_WIDTH] <= 0;
-        output_queue_data_in[OPERATOR_WIDTH - 1:0] <= operator;
+        MOVE_OP_FROM_STACK_TO_OUTPUT: begin
+            output_queue_data_in[NUMBER_WIDTH] <= 1'b1;
+            output_queue_data_in[NUMBER_WIDTH - 1:OPERATOR_WIDTH] <= 0;
+            output_queue_data_in[OPERATOR_WIDTH - 1:0] <= stack[stack_p - 1];
 
-        output_queue_insert <= 1;        
-        state <= PUT_OPERATOR_TO_OUTPUT_2;        
-     end
-     PUT_OPERATOR_TO_OUTPUT_2: begin
-        output_queue_insert <= 0;
-        state <= PUT_OPERATOR_TO_OUTPUT_3;        
-     end
-     PUT_OPERATOR_TO_OUTPUT_3: begin        
-        if (output_queue_ready) begin
-           output_queue_index <= output_queue_index + 1;           
-           state <= next_state;
+            output_queue_insert <= 1;
+            state <= MOVE_OP_FROM_STACK_TO_OUTPUT_2;
         end
-     end
-
-     PUT_LEFT_BRACKET_TO_STACK: begin
-        stack[stack_p] <= LEFT_BRACKET;
-        stack_p <= stack_p + 1;
-        state <= REQUEST_SYMBOLE;
-     end
-
-     HANDLE_RIGHT_BRACKET: begin
-        if (stack[stack_p - 1] == LEFT_BRACKET) begin
-           stack_p <= stack_p - 1;
-           state <= REQUEST_SYMBOLE;            
+        MOVE_OP_FROM_STACK_TO_OUTPUT_2: begin
+            output_queue_insert <= 0;
+            state <= MOVE_OP_FROM_STACK_TO_OUTPUT_3;
         end
-        else begin
-           next_state <= HANDLE_RIGHT_BRACKET;
-           state <=  MOVE_OP_FROM_STACK_TO_OUTPUT;
+        MOVE_OP_FROM_STACK_TO_OUTPUT_3: begin
+            if (output_queue_ready) begin
+                stack_p <= stack_p - 1;
+                state <= next_state;
+                output_queue_index <= output_queue_index + 1;
+            end
         end
-     end
 
-     RELEASE_STACK_TO_OUTPUT: begin
-        if (stack_p == 0) begin
-           state <= READY;
-        end
-        else begin
-           next_state <= RELEASE_STACK_TO_OUTPUT;
-           state <= MOVE_OP_FROM_STACK_TO_OUTPUT;
-        end
-     end
-
-     MOVE_OP_FROM_STACK_TO_OUTPUT: begin
-        output_queue_data_in[NUMBER_WIDTH] <= 1'b1;
-        output_queue_data_in[NUMBER_WIDTH - 1:OPERATOR_WIDTH] <= 0;
-        output_queue_data_in[OPERATOR_WIDTH - 1:0] <= stack[stack_p - 1];
-
-        output_queue_insert <= 1;
-        state <= MOVE_OP_FROM_STACK_TO_OUTPUT_2;
-     end
-     MOVE_OP_FROM_STACK_TO_OUTPUT_2: begin
-        output_queue_insert <= 0;
-        state <= MOVE_OP_FROM_STACK_TO_OUTPUT_3;
-     end
-     MOVE_OP_FROM_STACK_TO_OUTPUT_3: begin
-        if (output_queue_ready) begin
-           stack_p <= stack_p - 1;
-           state <= next_state;
-           output_queue_index <= output_queue_index + 1;
-        end
-     end
-
-   endcase
+    endcase
 end
 
 endmodule   

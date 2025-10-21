@@ -143,96 +143,96 @@ stack_machine #(
 assign ready = (state == READY);
 
 initial begin
-   state               = READY;
-   x1                  = 0;
-   y1                  = 0;
-   x2                  = 0;
-   y2                  = 0;
-   x                   = 0;   
-   line_drawer_start   = 0;
-   parser_start        = 0;
-   index_switch        = 0;
-   stack_machine_start = 0;
-   is_first_iter       = 1;
+    state               = READY;
+    x1                  = 0;
+    y1                  = 0;
+    x2                  = 0;
+    y2                  = 0;
+    x                   = 0;   
+    line_drawer_start   = 0;
+    parser_start        = 0;
+    index_switch        = 0;
+    stack_machine_start = 0;
+    is_first_iter       = 1;
 end
 
 always @(posedge clk) begin
-   case (state)
-     READY: begin
-        if (start) begin
-           state <= PARSE_EXPRESSION;
-           x <= 0;
-           x1 <= 0;
-           y1 <= 0;
-           x2 <= 0;
-           y2 <= 0;
-           index_switch <= 0;
-           is_first_iter <= 1;
+    case (state)
+        READY: begin
+            if (start) begin
+                state <= PARSE_EXPRESSION;
+                x <= 0;
+                x1 <= 0;
+                y1 <= 0;
+                x2 <= 0;
+                y2 <= 0;
+                index_switch <= 0;
+                is_first_iter <= 1;
+            end
         end
-     end
 
-     PARSE_EXPRESSION: begin
-        parser_start <= 1;
-        state <= PARSE_EXPRESSION_2;
-     end
-     PARSE_EXPRESSION_2: begin
-        parser_start <= 0;
-        state <= PARSE_EXPRESSION_3;
-     end
-     PARSE_EXPRESSION_3: begin        
-        if (parser_ready) begin
-           state <= CALCULATE;
-           index_switch <= 1;           
-        end 
-     end
+        PARSE_EXPRESSION: begin
+            parser_start <= 1;
+            state <= PARSE_EXPRESSION_2;
+        end
+        PARSE_EXPRESSION_2: begin
+            parser_start <= 0;
+            state <= PARSE_EXPRESSION_3;
+        end
+        PARSE_EXPRESSION_3: begin        
+            if (parser_ready) begin
+                state <= CALCULATE;
+                index_switch <= 1;           
+            end 
+        end
 
-     CALCULATE: begin
-        if (x > HOR_ACTIVE_PIXELS)
-          state <= READY;
-        else begin
-           stack_machine_start <= 1;
-           state <= CALCULATE_2;
+        CALCULATE: begin
+            if (x > HOR_ACTIVE_PIXELS)
+              state <= READY;
+            else begin
+                stack_machine_start <= 1;
+                state <= CALCULATE_2;
+            end
         end
-     end
-     CALCULATE_2: begin
-        stack_machine_start <= 0;
-        state <= CALCULATE_3;
-     end
-     CALCULATE_3: begin
-        if (stack_machine_ready) begin
-           state <= DRAW;
+        CALCULATE_2: begin
+            stack_machine_start <= 0;
+            state <= CALCULATE_3;
         end
-     end
+        CALCULATE_3: begin
+            if (stack_machine_ready) begin
+                state <= DRAW;
+            end
+        end
 
-     DRAW: begin 
-        if (is_first_iter) begin
-           x2 <= x;
-           y2 <= stack_machine_result;
-           x <= x + 1; 
-           state <= CALCULATE;
-           is_first_iter <= 0;
+        DRAW: begin 
+            if (is_first_iter) begin
+                x2 <= x;
+                y2 <= stack_machine_result;
+                x <= x + 1; 
+                state <= CALCULATE;
+                is_first_iter <= 0;
+            end
+            else begin
+                x1 <= x2;
+                y1 <= y2;
+                x2 <= x;
+                y2 <= stack_machine_result;
+                line_drawer_start <= 1;
+                state <= DRAW_2;           
+            end
         end
-        else begin
-           x1 <= x2;
-           y1 <= y2;
-           x2 <= x;
-           y2 <= stack_machine_result;
-           line_drawer_start <= 1;
-           state <= DRAW_2;           
+        DRAW_2: begin
+            line_drawer_start <= 0;
+            state <= DRAW_3;        
         end
-     end
-     DRAW_2: begin
-        line_drawer_start <= 0;
-        state <= DRAW_3;        
-     end
-     DRAW_3: begin
-        if (line_drawer_ready) begin
-           x <= x + 1;
-           state <= CALCULATE;           
+        DRAW_3: begin
+            if (line_drawer_ready) begin
+                x <= x + 1;
+                state <= CALCULATE;           
+            end
         end
-     end
 
-   endcase
+    endcase
 end
 
 endmodule
