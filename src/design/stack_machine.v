@@ -136,6 +136,7 @@ always @(posedge clk) begin
             op_for_alu <= SUB;
             a <= x;
             b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= HOR_ACTIVE_PIXELS / 2;
+            b[FRACTIONAL_PART_WIDTH - 1:0] <= 0; 
             alu_start <= 1;
             state <= TRANSFORM_X_2;        
         end
@@ -153,6 +154,7 @@ always @(posedge clk) begin
             op_for_alu <= DIV;
             a <= x;
             b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
+            b[FRACTIONAL_PART_WIDTH - 1:0] <= 0; 
             alu_start <= 1;
             state <= TRANSFORM_X_5;                
         end
@@ -244,6 +246,7 @@ always @(posedge clk) begin
               a <= 0;
 
             b[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= 20;
+            b[FRACTIONAL_PART_WIDTH - 1:0] <= 0; 
             alu_start <= 1;
             state <= TRANSFORM_Y_2;    
         end

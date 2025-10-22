@@ -252,11 +252,13 @@ initial begin
     @(posedge clk);
 
     // draw 3 frames normally
+/* -----\/----- EXCLUDED -----\/-----
     repeat (3) begin
         draw_frame();
 
         $stop;
     end
+ -----/\----- EXCLUDED -----/\----- */
 
     ps2_symbol <= "x";
     @(posedge clk);
@@ -285,14 +287,14 @@ initial begin
     end
  -----/\----- EXCLUDED -----/\----- */
 
-    ps2_symbol <= "+";
+    ps2_symbol <= "*";
     @(posedge clk);
     ps2_symbol <= 0;
     @(posedge clk);
 
     draw_frame();
 
-    ps2_symbol <= "1";
+    ps2_symbol <= "5";
     @(posedge clk);
     ps2_symbol <= 0;
     @(posedge clk);

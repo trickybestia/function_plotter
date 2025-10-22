@@ -22,6 +22,8 @@ parameter VER_ACTIVE_PIXELS = 480;
 parameter SYMBOL_WIDTH      = 7;
 
 // local parameters
+localparam ACTUAL_VER_ACTIVE_PIXELS = VER_ACTIVE_PIXELS - 30;
+
 localparam X_WIDTH = $clog2(HOR_ACTIVE_PIXELS);
 localparam Y_WIDTH = $clog2(VER_ACTIVE_PIXELS);
 
@@ -85,7 +87,7 @@ vector #(
     .DATA_COUNT (OUTPUT_QUEUE_SIZE)
 ) output_queue (
     .clk        (clk),
-    .reset      (reset),
+    .reset      (output_queue_reset),
     .index      (output_queue_index),
     .get        (output_queue_get),
     .insert     (output_queue_insert),
@@ -128,7 +130,7 @@ stack_machine #(
     .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH),
     .OUTPUT_QUEUE_SIZE     (OUTPUT_QUEUE_SIZE),
     .HOR_ACTIVE_PIXELS     (HOR_ACTIVE_PIXELS),
-    .VER_ACTIVE_PIXELS     (VER_ACTIVE_PIXELS)                
+    .VER_ACTIVE_PIXELS     (ACTUAL_VER_ACTIVE_PIXELS)                
 ) stack_machine (
     .clk                   (clk),
     .ready                 (stack_machine_ready),
