@@ -68,7 +68,7 @@ initial begin
 
     // ' '
     #200;
-    symbol <= "*";
+    symbol <= "/";
     symbol_valid <= 1;
 
     #10;
@@ -76,12 +76,13 @@ initial begin
 
     // '+'
     #200;
-    symbol <= "2";
+    symbol <= "x";
     symbol_valid <= 1;
 
     #10;
     symbol_valid <= 0;
 
+/* -----\/----- EXCLUDED -----\/-----
     // ' '
     #200;
     symbol <= "+";
@@ -97,6 +98,7 @@ initial begin
 
     #10;
     symbol_valid <= 0;
+ -----/\----- EXCLUDED -----/\----- */
 
     // null
     #200;

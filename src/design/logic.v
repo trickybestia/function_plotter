@@ -41,10 +41,16 @@ localparam PARSE_EXPRESSION_2 = 2;
 localparam PARSE_EXPRESSION_3 = 3;   
 localparam CALCULATE          = 4;
 localparam CALCULATE_2        = 5;
-localparam CALCULATE_3        = 6;   
-localparam DRAW               = 7;
-localparam DRAW_2             = 8;
-localparam DRAW_3             = 9;   
+localparam CALCULATE_3        = 6;
+localparam DRAW_X_AXIS        = 7;
+localparam DRAW_X_AXIS_2      = 8;
+localparam DRAW_X_AXIS_3      = 9;
+localparam DRAW_Y_AXIS        = 10;
+localparam DRAW_Y_AXIS_2      = 11;
+localparam DRAW_Y_AXIS_3      = 12;  
+localparam DRAW               = 13;
+localparam DRAW_2             = 14;
+localparam DRAW_3             = 15;   
 
 // input/output
 input clk;
@@ -66,6 +72,9 @@ input                       symbol_valid;
 // reg/wire
 reg [3:0] state;
 reg       is_first_iter;   
+
+reg [X_WIDTH - 1:0] x2_axis;
+reg [Y_WIDTH - 1:0] y2_axis;
 
 // instantiate vector module for output_queue
 wire [$clog2(OUTPUT_QUEUE_SIZE) - 1:0] parser_index;
@@ -209,7 +218,47 @@ always @(posedge clk) begin
         end
         CALCULATE_3: begin
             if (stack_machine_ready) begin
+                state <= DRAW_X_AXIS;
+            end
+        end
+
+
+        DRAW_X_AXIS: begin
+            x2_axis <= x2; 
+            y2_axis <= y2;            
+            x1 <= 0;
+            y1 <= ACTUAL_VER_ACTIVE_PIXELS / 2;
+            x2 <= HOR_ACTIVE_PIXELS;
+            y2 <= ACTUAL_VER_ACTIVE_PIXELS / 2;
+            line_drawer_start <= 1;
+            state <= DRAW_X_AXIS_2;
+        end
+        DRAW_X_AXIS_2: begin
+            line_drawer_start <= 0;
+            state <= DRAW_X_AXIS_3;
+        end
+        DRAW_X_AXIS_3: begin
+            if (line_drawer_ready) begin
+                state <= DRAW_Y_AXIS;
+            end
+        end 
+        DRAW_Y_AXIS: begin
+            x1 <= HOR_ACTIVE_PIXELS / 2;
+            y1 <= 0;
+            x2 <= HOR_ACTIVE_PIXELS / 2;
+            y2 <= ACTUAL_VER_ACTIVE_PIXELS;
+            line_drawer_start <= 1;
+            state <= DRAW_Y_AXIS_2;
+        end
+        DRAW_Y_AXIS_2: begin
+            line_drawer_start <= 0;
+            state <= DRAW_Y_AXIS_3;
+        end
+        DRAW_Y_AXIS_3: begin
+            if (line_drawer_ready) begin
                 state <= DRAW;
+                x2 <= x2_axis; 
+                y2 <= y2_axis;
             end
         end
 

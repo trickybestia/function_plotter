@@ -235,7 +235,7 @@ always @(posedge clk) begin
         end
         PUT_OPERAND_TO_OUTPUT_2: begin
             output_queue_insert <= 0;
-            state <= PUT_OPERATOR_TO_OUTPUT_3;
+            state <= PUT_OPERAND_TO_OUTPUT_3;
         end
         PUT_OPERAND_TO_OUTPUT_3: begin
             if (output_queue_ready) begin
@@ -263,8 +263,10 @@ always @(posedge clk) begin
         end
 
         HANDLE_MUL: begin
-            if (stack_p == 0)
-              state <= PUSH_OPERATOR_TO_STACK;
+            if (stack_p == 0) begin
+                state <= PUSH_OPERATOR_TO_STACK;
+                next_state <= ANALYZE_SYMBOLE;
+            end
             else if (stack[stack_p - 1] == POW) begin
                 next_state <= HANDLE_MUL;
                 state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
@@ -276,8 +278,10 @@ always @(posedge clk) begin
         end
 
         HANDLE_DIV: begin
-            if (stack_p == 0)
-              state <= PUSH_OPERATOR_TO_STACK;
+            if (stack_p == 0) begin
+                state <= PUSH_OPERATOR_TO_STACK;
+                next_state <= REQUEST_SYMBOLE;
+            end
             else if (stack[stack_p - 1] == POW) begin
                 next_state <= HANDLE_DIV;
                 state <= MOVE_OP_FROM_STACK_TO_OUTPUT;           
