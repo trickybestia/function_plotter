@@ -6,6 +6,7 @@ module stack_machine (
 
     x_input,
     y_output,
+    skip_pixel,
 
     output_queue_index,
     output_queue_get,
@@ -70,6 +71,7 @@ output     ready;
 
 input      [$clog2(HOR_ACTIVE_PIXELS) - 1:0] x_input;
 output reg [$clog2(VER_ACTIVE_PIXELS) - 1:0] y_output;
+output reg                                   skip_pixel;
 
 output reg [$clog2(OUTPUT_QUEUE_SIZE) - 1:0]     output_queue_index;
 output reg                                       output_queue_get;
@@ -127,7 +129,10 @@ always @(posedge clk) begin
             if (start) begin
                 output_queue_index <= 0;
                 y_output <= 0;
+                skip_pixel <= 0;
                 state <= TRANSFORM_X;
+                stack_p <= 0;  
+                x <= 0;           
                 x[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] <= x_input;
             end
         end
@@ -213,16 +218,21 @@ always @(posedge clk) begin
             state <= FETCH_OUTPUT_VAL;        
         end
 
-        // todo: add check for division by zero
         PERFORM_MATN_OP: begin
             if (stack_p < 2) begin
                 state <= TRANSFORM_Y;
             end
             else begin
-                a <= stack[stack_p - 2];
-                b <= stack[stack_p - 1];
-                alu_start <= 1;        
-                state <= PERFORM_MATN_OP_2;
+                if (op_for_alu == DIV && stack[stack_p - 1] == 0) begin
+                    skip_pixel <= 1;
+                    state <= READY;
+                end
+                else begin
+                    a <= stack[stack_p - 2];
+                    b <= stack[stack_p - 1];
+                    alu_start <= 1;        
+                    state <= PERFORM_MATN_OP_2;                    
+                end
             end
         end
         PERFORM_MATN_OP_2: begin
@@ -275,15 +285,16 @@ always @(posedge clk) begin
             if (alu_done) begin
                 if (result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH] > 
                     VER_ACTIVE_PIXELS) begin
+                    skip_pixel <= 1;
+/* -----\/----- EXCLUDED -----\/-----
                     y_output <= VER_ACTIVE_PIXELS;              
+ -----/\----- EXCLUDED -----/\----- */
                 end
                 else begin
                     y_output <= result[NUMBER_WIDTH - 1:FRACTIONAL_PART_WIDTH];
                 end
                 
                 state <= READY;
-                stack_p <= 0;  
-                x <= 0;           
             end
         end
         

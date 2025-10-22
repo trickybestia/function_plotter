@@ -122,6 +122,7 @@ parser #(
 // instantiate stack_machine module
 wire                      stack_machine_ready;
 reg                       stack_machine_start;
+wire                      skip_pixel;
 reg  [X_WIDTH - 1:0]      x;
 wire [Y_WIDTH - 1:0]      stack_machine_result;   
     
@@ -137,6 +138,7 @@ stack_machine #(
     .start                 (stack_machine_start),                         
     .x_input               (x),
     .y_output              (stack_machine_result),
+    .skip_pixel            (skip_pixel),
     .output_queue_index    (stack_machine_index),
     .output_queue_get      (output_queue_get),
     .output_queue_length   (output_queue_length),                 
@@ -211,8 +213,12 @@ always @(posedge clk) begin
             end
         end
 
-        DRAW: begin 
-            if (is_first_iter) begin
+        DRAW: begin
+            if (skip_pixel) begin
+                x <= x + 1;
+                state <= CALCULATE;                           
+            end            
+            else if (is_first_iter) begin
                 x2 <= x;
                 y2 <= stack_machine_result;
                 x <= x + 1; 
