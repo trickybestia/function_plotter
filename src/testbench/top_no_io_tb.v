@@ -260,13 +260,45 @@ initial begin
     end
  -----/\----- EXCLUDED -----/\----- */
 
+    ps2_symbol <= "[";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
     ps2_symbol <= "x";
     @(posedge clk);
     ps2_symbol <= 0;
     @(posedge clk);
 
     draw_frame();
-    $stop; 
+
+
+    ps2_symbol <= "-";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "5";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "]";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
 
     ps2_symbol <= "*";
     @(posedge clk);
@@ -274,25 +306,130 @@ initial begin
     @(posedge clk);
 
     draw_frame();
-    $stop;
 
+
+
+        ps2_symbol <= "[";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "x";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "+";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "5";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "]";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+        ps2_symbol <= "*";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+    $stop; 
+
+
+        ps2_symbol <= "[";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "x";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "-";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "3";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+
+
+    ps2_symbol <= "]";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+    $stop; 
 /* -----\/----- EXCLUDED -----\/-----
-    ps2_symbol <= "*";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
-    $stop; 
- -----/\----- EXCLUDED -----/\----- */
-
-    ps2_symbol <= "x";
+    ps2_symbol <= "3";
     @(posedge clk);
     ps2_symbol <= 0;
     @(posedge clk);
 
     draw_frame();
     $stop;
+
+
+    ps2_symbol <= "-";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+    $stop;
+
+    ps2_symbol <= "2";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+    $stop;
+
+    ps2_symbol <= "]";
+    @(posedge clk);
+    ps2_symbol <= 0;
+    @(posedge clk);
+
+    draw_frame();
+    $stop; 
 
     ps2_symbol <= "+";
     @(posedge clk);
@@ -325,6 +462,7 @@ initial begin
 
     draw_frame();
     $stop;
+ -----/\----- EXCLUDED -----/\----- */
 
 /* -----\/----- EXCLUDED -----\/-----
     // draw 3 frames with "a1" displayed, cursor between "a" and "1"

@@ -265,7 +265,8 @@ always @(posedge clk) begin
         DRAW: begin
             if (skip_pixel) begin
                 x <= x + 1;
-                state <= CALCULATE;                           
+                state <= CALCULATE;
+                is_first_iter <= 1;
             end            
             else if (is_first_iter) begin
                 x2 <= x;

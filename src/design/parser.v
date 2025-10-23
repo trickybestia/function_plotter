@@ -242,6 +242,7 @@ always @(posedge clk) begin
                 acc_operand <= 0;
                 acc_operand_fraction <= 0;
                 state <= next_state;
+                output_queue_index <= output_queue_index + 1;
             end
         end
 
@@ -345,12 +346,16 @@ always @(posedge clk) begin
         end
 
         MOVE_OP_FROM_STACK_TO_OUTPUT: begin
-            output_queue_data_in[NUMBER_WIDTH] <= 1'b1;
-            output_queue_data_in[NUMBER_WIDTH - 1:OPERATOR_WIDTH] <= 0;
-            output_queue_data_in[OPERATOR_WIDTH - 1:0] <= stack[stack_p - 1];
-
-            output_queue_insert <= 1;
-            state <= MOVE_OP_FROM_STACK_TO_OUTPUT_2;
+            if (stack[stack_p - 1] == LEFT_BRACKET) begin
+                state <= READY;
+            end
+            else begin
+                output_queue_data_in[NUMBER_WIDTH] <= 1'b1;
+                output_queue_data_in[NUMBER_WIDTH - 1:OPERATOR_WIDTH] <= 0;
+                output_queue_data_in[OPERATOR_WIDTH - 1:0] <= stack[stack_p - 1];
+                output_queue_insert <= 1;
+                state <= MOVE_OP_FROM_STACK_TO_OUTPUT_2;
+            end
         end
         MOVE_OP_FROM_STACK_TO_OUTPUT_2: begin
             output_queue_insert <= 0;
