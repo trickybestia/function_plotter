@@ -68,13 +68,8 @@ end
 // state
 always @(posedge clk) begin
     if (reset) begin
-        data_out <= 0;
-        length   <= 0;
-        state    <= STATE_READY;
-        j        <= 0;
-        tmp      <= 0;
-    end
-    else begin
+        state <= STATE_READY;
+    end else begin
         case (state)
             STATE_READY: begin
                 if (insert) state <= (index != length) ? STATE_INSERT_READ : STATE_INSERT_DONE;
@@ -92,24 +87,32 @@ end
 
 // j
 always @(posedge clk) begin
-    case (state)
-        STATE_READY: begin
-            if (insert) j <= length;
-            if (remove) j <= index; 
-        end
-        STATE_INSERT_WRITE: j <= j - 1;
-        STATE_REMOVE_WRITE: j <= j + 1;
-        default: ;
-    endcase
+    if (reset) begin
+        j <= 0;
+    end else begin
+        case (state)
+            STATE_READY: begin
+                if (insert) j <= length;
+                if (remove) j <= index; 
+            end
+            STATE_INSERT_WRITE: j <= j - 1;
+            STATE_REMOVE_WRITE: j <= j + 1;
+            default: ;
+        endcase
+    end
 end
 
 // tmp
 always @(posedge clk) begin
-    case (state)
-        STATE_INSERT_READ: tmp <= mem[j - 1];
-        STATE_REMOVE_READ: tmp <= mem[j + 1];
-        default: ;
-    endcase
+    if (reset) begin
+        tmp <= 0;
+    end else begin
+        case (state)
+            STATE_INSERT_READ: tmp <= mem[j - 1];
+            STATE_REMOVE_READ: tmp <= mem[j + 1];
+            default: ;
+        endcase
+    end
 end
 
 // mem
@@ -124,17 +127,25 @@ end
 
 // length
 always @(posedge clk) begin
-    case (state)
-        STATE_INSERT_DONE: length <= length + 1;
-        STATE_REMOVE_DONE: length <= length - 1;
-        default: ;
-    endcase
+    if (reset) begin
+        length <= 0;
+    end else begin
+        case (state)
+            STATE_INSERT_DONE: length <= length + 1;
+            STATE_REMOVE_DONE: length <= length - 1;
+            default: ;
+        endcase
+    end
 end
 
 // data_out
 always @(posedge clk) begin
-    if ((state == STATE_READY) & get) begin
-        data_out <= mem[index];
+    if (reset) begin
+        data_out <= 0;
+    end else begin
+        if ((state == STATE_READY) & get) begin
+            data_out <= mem[index];
+        end
     end
 end
 

@@ -64,6 +64,7 @@ vector #(
     .DATA_COUNT (SYMBOLS_COUNT)
 ) vector (
     .clk      (clk),
+    .reset    (0),
     .index    (vector_index),
     .get      (vector_get),
     .insert   (vector_insert),
