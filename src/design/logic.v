@@ -100,6 +100,7 @@ vector #(
     .index      (output_queue_index),
     .get        (output_queue_get),
     .insert     (output_queue_insert),
+    .remove     (0),
     .data_in    (output_queue_data_in),
     .data_out   (output_queue_data_out),
     .length     (output_queue_length),                
