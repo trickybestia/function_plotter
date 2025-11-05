@@ -50,6 +50,10 @@ class AssemblyInstruction:
 
     def substitute_label(self, label: str, value: int): ...
 
+    @staticmethod
+    def __len__() -> int:
+        return 1
+
 
 @dataclass
 class ADD(AssemblyInstruction):
@@ -171,6 +175,10 @@ class JMP(AssemblyInstruction):
         if self.jmp_pc == label:
             self.jmp_pc = value
 
+    @staticmethod
+    def __len__() -> int:
+        return 2
+
 
 @dataclass
 class JMPEQ(AssemblyInstruction):
@@ -199,6 +207,10 @@ class JMPEQ(AssemblyInstruction):
     def substitute_label(self, label: str, value: int):
         if self.jmp_pc == label:
             self.jmp_pc = value
+
+    @staticmethod
+    def __len__() -> int:
+        return 2
 
 
 @dataclass
@@ -229,6 +241,10 @@ class JMPNE(AssemblyInstruction):
         if self.jmp_pc == label:
             self.jmp_pc = value
 
+    @staticmethod
+    def __len__() -> int:
+        return 2
+
 
 @dataclass
 class JMPLT(AssemblyInstruction):
@@ -257,6 +273,10 @@ class JMPLT(AssemblyInstruction):
     def substitute_label(self, label: str, value: int):
         if self.jmp_pc == label:
             self.jmp_pc = value
+
+    @staticmethod
+    def __len__() -> int:
+        return 2
 
 
 @dataclass
@@ -287,6 +307,10 @@ class JMPLE(AssemblyInstruction):
         if self.jmp_pc == label:
             self.jmp_pc = value
 
+    @staticmethod
+    def __len__() -> int:
+        return 2
+
 
 @dataclass
 class JMPGT(AssemblyInstruction):
@@ -315,6 +339,10 @@ class JMPGT(AssemblyInstruction):
     def substitute_label(self, label: str, value: int):
         if self.jmp_pc == label:
             self.jmp_pc = value
+
+    @staticmethod
+    def __len__() -> int:
+        return 2
 
 
 @dataclass
@@ -345,6 +373,10 @@ class JMPGE(AssemblyInstruction):
         if self.jmp_pc == label:
             self.jmp_pc = value
 
+    @staticmethod
+    def __len__() -> int:
+        return 2
+
 
 @dataclass
 class JMPCR(AssemblyInstruction):
@@ -369,6 +401,10 @@ class JMPCR(AssemblyInstruction):
     def substitute_label(self, label: str, value: int):
         if self.jmp_pc == label:
             self.jmp_pc = value
+
+    @staticmethod
+    def __len__() -> int:
+        return 2
 
 
 @dataclass
@@ -395,6 +431,10 @@ class JMPCW(AssemblyInstruction):
         if self.jmp_pc == label:
             self.jmp_pc = value
 
+    @staticmethod
+    def __len__() -> int:
+        return 2
+
 
 @dataclass
 class JMPNCR(AssemblyInstruction):
@@ -420,6 +460,10 @@ class JMPNCR(AssemblyInstruction):
         if self.jmp_pc == label:
             self.jmp_pc = value
 
+    @staticmethod
+    def __len__() -> int:
+        return 2
+
 
 @dataclass
 class JMPNCW(AssemblyInstruction):
@@ -444,6 +488,10 @@ class JMPNCW(AssemblyInstruction):
     def substitute_label(self, label: str, value: int):
         if self.jmp_pc == label:
             self.jmp_pc = value
+
+    @staticmethod
+    def __len__() -> int:
+        return 2
 
 
 @dataclass
@@ -533,7 +581,7 @@ class LL(AssemblyInstruction):
         return cls(_parse_reg_addr(args[0]), _parse_imm(args[1]))
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.LH(self.rd, self.imm)
+        return emulator.LL(self.rd, self.imm)
 
 
 INSTRUCTIONS_LIST: list[type[AssemblyInstruction]] = [
@@ -567,17 +615,21 @@ INSTRUCTIONS_DICT: dict[str, type[AssemblyInstruction]] = dict(
 
 class Assembly:
     instructions: list[AssemblyInstruction]
+    instruction_pointer: int
     labels: dict[str, int]
 
     def __init__(self):
         self.instructions = []
+        self.instruction_pointer = 0
         self.labels = {}
 
     def instruction(self, instruction: AssemblyInstruction):
         self.instructions.append(instruction)
 
+        self.instruction_pointer += len(instruction)
+
     def label(self, name: str):
-        self.labels[name] = len(self.instructions)
+        self.labels[name] = self.instruction_pointer
 
     def compile(self) -> list[emulator.EmulatorInstruction]:
         for instr in self.instructions:

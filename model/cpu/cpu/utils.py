@@ -3,7 +3,7 @@ from .assembly import INSTRUCTIONS_DICT, Assembly
 
 
 def dump_emulator_state(emulator: Emulator) -> str:
-    return f"executed_instructions_count: {emulator.executed_instructions_count}, pc: {emulator.pc}, regs[1:15]: {emulator.regs}, data_mem: {emulator.data_mem}"
+    return f"executed_instructions_count: {emulator.executed_instructions_count}, pc: {emulator.pc}, regs[1:15]: {emulator.regs}"
 
 
 def read_asm(input_path: str) -> Assembly:
