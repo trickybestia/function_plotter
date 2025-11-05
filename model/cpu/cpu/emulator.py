@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from math import log2, ceil
+from typing import Optional
 
 OP_WIDTH = 4
 
@@ -335,11 +336,29 @@ class LL(EmulatorInstruction):
         ]
 
 
+class Accelerator:
+    def can_read(self) -> bool:
+        raise NotImplementedError()
+
+    def can_write(self) -> bool:
+        raise NotImplementedError()
+
+    def read(self) -> int:
+        raise NotImplementedError()
+
+    def write(self, value: int):
+        raise NotImplementedError()
+
+    def tick(self):
+        raise NotImplementedError()
+
+
 class Emulator:
     regs: list[int]
     pc: int
     instructions_mem: list[EmulatorInstruction]
     data_mem: list[int]
+    accelerators: list[Optional[Accelerator]]
 
     executed_instructions_count: int
 
@@ -348,6 +367,7 @@ class Emulator:
         self.pc = 0
         self.instructions_mem = [None] * INSTRUCTION_MEM_SIZE
         self.data_mem = [0] * DATA_MEM_SIZE
+        self.accelerators = [None] * ACCEL_COUNT
 
         self.executed_instructions_count = 0
 
@@ -426,13 +446,13 @@ class Emulator:
                         instr.rs2
                     )
                 case JMPCond.CR:
-                    ...
+                    cond_value = self.accelerators[instr.rs2].can_read()
                 case JMPCond.CW:
-                    ...
+                    cond_value = self.accelerators[instr.rs2].can_write()
                 case JMPCond.NCR:
-                    ...
+                    cond_value = not self.accelerators[instr.rs2].can_read()
                 case JMPCond.NCW:
-                    ...
+                    cond_value = not self.accelerators[instr.rs2].can_write()
                 case _:
                     raise Exception(f"Invalid instruction: {instr}")
 
@@ -444,9 +464,19 @@ class Emulator:
         elif isinstance(instr, STORE):
             self.data_mem[self.read_reg(instr.rs1)] = self.read_reg(instr.rs2)
         elif isinstance(instr, WACC):
-            ...
+            accelerator = self.accelerators[instr.accel_id]
+
+            if accelerator.can_write():
+                accelerator.write(self.read_reg(instr.rs1))
+            else:
+                override_pc = True  # do not update pc - wait for accelerator to become writable
         elif isinstance(instr, RACC):
-            ...
+            accelerator = self.accelerators[instr.accel_id]
+
+            if accelerator.can_read():
+                self.write_reg(instr.rd, accelerator.read())
+            else:
+                override_pc = True  # do not update pc - wait for accelerator to become readable
         elif isinstance(instr, LH):
             self.write_reg(
                 instr.rd,
@@ -467,3 +497,7 @@ class Emulator:
 
         if not override_pc:
             self.pc = (self.pc + 1) & _ones(INSTRUCTION_MEM_ADDR_WIDTH)
+
+        for accelerator in self.accelerators:
+            if accelerator is not None:
+                accelerator.tick()
