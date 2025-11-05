@@ -1,5 +1,4 @@
     lh r1, 0
-    ll r1, 1
     ll r1, 'H'
     wacc r1, acc0
     ll r1, 'e'
