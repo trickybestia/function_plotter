@@ -156,6 +156,36 @@ class XOR(AssemblyInstruction):
 
 
 @dataclass
+class LH(AssemblyInstruction):
+    rd: int
+    imm: int
+
+    @classmethod
+    def parse_args(cls, args: list[str]) -> Self:
+        assert len(args) == 2
+
+        return cls(_parse_reg_addr(args[0]), _parse_imm(args[1]))
+
+    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+        return emulator.LH(self.rd, self.imm)
+
+
+@dataclass
+class LL(AssemblyInstruction):
+    rd: int
+    imm: int
+
+    @classmethod
+    def parse_args(cls, args: list[str]) -> Self:
+        assert len(args) == 2
+
+        return cls(_parse_reg_addr(args[0]), _parse_imm(args[1]))
+
+    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+        return emulator.LL(self.rd, self.imm)
+
+
+@dataclass
 class JMP(AssemblyInstruction):
     jmp_pc: int | str
 
@@ -552,36 +582,6 @@ class RACC(AssemblyInstruction):
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.RACC(self.rd, self.accel_id)
-
-
-@dataclass
-class LH(AssemblyInstruction):
-    rd: int
-    imm: int
-
-    @classmethod
-    def parse_args(cls, args: list[str]) -> Self:
-        assert len(args) == 2
-
-        return cls(_parse_reg_addr(args[0]), _parse_imm(args[1]))
-
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.LH(self.rd, self.imm)
-
-
-@dataclass
-class LL(AssemblyInstruction):
-    rd: int
-    imm: int
-
-    @classmethod
-    def parse_args(cls, args: list[str]) -> Self:
-        assert len(args) == 2
-
-        return cls(_parse_reg_addr(args[0]), _parse_imm(args[1]))
-
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.LL(self.rd, self.imm)
 
 
 INSTRUCTIONS_LIST: list[type[AssemblyInstruction]] = [

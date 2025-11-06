@@ -258,6 +258,72 @@ class XOR(EmulatorInstruction):
 
 
 @dataclass(frozen=True)
+class LH(EmulatorInstruction):
+    rd: int
+    imm: int
+
+    def __post_init__(self):
+        assert 0 <= self.rd < REG_COUNT
+        assert 0 <= self.imm < 2**IMM_WIDTH
+
+    @staticmethod
+    def op() -> int:
+        return 5
+
+    @classmethod
+    def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
+        op = _decode(words[0], OP_LSB, OP_WIDTH)
+
+        if op != cls.op():
+            return None
+
+        return cls(
+            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            _decode(words[0], IMM_LSB, IMM_WIDTH),
+        )
+
+    def encode(self) -> list[int]:
+        return [
+            _encode(self.op(), OP_LSB)
+            | _encode(self.rd, RD_LSB)
+            | _encode(self.imm, IMM_LSB)
+        ]
+
+
+@dataclass(frozen=True)
+class LL(EmulatorInstruction):
+    rd: int
+    imm: int
+
+    def __post_init__(self):
+        assert 0 <= self.rd < REG_COUNT
+        assert 0 <= self.imm < 2**IMM_WIDTH
+
+    @staticmethod
+    def op() -> int:
+        return 6
+
+    @classmethod
+    def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
+        op = _decode(words[0], OP_LSB, OP_WIDTH)
+
+        if op != cls.op():
+            return None
+
+        return cls(
+            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            _decode(words[0], IMM_LSB, IMM_WIDTH),
+        )
+
+    def encode(self) -> list[int]:
+        return [
+            _encode(self.op(), OP_LSB)
+            | _encode(self.rd, RD_LSB)
+            | _encode(self.imm, IMM_LSB)
+        ]
+
+
+@dataclass(frozen=True)
 class JMP(EmulatorInstruction):
     cond: int
     rs1: int
@@ -271,7 +337,7 @@ class JMP(EmulatorInstruction):
 
     @staticmethod
     def op() -> int:
-        return 5
+        return 7
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
@@ -308,7 +374,7 @@ class LOAD(EmulatorInstruction):
 
     @staticmethod
     def op() -> int:
-        return 6
+        return 8
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
@@ -341,7 +407,7 @@ class STORE(EmulatorInstruction):
 
     @staticmethod
     def op() -> int:
-        return 7
+        return 9
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
@@ -374,7 +440,7 @@ class WACC(EmulatorInstruction):
 
     @staticmethod
     def op() -> int:
-        return 8
+        return 10
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
@@ -407,7 +473,7 @@ class RACC(EmulatorInstruction):
 
     @staticmethod
     def op() -> int:
-        return 9
+        return 11
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
@@ -426,72 +492,6 @@ class RACC(EmulatorInstruction):
             _encode(self.op(), OP_LSB)
             | _encode(self.rd, RD_LSB)
             | _encode(self.accel_id, ACCEL_ID_LSB)
-        ]
-
-
-@dataclass(frozen=True)
-class LH(EmulatorInstruction):
-    rd: int
-    imm: int
-
-    def __post_init__(self):
-        assert 0 <= self.rd < REG_COUNT
-        assert 0 <= self.imm < 2**IMM_WIDTH
-
-    @staticmethod
-    def op() -> int:
-        return 10
-
-    @classmethod
-    def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
-
-        if op != cls.op():
-            return None
-
-        return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], IMM_LSB, IMM_WIDTH),
-        )
-
-    def encode(self) -> list[int]:
-        return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.imm, IMM_LSB)
-        ]
-
-
-@dataclass(frozen=True)
-class LL(EmulatorInstruction):
-    rd: int
-    imm: int
-
-    def __post_init__(self):
-        assert 0 <= self.rd < REG_COUNT
-        assert 0 <= self.imm < 2**IMM_WIDTH
-
-    @staticmethod
-    def op() -> int:
-        return 11
-
-    @classmethod
-    def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
-
-        if op != cls.op():
-            return None
-
-        return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], IMM_LSB, IMM_WIDTH),
-        )
-
-    def encode(self) -> list[int]:
-        return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.imm, IMM_LSB)
         ]
 
 
