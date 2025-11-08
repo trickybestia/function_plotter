@@ -40,6 +40,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_div.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_pow.v"]"\
+ "[file normalize "$origin_dir/src/design/cpu_reg_file.v"]"\
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
@@ -61,6 +62,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/fixed_point_alu_tb_behav.wcfg"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_div_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_pow_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/cpu_reg_file_tb.v"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -226,6 +228,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/fixed_point_mul.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_div.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_pow.v"] \
+ [file normalize "${origin_dir}/src/design/cpu_reg_file.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -723,6 +726,30 @@ set obj [get_filesets fixed_point_pow_tb]
 set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "fixed_point_pow_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'cpu_reg_file_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet cpu_reg_file_tb] ""]} {
+  create_fileset -simset cpu_reg_file_tb
+}
+
+# Set 'cpu_reg_file_tb' fileset object
+set obj [get_filesets cpu_reg_file_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/cpu_reg_file_tb.v"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'cpu_reg_file_tb' fileset file properties for remote files
+# None
+
+# Set 'cpu_reg_file_tb' fileset file properties for local files
+# None
+
+# Set 'cpu_reg_file_tb' fileset properties
+set obj [get_filesets cpu_reg_file_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
+set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
 # Set 'utils_1' fileset object
