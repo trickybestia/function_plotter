@@ -113,10 +113,7 @@ reg [3:0] rd2_reg;
 
 reg data_mem_read_reg;
 
-reg  [REG_WIDTH - 1:0] pc;
-wire [REG_WIDTH - 1:0] pc_next;
-
-assign pc_next = (jmp && jmp_cond_decoder_result) ? jmp_pc : pc + 1;
+reg [REG_WIDTH - 1:0] pc, pc_next;
 
 assign instr_mem_addr      = pc_next;
 assign data_mem_addr       = rs1_value;
@@ -161,6 +158,19 @@ cpu_jmp_cond_decoder cpu_jmp_cond_decoder (
     .result          (jmp_cond_decoder_result)
 );
 
+// pc_next
+always @(posedge clk) begin
+    if (rst) begin
+        pc_next = 0;
+    end else if ((op == OP_WACC && !accel_can_write) || (op == OP_RACC && !accel_can_read)) begin
+        pc_next = pc;
+    end else if (jmp && jmp_cond_decoder_result) begin
+        pc_next = jmp_pc;
+    end else begin
+        pc_next = pc + 1;
+    end
+end
+
 // rd2_reg
 always @(posedge clk) begin
     rd2_reg <= rd1;
@@ -177,11 +187,7 @@ end
 
 // pc
 always @(posedge clk) begin
-    if (rst) begin
-        pc <= 0;
-    end else begin
-        pc <= pc_next;
-    end
+    pc <= pc_next;
 end
 
 endmodule
