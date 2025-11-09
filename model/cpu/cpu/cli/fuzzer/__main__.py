@@ -14,7 +14,7 @@ from cpu.accelerators.dummy_accelerator import DummyAccelerator
 def random_asm() -> Assembly:
     asm = Assembly()
 
-    instructions_count = randrange(0, 10)
+    instructions_count = randrange(0, 100)
 
     for i in range(instructions_count):
         asm.label(str(i))
