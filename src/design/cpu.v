@@ -109,7 +109,7 @@ wire                   alu_lt;
 // cpu_jmp_cond_decoder
 wire jmp_cond_decoder_result;
 
-reg [3:0] rd2_reg;
+reg [REG_WIDTH:0] rd2_reg;
 
 reg data_mem_read_reg;
 
