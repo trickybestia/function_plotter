@@ -586,7 +586,7 @@ class Emulator:
         elif (instr := XOR.try_decode(instr_words)) is not None:
             self.write_reg(
                 instr.rd,
-                self.read_reg(instr.rs1) | self.read_reg(instr.rs2),
+                self.read_reg(instr.rs1) ^ self.read_reg(instr.rs2),
             )
         elif (instr := JMP.try_decode(instr_words)) is not None:
             cond_value = False
