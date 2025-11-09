@@ -1,5 +1,8 @@
 module cpu_tb;
 
+// Set to 0 to not regenerate test programs (useful for debugging)
+localparam RUN_REFERENCE_MODEL = 1;
+
 localparam INSTRUCTION_WIDTH          = 16;
 localparam INSTRUCTION_MEM_SIZE       = 1024;
 localparam INSTRUCTION_MEM_ADDR_WIDTH = $clog2(INSTRUCTION_MEM_SIZE);
@@ -123,7 +126,7 @@ end
 initial begin
     for (int programs_tested = 0; ; programs_tested++) begin
         reset;
-        run_reference_model;
+        if (RUN_REFERENCE_MODEL) run_reference_model;
         read_instruction_mem;
 
         log_file_fd = $fopen("actual_log.txt", "w");
@@ -131,7 +134,7 @@ initial begin
         for (int tick = 0; tick != 1000; tick++) begin
             @(posedge clk);
 
-            dump_cpu_state (log_file_fd);
+            dump_cpu_state(log_file_fd);
         end
 
         $fclose(log_file_fd);
