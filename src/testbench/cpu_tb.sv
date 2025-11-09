@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module cpu_tb;
 
 // Set to 0 to not regenerate test programs (useful for debugging)
