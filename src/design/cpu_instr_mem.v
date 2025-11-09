@@ -9,7 +9,7 @@ module cpu_instr_mem (
 parameter DATA_WIDTH = 16;
 parameter SIZE       = 1024;
 parameter ADDR_WIDTH = $clog2(SIZE);
-parameter INIT_FILE  = "path_to_init_mem";
+parameter INIT_FILE  = "";
 
 input clk;
 
@@ -20,7 +20,9 @@ output reg [DATA_WIDTH - 1:0] data_1;
 reg [DATA_WIDTH - 1:0] mem [0:SIZE - 1];
 
 initial begin
-    $readmemb(INIT_FILE, mem);
+    if (INIT_FILE != "") begin
+        $readmemb(INIT_FILE, mem);
+    end
 end
 
 // data_0

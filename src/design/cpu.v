@@ -7,7 +7,7 @@ module cpu (
     instr_mem_data_1,
 
     data_mem_addr,
-    data_mem_data,
+    data_mem_read_data,
     data_mem_write_enable,
     data_mem_write_data,
 
@@ -67,7 +67,7 @@ input  [REG_WIDTH - 1:0] instr_mem_data_0;
 input  [REG_WIDTH - 1:0] instr_mem_data_1;
 
 output [REG_WIDTH - 1:0] data_mem_addr;
-input  [REG_WIDTH - 1:0] data_mem_data;
+input  [REG_WIDTH - 1:0] data_mem_read_data;
 output                   data_mem_write_enable;
 output [REG_WIDTH - 1:0] data_mem_write_data;
 
@@ -114,6 +114,7 @@ reg [3:0] rd2_reg;
 reg data_mem_read_reg;
 
 reg [REG_WIDTH - 1:0] pc, pc_next;
+reg [REG_WIDTH - 1:0] executed, executed_next; // executed instructions count
 
 assign instr_mem_addr      = pc_next;
 assign data_mem_addr       = rs1_value;
@@ -127,12 +128,14 @@ cpu_reg_file #(
     .clk              (clk),
     .rs1              (rs1),
     .rs2              (rs2),
+    .rs1_value        (rs1_value),
+    .rs2_value        (rs2_value),
     .rd1              (rd1),
     .rd1_write_enable (rd1_write_enable),
     .rd1_write_data   (rd1_write_src ? accel_read_data : alu_result),
     .rd2              (rd2_reg),
     .rd2_write_enable (data_mem_read_reg),
-    .rd2_write_data   (data_mem_data)
+    .rd2_write_data   (data_mem_read_data)
 );
 
 cpu_alu #(
@@ -158,16 +161,20 @@ cpu_jmp_cond_decoder cpu_jmp_cond_decoder (
     .result          (jmp_cond_decoder_result)
 );
 
-// pc_next
+// pc_next, executed_next
 always @(posedge clk) begin
     if (rst) begin
-        pc_next = 0;
+        pc_next       = 0;
+        executed_next = 0;
     end else if ((op == OP_WACC && !accel_can_write) || (op == OP_RACC && !accel_can_read)) begin
-        pc_next = pc;
+        pc_next       = pc;
+        executed_next = executed;
     end else if (jmp && jmp_cond_decoder_result) begin
-        pc_next = jmp_pc;
+        pc_next       = jmp_pc;
+        executed_next = executed + 1;
     end else begin
-        pc_next = pc + 1;
+        pc_next       = pc + 1;
+        executed_next = executed + 1;
     end
 end
 
@@ -188,6 +195,11 @@ end
 // pc
 always @(posedge clk) begin
     pc <= pc_next;
+end
+
+// executed
+always @(posedge clk) begin
+    executed <= executed_next;
 end
 
 endmodule

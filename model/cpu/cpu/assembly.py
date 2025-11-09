@@ -12,16 +12,28 @@ def _parse_int_or_label(s: str) -> str | int:
         return s
 
 
+def _format_jmp_pc(value: int) -> str:
+    return str(value)
+
+
 def _parse_reg_addr(s: str) -> int:
     assert s.startswith("r")
 
     return int(s[1:])
 
 
+def _format_reg_addr(value: int) -> str:
+    return f"r{value}"
+
+
 def _parse_accel_id(s: str) -> int:
     assert s.startswith("acc")
 
     return int(s[3:])
+
+
+def _format_accel_id(value: int) -> str:
+    return f"acc{value}"
 
 
 def _parse_imm(s: str) -> int:
@@ -35,6 +47,10 @@ def _parse_imm(s: str) -> int:
         return ord(s[1])
     else:  # decimal
         return int(s)
+
+
+def _format_imm(value: int) -> str:
+    return str(value)
 
 
 class AssemblyInstruction:
@@ -91,6 +107,9 @@ class ADD(AssemblyInstruction):
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.ADD(self.rd, self.rs1, self.rs2)
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
+
 
 @dataclass
 class SUB(AssemblyInstruction):
@@ -118,6 +137,9 @@ class SUB(AssemblyInstruction):
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.SUB(self.rd, self.rs1, self.rs2)
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
 
 
 @dataclass
@@ -147,6 +169,9 @@ class AND(AssemblyInstruction):
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.AND(self.rd, self.rs1, self.rs2)
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
+
 
 @dataclass
 class OR(AssemblyInstruction):
@@ -174,6 +199,9 @@ class OR(AssemblyInstruction):
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.OR(self.rd, self.rs1, self.rs2)
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
 
 
 @dataclass
@@ -203,6 +231,9 @@ class XOR(AssemblyInstruction):
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.XOR(self.rd, self.rs1, self.rs2)
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
+
 
 @dataclass
 class LH(AssemblyInstruction):
@@ -225,6 +256,9 @@ class LH(AssemblyInstruction):
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.LH(self.rd, self.imm)
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_imm(self.imm)}"
+
 
 @dataclass
 class LL(AssemblyInstruction):
@@ -246,6 +280,9 @@ class LL(AssemblyInstruction):
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.LL(self.rd, self.imm)
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_imm(self.imm)}"
 
 
 class JMPBase(AssemblyInstruction):
@@ -277,6 +314,9 @@ class JMP(JMPBase):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
         return emulator.JMP(emulator.JMPCond.EQ, 0, 0, self.jmp_pc)
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_jmp_pc(self.jmp_pc)}"
 
 
 @dataclass
@@ -311,6 +351,9 @@ class JMPEQ(JMPBase):
             emulator.JMPCond.EQ, self.rs1, self.rs2, self.jmp_pc
         )
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
+
 
 @dataclass
 class JMPNE(JMPBase):
@@ -343,6 +386,9 @@ class JMPNE(JMPBase):
         return emulator.JMP(
             emulator.JMPCond.NE, self.rs1, self.rs2, self.jmp_pc
         )
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
 
 
 @dataclass
@@ -377,6 +423,9 @@ class JMPLT(JMPBase):
             emulator.JMPCond.LT, self.rs1, self.rs2, self.jmp_pc
         )
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
+
 
 @dataclass
 class JMPLE(JMPBase):
@@ -409,6 +458,9 @@ class JMPLE(JMPBase):
         return emulator.JMP(
             emulator.JMPCond.LE, self.rs1, self.rs2, self.jmp_pc
         )
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
 
 
 @dataclass
@@ -443,6 +495,9 @@ class JMPGT(JMPBase):
             emulator.JMPCond.GT, self.rs1, self.rs2, self.jmp_pc
         )
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
+
 
 @dataclass
 class JMPGE(JMPBase):
@@ -476,6 +531,9 @@ class JMPGE(JMPBase):
             emulator.JMPCond.GE, self.rs1, self.rs2, self.jmp_pc
         )
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
+
 
 @dataclass
 class JMPCR(JMPBase):
@@ -503,6 +561,9 @@ class JMPCR(JMPBase):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
         return emulator.JMP(emulator.JMPCond.CR, 0, self.accel_id, self.jmp_pc)
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_accel_id(self.accel_id)}, {_format_jmp_pc(self.jmp_pc)}"
 
 
 @dataclass
@@ -532,6 +593,9 @@ class JMPCW(JMPBase):
 
         return emulator.JMP(emulator.JMPCond.CW, 0, self.accel_id, self.jmp_pc)
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_accel_id(self.accel_id)}, {_format_jmp_pc(self.jmp_pc)}"
+
 
 @dataclass
 class JMPNCR(JMPBase):
@@ -559,6 +623,9 @@ class JMPNCR(JMPBase):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
         return emulator.JMP(emulator.JMPCond.NCR, 0, self.accel_id, self.jmp_pc)
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_accel_id(self.accel_id)}, {_format_jmp_pc(self.jmp_pc)}"
 
 
 @dataclass
@@ -588,6 +655,9 @@ class JMPNCW(JMPBase):
 
         return emulator.JMP(emulator.JMPCond.NCW, 0, self.accel_id, self.jmp_pc)
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_accel_id(self.accel_id)}, {_format_jmp_pc(self.jmp_pc)}"
+
 
 @dataclass
 class LOAD(AssemblyInstruction):
@@ -609,6 +679,9 @@ class LOAD(AssemblyInstruction):
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.LOAD(self.rd, self.rs1)
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}"
 
 
 @dataclass
@@ -632,6 +705,9 @@ class STORE(AssemblyInstruction):
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.STORE(self.rs1, self.rs2)
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
+
 
 @dataclass
 class WACC(AssemblyInstruction):
@@ -654,6 +730,9 @@ class WACC(AssemblyInstruction):
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.WACC(self.rs1, self.accel_id)
 
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_accel_id(self.accel_id)}"
+
 
 @dataclass
 class RACC(AssemblyInstruction):
@@ -675,6 +754,9 @@ class RACC(AssemblyInstruction):
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.RACC(self.rd, self.accel_id)
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_accel_id(self.accel_id)}"
 
 
 INSTRUCTIONS_LIST: list[type[AssemblyInstruction]] = [

@@ -1,9 +1,18 @@
-from .emulator import Emulator
+from .emulator import INSTRUCTION_WIDTH, Emulator
 from .assembly import INSTRUCTIONS_DICT, Assembly
 
 
 def dump_emulator_state(emulator: Emulator) -> str:
-    return f"executed_instructions_count: {emulator.executed_instructions_count}, pc: {emulator.pc}, regs[1:15]: {emulator.regs}"
+    return f"executed: {emulator.executed_instructions_count}; pc: {emulator.pc}; regs: {emulator.regs}"
+
+
+def compile_asm_to_file(asm: Assembly, filename: str):
+    with open(filename, "w") as file:
+        for instr in asm.compile():
+            for word in instr.encode():
+                bits_str = bin(word)[2:].rjust(INSTRUCTION_WIDTH, "0")
+
+                file.write(bits_str + "\n")
 
 
 def load_asm_into_emulator(asm: Assembly, emulator: Emulator):

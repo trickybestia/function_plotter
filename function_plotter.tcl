@@ -68,6 +68,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/fixed_point_div_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_pow_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/cpu_reg_file_tb.v"]"\
+ "[file normalize "$origin_dir/src/testbench/cpu_tb.sv"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -200,7 +201,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "390" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "391" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -760,6 +761,35 @@ add_files -norecurse -fileset $obj $files
 set obj [get_filesets cpu_reg_file_tb]
 set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+
+# Create 'cpu_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet cpu_tb] ""]} {
+  create_fileset -simset cpu_tb
+}
+
+# Set 'cpu_tb' fileset object
+set obj [get_filesets cpu_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/cpu_tb.sv"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'cpu_tb' fileset file properties for remote files
+set file "$origin_dir/src/testbench/cpu_tb.sv"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets cpu_tb] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+
+# Set 'cpu_tb' fileset file properties for local files
+# None
+
+# Set 'cpu_tb' fileset properties
+set obj [get_filesets cpu_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
+set_property -name "top" -value "cpu_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
