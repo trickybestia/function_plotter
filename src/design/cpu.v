@@ -81,10 +81,10 @@ output [REG_WIDTH - 1:0]      accel_write_data;
 
 // instruction decoding
 wire [OP_WIDTH - 1:0]                   op                    = instr_mem_data_0[OP_LSB+:OP_WIDTH];
-wire [REG_ADDR_WIDTH - 1:0]             rs1                   = instr_mem_data_0[RS1_LSB+:REG_ADDR_WIDTH];
-wire [REG_ADDR_WIDTH - 1:0]             rs2                   = instr_mem_data_0[RS2_LSB+:REG_ADDR_WIDTH];
 wire [REG_ADDR_WIDTH - 1:0]             rd1                   = instr_mem_data_0[RD_LSB+:REG_ADDR_WIDTH];
-wire                                    rd1_write_enable      = (op == OP_ADD || op == OP_SUB || op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_RACC);
+wire [REG_ADDR_WIDTH - 1:0]             rs1                   = (op == OP_LH || op == OP_LL) ? rd1 : instr_mem_data_0[RS1_LSB+:REG_ADDR_WIDTH];
+wire [REG_ADDR_WIDTH - 1:0]             rs2                   = instr_mem_data_0[RS2_LSB+:REG_ADDR_WIDTH];
+wire                                    rd1_write_enable      = (op == OP_ADD || op == OP_SUB || op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_LH || op == OP_LL || op == OP_RACC);
 wire                                    rd1_write_src         = (op == OP_RACC);
 wire                                    jmp                   = (op == OP_JMP);
 wire [3:0]                              cond                  = instr_mem_data_0[COND_LSB+:COND_WIDTH];
@@ -162,7 +162,7 @@ cpu_jmp_cond_decoder cpu_jmp_cond_decoder (
 );
 
 // pc_next, executed_next
-always @(posedge clk) begin
+always @(*) begin
     if (rst) begin
         pc_next       = 0;
         executed_next = 0;
@@ -173,7 +173,7 @@ always @(posedge clk) begin
         pc_next       = jmp_pc;
         executed_next = executed + 1;
     end else begin
-        pc_next       = pc + 1;
+        pc_next       = jmp ? pc + 2 : pc + 1;
         executed_next = executed + 1;
     end
 end

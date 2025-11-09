@@ -69,6 +69,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/fixed_point_pow_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/cpu_reg_file_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/cpu_tb.sv"]"\
+ "[file normalize "$origin_dir/src/testbench/cpu_tb_behav.wcfg"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -201,7 +202,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "391" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "474" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -773,6 +774,7 @@ if {[string equal [get_filesets -quiet cpu_tb] ""]} {
 set obj [get_filesets cpu_tb]
 set files [list \
  [file normalize "${origin_dir}/src/testbench/cpu_tb.sv"] \
+ [file normalize "${origin_dir}/src/testbench/cpu_tb_behav.wcfg"] \
 ]
 add_files -norecurse -fileset $obj $files
 

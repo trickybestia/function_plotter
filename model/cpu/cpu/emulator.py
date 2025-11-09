@@ -71,6 +71,9 @@ class EmulatorInstruction:
     def encode(self) -> list[int]:
         raise NotImplementedError()
 
+    def __len__(self) -> int:
+        return 1
+
 
 @dataclass(frozen=True)
 class ADD(EmulatorInstruction):
@@ -361,6 +364,9 @@ class JMP(EmulatorInstruction):
             | _encode(self.rs2, RS2_LSB),
             self.jmp_pc,
         ]
+
+    def __len__(self) -> int:
+        return 2
 
 
 @dataclass(frozen=True)
@@ -666,7 +672,7 @@ class Emulator:
         self.executed_instructions_count += 1
 
         if not override_pc:
-            self.pc = (self.pc + 1) & _ones(INSTRUCTION_MEM_ADDR_WIDTH)
+            self.pc = (self.pc + len(instr)) & _ones(INSTRUCTION_MEM_ADDR_WIDTH)
 
         for accelerator in self.accelerators:
             if accelerator is not None:

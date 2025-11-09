@@ -132,7 +132,7 @@ initial begin
         log_file_fd = $fopen("actual_log.txt", "w");
 
         for (int tick = 0; tick != 1000; tick++) begin
-            @(posedge clk);
+            @(negedge clk);
 
             dump_cpu_state(log_file_fd);
         end
@@ -142,6 +142,8 @@ initial begin
         if ($system("diff -q expected_log.txt actual_log.txt") != 0) begin
             $fatal("expected_log.txt and actual_log.txt differ");
         end
+
+        if (!RUN_REFERENCE_MODEL) $finish;
     end
 end
 
