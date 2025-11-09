@@ -69,6 +69,18 @@ cpu cpu (
     .accel_write_data   ()
 );
 
+function [15:0] get_cpu_reg;
+    input [3:0] addr;
+
+    if (addr == 0) begin
+        return 0;
+    end else if (cpu.cpu_reg_file.rd2_write_enable && addr == cpu.cpu_reg_file.rd2) begin
+        return cpu.cpu_reg_file.rd2_write_data;
+    end else begin
+        return cpu.cpu_reg_file.regs[addr];
+    end
+endfunction
+
 task run_reference_model;
     $system("env -i PYTHONPATH=\"../../../../../model/cpu/\" python -m cpu.cli.fuzzer asm.s instructions.mem expected_log.txt");
 endtask
@@ -83,7 +95,7 @@ task dump_cpu_state;
     $fwrite(fd, "executed: %0d; pc: %0d; regs: [", cpu.executed, cpu.pc);
 
     for (int i = 1; i != 16; i++) begin
-        $fwrite(fd, "%0d", cpu.cpu_reg_file.regs[i]);
+        $fwrite(fd, "%0d", get_cpu_reg(i));
 
         if (i != 15) $fwrite(fd, ", ");
     end
