@@ -105,6 +105,8 @@ task reset;
         cpu_data_mem.mem[i] = '0;
     end
 
+    @(posedge clk);
+
     // reset cpu regs
     for (int i = 1; i != 16; i++) begin
         cpu.cpu_reg_file.regs[i] = '0;
