@@ -623,11 +623,16 @@ class Emulator:
 
             if cond_value:
                 override_pc = True
-                self.pc = self.instructions_mem[self.pc + 1]
+                self.pc = instr.jmp_pc
         elif (instr := LOAD.try_decode(instr_words)) is not None:
-            self.write_reg(instr.rd, self.data_mem[self.read_reg(instr.rs1)])
+            self.write_reg(
+                instr.rd,
+                self.data_mem[self.read_reg(instr.rs1) % DATA_MEM_SIZE],
+            )
         elif (instr := STORE.try_decode(instr_words)) is not None:
-            self.data_mem[self.read_reg(instr.rs1)] = self.read_reg(instr.rs2)
+            self.data_mem[self.read_reg(instr.rs1) % DATA_MEM_SIZE] = (
+                self.read_reg(instr.rs2)
+            )
         elif (instr := WACC.try_decode(instr_words)) is not None:
             accelerator = self.accelerators[instr.accel_id]
 

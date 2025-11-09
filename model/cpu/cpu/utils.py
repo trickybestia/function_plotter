@@ -6,6 +6,16 @@ def dump_emulator_state(emulator: Emulator) -> str:
     return f"executed_instructions_count: {emulator.executed_instructions_count}, pc: {emulator.pc}, regs[1:15]: {emulator.regs}"
 
 
+def load_asm_into_emulator(asm: Assembly, emulator: Emulator):
+    i = 0
+
+    for instr in asm.compile():
+        for word in instr.encode():
+            emulator.instructions_mem[i] = word
+
+            i += 1
+
+
 def read_asm(input_path: str) -> Assembly:
     asm = Assembly()
 

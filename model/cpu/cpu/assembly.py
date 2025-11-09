@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Self
+from random import randrange
 
 from . import emulator
 
@@ -45,6 +46,14 @@ class AssemblyInstruction:
     def parse_args(cls, args: list[str]) -> Self:
         raise NotImplementedError()
 
+    @classmethod
+    def randomize(cls) -> Self:
+        """Returns instance with valid randomized field values.
+        Used for fuzzing.
+        """
+
+        raise NotImplementedError()
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         raise NotImplementedError()
 
@@ -65,10 +74,18 @@ class ADD(AssemblyInstruction):
     def parse_args(cls, args: list[str]) -> Self:
         assert len(args) == 3
 
-        return ADD(
+        return cls(
             _parse_reg_addr(args[0]),
             _parse_reg_addr(args[1]),
             _parse_reg_addr(args[2]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -91,6 +108,14 @@ class SUB(AssemblyInstruction):
             _parse_reg_addr(args[2]),
         )
 
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+        )
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.SUB(self.rd, self.rs1, self.rs2)
 
@@ -109,6 +134,14 @@ class AND(AssemblyInstruction):
             _parse_reg_addr(args[0]),
             _parse_reg_addr(args[1]),
             _parse_reg_addr(args[2]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -131,6 +164,14 @@ class OR(AssemblyInstruction):
             _parse_reg_addr(args[2]),
         )
 
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+        )
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.OR(self.rd, self.rs1, self.rs2)
 
@@ -151,6 +192,14 @@ class XOR(AssemblyInstruction):
             _parse_reg_addr(args[2]),
         )
 
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+        )
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.XOR(self.rd, self.rs1, self.rs2)
 
@@ -165,6 +214,13 @@ class LH(AssemblyInstruction):
         assert len(args) == 2
 
         return cls(_parse_reg_addr(args[0]), _parse_imm(args[1]))
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, 2**emulator.IMM_WIDTH),
+        )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.LH(self.rd, self.imm)
@@ -181,26 +237,18 @@ class LL(AssemblyInstruction):
 
         return cls(_parse_reg_addr(args[0]), _parse_imm(args[1]))
 
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, 2**emulator.IMM_WIDTH),
+        )
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.LL(self.rd, self.imm)
 
 
-@dataclass
-class JMP(AssemblyInstruction):
-    jmp_pc: int | str
-
-    @classmethod
-    def parse_args(cls, args: list[str]) -> Self:
-        assert len(args) == 1
-
-        return cls(_parse_int_or_label(args[0]))
-
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        if isinstance(self.jmp_pc, str):
-            raise Exception(f"Label {self.jmp_pc} has no value")
-
-        return emulator.JMP(emulator.JMPCond.EQ, 0, 0, self.jmp_pc)
-
+class JMPBase(AssemblyInstruction):
     def substitute_label(self, label: str, value: int):
         if self.jmp_pc == label:
             self.jmp_pc = value
@@ -211,7 +259,28 @@ class JMP(AssemblyInstruction):
 
 
 @dataclass
-class JMPEQ(AssemblyInstruction):
+class JMP(JMPBase):
+    jmp_pc: int | str
+
+    @classmethod
+    def parse_args(cls, args: list[str]) -> Self:
+        assert len(args) == 1
+
+        return cls(_parse_int_or_label(args[0]))
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(randrange(0, emulator.INSTRUCTION_MEM_SIZE))
+
+    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+        if isinstance(self.jmp_pc, str):
+            raise Exception(f"Label {self.jmp_pc} has no value")
+
+        return emulator.JMP(emulator.JMPCond.EQ, 0, 0, self.jmp_pc)
+
+
+@dataclass
+class JMPEQ(JMPBase):
     rs1: int
     rs2: int
     jmp_pc: int | str
@@ -224,6 +293,14 @@ class JMPEQ(AssemblyInstruction):
             _parse_reg_addr(args[0]),
             _parse_reg_addr(args[1]),
             _parse_int_or_label(args[2]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -234,17 +311,9 @@ class JMPEQ(AssemblyInstruction):
             emulator.JMPCond.EQ, self.rs1, self.rs2, self.jmp_pc
         )
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPNE(AssemblyInstruction):
+class JMPNE(JMPBase):
     rs1: int
     rs2: int
     jmp_pc: int | str
@@ -257,6 +326,14 @@ class JMPNE(AssemblyInstruction):
             _parse_reg_addr(args[0]),
             _parse_reg_addr(args[1]),
             _parse_int_or_label(args[2]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -267,17 +344,9 @@ class JMPNE(AssemblyInstruction):
             emulator.JMPCond.NE, self.rs1, self.rs2, self.jmp_pc
         )
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPLT(AssemblyInstruction):
+class JMPLT(JMPBase):
     rs1: int
     rs2: int
     jmp_pc: int | str
@@ -290,6 +359,14 @@ class JMPLT(AssemblyInstruction):
             _parse_reg_addr(args[0]),
             _parse_reg_addr(args[1]),
             _parse_int_or_label(args[2]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -300,17 +377,9 @@ class JMPLT(AssemblyInstruction):
             emulator.JMPCond.LT, self.rs1, self.rs2, self.jmp_pc
         )
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPLE(AssemblyInstruction):
+class JMPLE(JMPBase):
     rs1: int
     rs2: int
     jmp_pc: int | str
@@ -323,6 +392,14 @@ class JMPLE(AssemblyInstruction):
             _parse_reg_addr(args[0]),
             _parse_reg_addr(args[1]),
             _parse_int_or_label(args[2]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -333,17 +410,9 @@ class JMPLE(AssemblyInstruction):
             emulator.JMPCond.LE, self.rs1, self.rs2, self.jmp_pc
         )
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPGT(AssemblyInstruction):
+class JMPGT(JMPBase):
     rs1: int
     rs2: int
     jmp_pc: int | str
@@ -356,6 +425,14 @@ class JMPGT(AssemblyInstruction):
             _parse_reg_addr(args[0]),
             _parse_reg_addr(args[1]),
             _parse_int_or_label(args[2]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -366,17 +443,9 @@ class JMPGT(AssemblyInstruction):
             emulator.JMPCond.GT, self.rs1, self.rs2, self.jmp_pc
         )
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPGE(AssemblyInstruction):
+class JMPGE(JMPBase):
     rs1: int
     rs2: int
     jmp_pc: int | str
@@ -391,6 +460,14 @@ class JMPGE(AssemblyInstruction):
             _parse_int_or_label(args[2]),
         )
 
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
+        )
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
@@ -399,17 +476,9 @@ class JMPGE(AssemblyInstruction):
             emulator.JMPCond.GE, self.rs1, self.rs2, self.jmp_pc
         )
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPCR(AssemblyInstruction):
+class JMPCR(JMPBase):
     accel_id: int
     jmp_pc: int | str
 
@@ -420,6 +489,13 @@ class JMPCR(AssemblyInstruction):
         return cls(
             _parse_accel_id(args[0]),
             _parse_int_or_label(args[1]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.ACCEL_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -428,17 +504,9 @@ class JMPCR(AssemblyInstruction):
 
         return emulator.JMP(emulator.JMPCond.CR, 0, self.accel_id, self.jmp_pc)
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPCW(AssemblyInstruction):
+class JMPCW(JMPBase):
     accel_id: int
     jmp_pc: int | str
 
@@ -449,6 +517,13 @@ class JMPCW(AssemblyInstruction):
         return cls(
             _parse_accel_id(args[0]),
             _parse_int_or_label(args[1]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.ACCEL_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -457,17 +532,9 @@ class JMPCW(AssemblyInstruction):
 
         return emulator.JMP(emulator.JMPCond.CW, 0, self.accel_id, self.jmp_pc)
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPNCR(AssemblyInstruction):
+class JMPNCR(JMPBase):
     accel_id: int
     jmp_pc: int | str
 
@@ -478,6 +545,13 @@ class JMPNCR(AssemblyInstruction):
         return cls(
             _parse_accel_id(args[0]),
             _parse_int_or_label(args[1]),
+        )
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.ACCEL_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
@@ -486,17 +560,9 @@ class JMPNCR(AssemblyInstruction):
 
         return emulator.JMP(emulator.JMPCond.NCR, 0, self.accel_id, self.jmp_pc)
 
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
-
 
 @dataclass
-class JMPNCW(AssemblyInstruction):
+class JMPNCW(JMPBase):
     accel_id: int
     jmp_pc: int | str
 
@@ -509,19 +575,18 @@ class JMPNCW(AssemblyInstruction):
             _parse_int_or_label(args[1]),
         )
 
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.ACCEL_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
+        )
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
         return emulator.JMP(emulator.JMPCond.NCW, 0, self.accel_id, self.jmp_pc)
-
-    def substitute_label(self, label: str, value: int):
-        if self.jmp_pc == label:
-            self.jmp_pc = value
-
-    @staticmethod
-    def __len__() -> int:
-        return 2
 
 
 @dataclass
@@ -534,6 +599,13 @@ class LOAD(AssemblyInstruction):
         assert len(args) == 2
 
         return cls(_parse_reg_addr(args[0]), _parse_reg_addr(args[1]))
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+        )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.LOAD(self.rd, self.rs1)
@@ -550,6 +622,13 @@ class STORE(AssemblyInstruction):
 
         return cls(_parse_reg_addr(args[0]), _parse_reg_addr(args[1]))
 
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+        )
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.STORE(self.rs1, self.rs2)
 
@@ -565,6 +644,13 @@ class WACC(AssemblyInstruction):
 
         return cls(_parse_reg_addr(args[0]), _parse_accel_id(args[1]))
 
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.ACCEL_COUNT),
+        )
+
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.WACC(self.rs1, self.accel_id)
 
@@ -579,6 +665,13 @@ class RACC(AssemblyInstruction):
         assert len(args) == 2
 
         return cls(_parse_reg_addr(args[0]), _parse_accel_id(args[1]))
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.ACCEL_COUNT),
+        )
 
     def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
         return emulator.RACC(self.rd, self.accel_id)
