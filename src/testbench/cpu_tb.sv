@@ -114,11 +114,15 @@ task reset;
         cpu_instr_mem.mem[i] = '0;
     end
 
+    @(posedge clk);
+    @(posedge clk);
+
     // reset cpu_data_mem
     for (int i = 0; i != DATA_MEM_SIZE; i++) begin
         cpu_data_mem.mem[i] = '0;
     end
 
+    @(posedge clk);
     @(posedge clk);
 
     // reset cpu regs
