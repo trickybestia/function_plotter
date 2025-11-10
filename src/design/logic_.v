@@ -1,4 +1,4 @@
-module logic_placeholder (
+module logic_ (
     clk,
 
     start,

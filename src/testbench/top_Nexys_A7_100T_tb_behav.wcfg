@@ -68,24 +68,24 @@
       <obj_property name="ElementShortName">logic_ready</obj_property>
       <obj_property name="ObjectShortName">logic_ready</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/state">
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/logic_/state">
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="ElementShortName">state[1:0]</obj_property>
       <obj_property name="ObjectShortName">state[1:0]</obj_property>
       <obj_property name="label">logic_state[1:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/t">
+   <wvobject type="array" fp_name="/top_Nexys_A7_100T_tb/uut/logic_/t">
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="ElementShortName">t[9:0]</obj_property>
       <obj_property name="ObjectShortName">t[9:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       <obj_property name="label">logic_t[9:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/line_drawer_start">
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/logic_/line_drawer_start">
       <obj_property name="ElementShortName">line_drawer_start</obj_property>
       <obj_property name="ObjectShortName">line_drawer_start</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/logic_placeholder/line_drawer_ready">
+   <wvobject type="logic" fp_name="/top_Nexys_A7_100T_tb/uut/logic_/line_drawer_ready">
       <obj_property name="ElementShortName">line_drawer_ready</obj_property>
       <obj_property name="ObjectShortName">line_drawer_ready</obj_property>
    </wvobject>
