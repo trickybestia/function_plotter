@@ -1,7 +1,7 @@
     lh r1, 0
 
-wait_start_loop:
-    jmpncr acc0, wait_start_loop
+wait_swap_loop:
+    jmpncr acc0, wait_swap_loop
 
     ll r1, 0
     wacc r1, acc1 # x1 = 0
@@ -23,5 +23,4 @@ wait_line_drawer_loop_1:
 wait_line_drawer_loop_2:
     jmpncw acc1, wait_line_drawer_loop_2
 
-    wacc r0, acc0 # write anything to acc0 - set ready = 1
-    jmp wait_start_loop
+    jmp wait_swap_loop

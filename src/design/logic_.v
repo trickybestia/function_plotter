@@ -1,19 +1,30 @@
 module logic_ (
     clk,
 
-    start,
-    ready,
+    keyboard_left,
+    keyboard_right,
+    keyboard_backspace,
+    keyboard_symbol,
 
-    x1,
-    y1,
-    x2,
-    y2,
+    line_drawer_x1,
+    line_drawer_y1,
+    line_drawer_x2,
+    line_drawer_y2,
     line_drawer_start,
     line_drawer_ready,
 
-    symbol_iter_en,
-    symbol,
-    symbol_valid
+    symbol_drawer_x,
+    symbol_drawer_y,
+    symbol_drawer_symbol,
+    symbol_drawer_cursor_left,
+    symbol_drawer_cursor_right,
+    symbol_drawer_start,
+    symbol_drawer_ready,
+
+    fill_drawer_start,
+    fill_drawer_ready,
+
+    swap
 );
 
 parameter HOR_ACTIVE_PIXELS = 640;
@@ -28,7 +39,7 @@ localparam INSTRUCTION_MEM_SIZE       = 128;
 localparam INSTRUCTION_MEM_ADDR_WIDTH = $clog2(INSTRUCTION_MEM_SIZE);
 
 localparam DATA_WIDTH          = 16;
-localparam DATA_MEM_SIZE       = 16;
+localparam DATA_MEM_SIZE       = 256;
 localparam DATA_MEM_ADDR_WIDTH = $clog2(DATA_MEM_SIZE);
 
 localparam STATE_READY = 0;
@@ -36,19 +47,30 @@ localparam STATE_WORK  = 1;
 
 input clk;
 
-input  start;
-output ready;
+input                      keyboard_left;
+input                      keyboard_right;
+input                      keyboard_backspace;
+input [SYMBOL_WIDTH - 1:0] keyboard_symbol;
 
-output [X_WIDTH - 1:0] x1;
-output [Y_WIDTH - 1:0] y1;
-output [X_WIDTH - 1:0] x2;
-output [Y_WIDTH - 1:0] y2;
+output [X_WIDTH - 1:0] line_drawer_x1;
+output [Y_WIDTH - 1:0] line_drawer_y1;
+output [X_WIDTH - 1:0] line_drawer_x2;
+output [Y_WIDTH - 1:0] line_drawer_y2;
 output                 line_drawer_start;
 input                  line_drawer_ready;
 
-output                      symbol_iter_en;
-input  [SYMBOL_WIDTH - 1:0] symbol;
-input                       symbol_valid;
+output [X_WIDTH - 1:0]      symbol_drawer_x;
+output [Y_WIDTH - 1:0]      symbol_drawer_y;
+output [SYMBOL_WIDTH - 1:0] symbol_drawer_symbol;
+output                      symbol_drawer_cursor_left;
+output                      symbol_drawer_cursor_right;
+output                      symbol_drawer_start;
+input                       symbol_drawer_ready;
+
+output fill_drawer_start;
+input  fill_drawer_ready;
+
+input swap;
 
 // cpu_instr_mem
 wire [INSTRUCTION_MEM_ADDR_WIDTH - 1:0] instr_mem_addr;
@@ -78,11 +100,7 @@ wire [15:0] line_drawer_read_data;
 // cpu
 reg cpu_rst;
 
-reg state;
-
-assign ready = (state == STATE_READY);
-
-assign symbol_iter_en = 0;
+reg swap_pending;
 
 // accel_id = 1
 line_drawer_accel_adapter line_drawer_accel_adapter (
@@ -95,10 +113,10 @@ line_drawer_accel_adapter line_drawer_accel_adapter (
     .accel_write_data   (accel_write_data),
     .line_drawer_start  (line_drawer_start),
     .line_drawer_ready  (line_drawer_ready),
-    .line_drawer_x1     (x1),
-    .line_drawer_y1     (y1),
-    .line_drawer_x2     (x2),
-    .line_drawer_y2     (y2)
+    .line_drawer_x1     (line_drawer_x1),
+    .line_drawer_y1     (line_drawer_y1),
+    .line_drawer_x2     (line_drawer_x2),
+    .line_drawer_y2     (line_drawer_y2)
 );
 
 cpu_instr_mem #(
@@ -148,8 +166,8 @@ cpu cpu (
 );
 
 initial begin
-    state   = STATE_READY;
-    cpu_rst = 1;
+    cpu_rst      = 1;
+    swap_pending = 0;
 end
 
 // accel_can_read
@@ -157,7 +175,7 @@ always @(*) begin
     accel_can_read = 0;
 
     case (accel_id)
-        0: accel_can_read = (state == STATE_WORK);
+        0: accel_can_read = swap_pending;
         1: accel_can_read = line_drawer_can_read;
         default: ;
     endcase
@@ -168,7 +186,7 @@ always @(*) begin
     accel_can_write = 0;
 
     case (accel_id)
-        0: accel_can_write = 1;
+        0: accel_can_write = 0;
         1: accel_can_write = line_drawer_can_write;
         default: ;
     endcase
@@ -190,12 +208,13 @@ always @(posedge clk) begin
     cpu_rst <= 0;
 end
 
-// state
+// swap_pending
 always @(posedge clk) begin
-    case (state)
-        STATE_READY: if (start) state <= STATE_WORK;
-        STATE_WORK:  if (accel_id == 0 && accel_write_enable) state <= STATE_READY;
-    endcase
+    if (swap) begin
+        swap_pending <= 1;
+    end else if (accel_id == 0 && accel_read_enable) begin
+        swap_pending <= 0;
+    end
 end
 
 endmodule

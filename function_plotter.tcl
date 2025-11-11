@@ -18,11 +18,15 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
+ "[file normalize "$origin_dir/src/design/cpu.v"]"\
+ "[file normalize "$origin_dir/src/design/cpu_alu.v"]"\
+ "[file normalize "$origin_dir/src/design/cpu_data_mem.v"]"\
+ "[file normalize "$origin_dir/src/design/cpu_instr_mem.v"]"\
+ "[file normalize "$origin_dir/src/design/cpu_jmp_cond_decoder.v"]"\
+ "[file normalize "$origin_dir/src/design/cpu_reg_file.v"]"\
  "[file normalize "$origin_dir/src/design/fill_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer_mem.v"]"\
- "[file normalize "$origin_dir/src/design/graphics_fsm.v"]"\
- "[file normalize "$origin_dir/src/design/input_buffer.v"]"\
  "[file normalize "$origin_dir/src/design/line_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/line_drawer_accel_adapter.v"]"\
  "[file normalize "$origin_dir/src/design/logic_.v"]"\
@@ -31,8 +35,6 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/ps2_rx.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
- "[file normalize "$origin_dir/src/design/text_buffer.v"]"\
- "[file normalize "$origin_dir/src/design/vector.v"]"\
  "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_alu.v"]"\
@@ -41,18 +43,10 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_div.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_pow.v"]"\
- "[file normalize "$origin_dir/src/design/cpu_reg_file.v"]"\
- "[file normalize "$origin_dir/src/design/cpu_alu.v"]"\
- "[file normalize "$origin_dir/src/design/cpu_jmp_cond_decoder.v"]"\
- "[file normalize "$origin_dir/src/design/cpu.v"]"\
- "[file normalize "$origin_dir/src/design/cpu_data_mem.v"]"\
- "[file normalize "$origin_dir/src/design/cpu_instr_mem.v"]"\
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/line_drawer_tb.v"]"\
- "[file normalize "$origin_dir/src/testbench/vector_tb.v"]"\
- "[file normalize "$origin_dir/src/testbench/text_buffer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/vga_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/frame_buffer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/symbol_drawer_mem_tb.v"]"\
@@ -214,11 +208,15 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
+ [file normalize "${origin_dir}/src/design/cpu.v"] \
+ [file normalize "${origin_dir}/src/design/cpu_alu.v"] \
+ [file normalize "${origin_dir}/src/design/cpu_data_mem.v"] \
+ [file normalize "${origin_dir}/src/design/cpu_instr_mem.v"] \
+ [file normalize "${origin_dir}/src/design/cpu_jmp_cond_decoder.v"] \
+ [file normalize "${origin_dir}/src/design/cpu_reg_file.v"] \
  [file normalize "${origin_dir}/src/design/fill_drawer.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer_mem.v"] \
- [file normalize "${origin_dir}/src/design/graphics_fsm.v"] \
- [file normalize "${origin_dir}/src/design/input_buffer.v"] \
  [file normalize "${origin_dir}/src/design/line_drawer.v"] \
  [file normalize "${origin_dir}/src/design/line_drawer_accel_adapter.v"] \
  [file normalize "${origin_dir}/src/design/logic_.v"] \
@@ -227,8 +225,6 @@ set files [list \
  [file normalize "${origin_dir}/src/design/ps2_rx.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
- [file normalize "${origin_dir}/src/design/text_buffer.v"] \
- [file normalize "${origin_dir}/src/design/vector.v"] \
  [file normalize "${origin_dir}/src/design/vga.v"] \
  [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_alu.v"] \
@@ -237,12 +233,6 @@ set files [list \
  [file normalize "${origin_dir}/src/design/fixed_point_mul.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_div.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_pow.v"] \
- [file normalize "${origin_dir}/src/design/cpu_reg_file.v"] \
- [file normalize "${origin_dir}/src/design/cpu_alu.v"] \
- [file normalize "${origin_dir}/src/design/cpu_jmp_cond_decoder.v"] \
- [file normalize "${origin_dir}/src/design/cpu.v"] \
- [file normalize "${origin_dir}/src/design/cpu_data_mem.v"] \
- [file normalize "${origin_dir}/src/design/cpu_instr_mem.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -362,56 +352,6 @@ add_files -norecurse -fileset $obj $files
 set obj [get_filesets line_drawer_tb]
 set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "line_drawer_tb" -objects $obj
-set_property -name "top_auto_set" -value "0" -objects $obj
-set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
-
-# Create 'vector_tb' fileset (if not found)
-if {[string equal [get_filesets -quiet vector_tb] ""]} {
-  create_fileset -simset vector_tb
-}
-
-# Set 'vector_tb' fileset object
-set obj [get_filesets vector_tb]
-set files [list \
- [file normalize "${origin_dir}/src/testbench/vector_tb.v"] \
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'vector_tb' fileset file properties for remote files
-# None
-
-# Set 'vector_tb' fileset file properties for local files
-# None
-
-# Set 'vector_tb' fileset properties
-set obj [get_filesets vector_tb]
-set_property -name "sim_wrapper_top" -value "1" -objects $obj
-set_property -name "top" -value "vector_tb" -objects $obj
-set_property -name "top_auto_set" -value "0" -objects $obj
-set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
-
-# Create 'text_buffer_tb' fileset (if not found)
-if {[string equal [get_filesets -quiet text_buffer_tb] ""]} {
-  create_fileset -simset text_buffer_tb
-}
-
-# Set 'text_buffer_tb' fileset object
-set obj [get_filesets text_buffer_tb]
-set files [list \
- [file normalize "${origin_dir}/src/testbench/text_buffer_tb.v"] \
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'text_buffer_tb' fileset file properties for remote files
-# None
-
-# Set 'text_buffer_tb' fileset file properties for local files
-# None
-
-# Set 'text_buffer_tb' fileset properties
-set obj [get_filesets text_buffer_tb]
-set_property -name "sim_wrapper_top" -value "1" -objects $obj
-set_property -name "top" -value "text_buffer_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 

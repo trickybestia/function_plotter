@@ -50,35 +50,28 @@ wire                      ps2_right;
 wire                      ps2_backspace;
 wire [SYMBOL_WIDTH - 1:0] ps2_symbol;
 
-wire                      input_buffer_left_out;
-wire                      input_buffer_right_out;
-wire                      input_buffer_backspace_out;
-wire [SYMBOL_WIDTH - 1:0] input_buffer_symbol_out;
-
-wire                      text_buffer_input_ready;
-wire [SYMBOL_WIDTH - 1:0] text_buffer_iter_out;
-wire                      text_buffer_iter_out_valid;
-wire                      text_buffer_cursor_left;
-wire                      text_buffer_cursor_right;
-
-wire                 logic_ready;
-wire [X_WIDTH - 1:0] logic_x1;
-wire [Y_WIDTH - 1:0] logic_y1;
-wire [X_WIDTH - 1:0] logic_x2;
-wire [Y_WIDTH - 1:0] logic_y2;
-wire                 logic_line_drawer_start;
-wire                 logic_symbol_iter_en;
-
+wire [X_WIDTH - 1:0]    line_drawer_x1;
+wire [Y_WIDTH - 1:0]    line_drawer_y1;
+wire [X_WIDTH - 1:0]    line_drawer_x2;
+wire [Y_WIDTH - 1:0]    line_drawer_y2;
+wire                    line_drawer_start;
 wire                    line_drawer_ready;
 wire                    line_drawer_write_enable;
 wire [ADDR_WIDTH - 1:0] line_drawer_write_addr;
 wire                    line_drawer_write_data;
 
-wire                    symbol_drawer_ready;
-wire                    symbol_drawer_write_enable;
-wire [ADDR_WIDTH - 1:0] symbol_drawer_write_addr;
-wire                    symbol_drawer_write_data;
+wire                      symbol_drawer_start;
+wire                      symbol_drawer_ready;
+wire [X_WIDTH - 1:0]      symbol_drawer_x;
+wire [Y_WIDTH - 1:0]      symbol_drawer_y;
+wire [SYMBOL_WIDTH - 1:0] symbol_drawer_symbol;
+wire                      symbol_drawer_cursor_left;
+wire                      symbol_drawer_cursor_right;
+wire                      symbol_drawer_write_enable;
+wire [ADDR_WIDTH - 1:0]   symbol_drawer_write_addr;
+wire                      symbol_drawer_write_data;
 
+wire                    fill_drawer_start;
 wire                    fill_drawer_ready;
 wire                    fill_drawer_write_enable;
 wire [ADDR_WIDTH - 1:0] fill_drawer_write_addr;
@@ -88,13 +81,6 @@ wire frame_buffer_read_data;
 
 wire [ADDR_WIDTH - 1:0] vga_read_addr;
 wire                    vga_swap;
-
-wire                 graphics_fsm_visible_iter_en;
-wire                 graphics_fsm_logic_start;
-wire                 graphics_fsm_fill_drawer_start;
-wire                 graphics_fsm_symbol_drawer_start;
-wire [X_WIDTH - 1:0] graphics_fsm_symbol_drawer_x;
-wire [Y_WIDTH - 1:0] graphics_fsm_symbol_drawer_y;
 
 vga_mmcm vga_mmcm (
     .clk_100M   (clk_100M),
@@ -111,56 +97,37 @@ ps2 ps2 (
     .symbol    (ps2_symbol)
 );
 
-input_buffer #(
-    .SYMBOL_WIDTH (SYMBOL_WIDTH)
-) input_buffer (
-    .clk           (clk_25M175),
-    .left_in       (ps2_left),
-    .right_in      (ps2_right),
-    .backspace_in  (ps2_backspace),
-    .symbol_in     (ps2_symbol),
-    .left_out      (input_buffer_left_out),
-    .right_out     (input_buffer_right_out),
-    .backspace_out (input_buffer_backspace_out),
-    .symbol_out    (input_buffer_symbol_out),
-    .out_ready     (text_buffer_input_ready)
-);
-
-text_buffer #(
-    .SYMBOL_WIDTH  (SYMBOL_WIDTH),
-    .SYMBOLS_COUNT (40)
-) text_buffer (
-    .clk             (clk_25M175),
-    .left            (input_buffer_left_out),
-    .right           (input_buffer_right_out),
-    .backspace       (input_buffer_backspace_out),
-    .symbol          (input_buffer_symbol_out),
-    .input_ready     (text_buffer_input_ready),
-    .full_iter_en    (logic_symbol_iter_en),
-    .visible_iter_en (graphics_fsm_visible_iter_en),
-    .iter_out        (text_buffer_iter_out),
-    .iter_out_valid  (text_buffer_iter_out_valid),
-    .cursor_left     (text_buffer_cursor_left),
-    .cursor_right    (text_buffer_cursor_right)
-);
-
 logic_ #(
     .HOR_ACTIVE_PIXELS (HOR_ACTIVE_PIXELS),
     .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS),
     .SYMBOL_WIDTH      (SYMBOL_WIDTH)
 ) logic_ (
-    .clk               (clk_25M175),
-    .start             (graphics_fsm_logic_start),
-    .ready             (logic_ready),
-    .x1                (logic_x1),
-    .y1                (logic_y1),
-    .x2                (logic_x2),
-    .y2                (logic_y2),
-    .line_drawer_start (logic_line_drawer_start),
+    .clk                (clk_25M175),
+
+    .keyboard_left      (ps2_left),
+    .keyboard_right     (ps2_right),
+    .keyboard_backspace (ps2_backspace),
+    .keyboard_symbol    (ps2_symbol),
+
+    .line_drawer_x1    (line_drawer_x1),
+    .line_drawer_y1    (line_drawer_y1),
+    .line_drawer_x2    (line_drawer_x2),
+    .line_drawer_y2    (line_drawer_y2),
+    .line_drawer_start (line_drawer_start),
     .line_drawer_ready (line_drawer_ready),
-    .symbol_iter_en    (logic_symbol_iter_en),
-    .symbol            (text_buffer_iter_out),
-    .symbol_valid      (text_buffer_iter_out_valid)
+
+    .symbol_drawer_x            (symbol_drawer_x),
+    .symbol_drawer_y            (symbol_drawer_y),
+    .symbol_drawer_symbol       (symbol_drawer_symbol),
+    .symbol_drawer_cursor_left  (symbol_drawer_cursor_left),
+    .symbol_drawer_cursor_right (symbol_drawer_cursor_right),
+    .symbol_drawer_start        (symbol_drawer_start),
+    .symbol_drawer_ready        (symbol_drawer_ready),
+
+    .fill_drawer_start (fill_drawer_start),
+    .fill_drawer_ready (fill_drawer_ready),
+
+    .swap (vga_swap)
 );
 
 line_drawer #(
@@ -168,12 +135,12 @@ line_drawer #(
     .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS)
 ) line_drawer (
     .clk          (clk_25M175),
-    .start        (logic_line_drawer_start),
+    .start        (line_drawer_start),
     .ready        (line_drawer_ready),
-    .x1           (logic_x1),
-    .y1           (logic_y1),
-    .x2           (logic_x2),
-    .y2           (logic_y2),
+    .x1           (line_drawer_x1),
+    .y1           (line_drawer_y1),
+    .x2           (line_drawer_x2),
+    .y2           (line_drawer_y2),
     .write_enable (line_drawer_write_enable),
     .write_addr   (line_drawer_write_addr),
     .write_data   (line_drawer_write_data)
@@ -185,13 +152,13 @@ symbol_drawer #(
     .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS)
 ) symbol_drawer (
     .clk          (clk_25M175),
-    .start        (graphics_fsm_symbol_drawer_start),
+    .start        (symbol_drawer_start),
     .ready        (symbol_drawer_ready),
-    .x            (graphics_fsm_symbol_drawer_x),
-    .y            (graphics_fsm_symbol_drawer_y),
-    .symbol       (text_buffer_iter_out),
-    .cursor_left  (text_buffer_cursor_left),
-    .cursor_right (text_buffer_cursor_right),
+    .x            (symbol_drawer_x),
+    .y            (symbol_drawer_y),
+    .symbol       (symbol_drawer_symbol),
+    .cursor_left  (symbol_drawer_cursor_left),
+    .cursor_right (symbol_drawer_cursor_right),
     .write_enable (symbol_drawer_write_enable),
     .write_addr   (symbol_drawer_write_addr),
     .write_data   (symbol_drawer_write_data)
@@ -201,7 +168,7 @@ fill_drawer #(
     .PIXELS_COUNT (PIXELS_COUNT)
 ) fill_drawer (
     .clk          (clk_25M175),
-    .start        (graphics_fsm_fill_drawer_start),
+    .start        (fill_drawer_start),
     .ready        (fill_drawer_ready),
     .write_enable (fill_drawer_write_enable),
     .write_addr   (fill_drawer_write_addr),
@@ -245,25 +212,6 @@ vga #(
     .hs        (vga_hs),
     .vs        (vga_vs),
     .swap      (vga_swap)
-);
-
-graphics_fsm #(
-    .HOR_ACTIVE_PIXELS (HOR_ACTIVE_PIXELS),
-    .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS)
-) graphics_fsm (
-    .clk                 (clk_25M175),
-    .swap                (vga_swap),
-    .visible_iter_en     (graphics_fsm_visible_iter_en),
-    .symbol              (text_buffer_iter_out),
-    .symbol_valid        (text_buffer_iter_out_valid),
-    .logic_start         (graphics_fsm_logic_start),
-    .logic_ready         (logic_ready),
-    .fill_drawer_start   (graphics_fsm_fill_drawer_start),
-    .fill_drawer_ready   (fill_drawer_ready),
-    .symbol_drawer_start (graphics_fsm_symbol_drawer_start),
-    .symbol_drawer_ready (symbol_drawer_ready),
-    .symbol_drawer_x     (graphics_fsm_symbol_drawer_x),
-    .symbol_drawer_y     (graphics_fsm_symbol_drawer_y)
 );
 
 endmodule
