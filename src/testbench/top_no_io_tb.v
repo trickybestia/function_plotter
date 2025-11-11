@@ -3,7 +3,9 @@
 module top_no_io_tb;
 
 parameter HOR_ACTIVE_PIXELS = 640;
+parameter HOR_TOTAL_PIXELS  = 800;
 parameter VER_ACTIVE_PIXELS = 480;
+parameter VER_TOTAL_PIXELS  = 525;
 
 parameter SYMBOL_WIDTH = 7;
 
@@ -81,7 +83,7 @@ logic_ #(
     .fill_drawer_start (fill_drawer_start),
     .fill_drawer_ready (fill_drawer_ready),
 
-    .swap (vga_swap)
+    .swap (swap)
 );
 
 line_drawer #(
@@ -166,9 +168,7 @@ endtask
 
 task draw_frame;
     begin
-        while (~logic_ready) @(posedge clk);
-        while (logic_ready)  @(posedge clk);
-        while (~logic_ready) @(posedge clk);
+        repeat (HOR_TOTAL_PIXELS * VER_TOTAL_PIXELS) @(posedge clk);
 
         swap <= 1;
         @(posedge clk);

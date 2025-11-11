@@ -102,6 +102,15 @@ reg cpu_rst;
 
 reg swap_pending;
 
+assign fill_drawer_start = fill_drawer_ready && accel_id == 2 && accel_write_enable;
+
+assign symbol_drawer_x            = 0;
+assign symbol_drawer_y            = 0;
+assign symbol_drawer_symbol       = 0;
+assign symbol_drawer_cursor_left  = 0;
+assign symbol_drawer_cursor_right = 0;
+assign symbol_drawer_start        = 0;
+
 // accel_id = 1
 line_drawer_accel_adapter line_drawer_accel_adapter (
     .clk                (clk),
@@ -167,7 +176,7 @@ cpu cpu (
 
 initial begin
     cpu_rst      = 1;
-    swap_pending = 0;
+    swap_pending = 1;
 end
 
 // accel_can_read
@@ -177,6 +186,7 @@ always @(*) begin
     case (accel_id)
         0: accel_can_read = swap_pending;
         1: accel_can_read = line_drawer_can_read;
+        2: accel_can_read = 0;
         default: ;
     endcase
 end
@@ -188,6 +198,7 @@ always @(*) begin
     case (accel_id)
         0: accel_can_write = 0;
         1: accel_can_write = line_drawer_can_write;
+        2: accel_can_write = fill_drawer_ready;
         default: ;
     endcase
 end
@@ -199,6 +210,7 @@ always @(*) begin
     case (accel_id)
         0: accel_read_data = 0;
         1: accel_read_data = line_drawer_read_data;
+        2: accel_read_data = 0;
         default: ;
     endcase
 end

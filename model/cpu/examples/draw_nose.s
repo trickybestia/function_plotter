@@ -2,6 +2,12 @@
 
 wait_swap_loop:
     jmpncr acc0, wait_swap_loop
+    racc r0, acc0
+
+    wacc r0, acc2 # start fill_drawer
+
+wait_fill_drawer_loop:
+    jmpncw acc2, wait_fill_drawer_loop
 
     ll r1, 0
     wacc r1, acc1 # x1 = 0
