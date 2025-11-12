@@ -1,9 +1,6 @@
 module logic_ (
     clk,
 
-    keyboard_left,
-    keyboard_right,
-    keyboard_backspace,
     keyboard_symbol,
 
     line_drawer_x1,
@@ -47,9 +44,6 @@ localparam STATE_WORK  = 1;
 
 input clk;
 
-input                      keyboard_left;
-input                      keyboard_right;
-input                      keyboard_backspace;
 input [SYMBOL_WIDTH - 1:0] keyboard_symbol;
 
 output [X_WIDTH - 1:0] line_drawer_x1;
@@ -102,6 +96,11 @@ wire        symbol_drawer_can_read;
 wire        symbol_drawer_can_write;
 wire [15:0] symbol_drawer_read_data;
 
+// keyboard_accel_adapter
+wire                      keyboard_can_read;
+wire                      keyboard_can_write;
+wire [SYMBOL_WIDTH - 1:0] keyboard_read_data;
+
 // cpu
 reg cpu_rst;
 
@@ -146,6 +145,22 @@ symbol_drawer_accel_adapter symbol_drawer_accel_adapter (
     .symbol_drawer_symbol       (symbol_drawer_symbol),
     .symbol_drawer_cursor_left  (symbol_drawer_cursor_left),
     .symbol_drawer_cursor_right (symbol_drawer_cursor_right)
+);
+
+// accel_id = 4
+keyboard_accel_adapter #(
+    .SYMBOL_WIDTH (SYMBOL_WIDTH)
+) keyboard_accel_adapter (
+    .clk (clk),
+    
+    .accel_can_read     (keyboard_can_read),
+    .accel_can_write    (keyboard_can_write),
+    .accel_read_enable  (accel_id == 4 && accel_read_enable),
+    .accel_write_enable (accel_id == 4 && accel_write_enable),
+    .accel_read_data    (keyboard_read_data),
+    .accel_write_data   (accel_write_data),
+
+    .keyboard_symbol (keyboard_symbol)
 );
 
 cpu_instr_mem #(
@@ -208,6 +223,7 @@ always @(*) begin
         1: accel_can_read = line_drawer_can_read;
         2: accel_can_read = 0;
         3: accel_can_read = symbol_drawer_can_read;
+        4: accel_can_read = keyboard_can_read;
         default: ;
     endcase
 end
@@ -221,6 +237,7 @@ always @(*) begin
         1: accel_can_write = line_drawer_can_write;
         2: accel_can_write = fill_drawer_ready;
         3: accel_can_write = symbol_drawer_can_write;
+        4: accel_can_write = keyboard_can_write;
         default: ;
     endcase
 end
@@ -234,6 +251,7 @@ always @(*) begin
         1: accel_read_data = line_drawer_read_data;
         2: accel_read_data = 0;
         3: accel_read_data = symbol_drawer_read_data;
+        4: accel_read_data = keyboard_read_data;
         default: ;
     endcase
 end

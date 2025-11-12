@@ -27,6 +27,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/fill_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer_mem.v"]"\
+ "[file normalize "$origin_dir/src/design/keyboard_accel_adapter.v"]"\
  "[file normalize "$origin_dir/src/design/line_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/line_drawer_accel_adapter.v"]"\
  "[file normalize "$origin_dir/src/design/logic_.v"]"\
@@ -197,7 +198,7 @@ set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "519" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "521" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -217,6 +218,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/fill_drawer.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer_mem.v"] \
+ [file normalize "${origin_dir}/src/design/keyboard_accel_adapter.v"] \
  [file normalize "${origin_dir}/src/design/line_drawer.v"] \
  [file normalize "${origin_dir}/src/design/line_drawer_accel_adapter.v"] \
  [file normalize "${origin_dir}/src/design/logic_.v"] \

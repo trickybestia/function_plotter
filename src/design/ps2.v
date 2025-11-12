@@ -1,12 +1,9 @@
 module ps2 (
     clk,
-    
+
     ps2_clk,
     ps2_dat,
-    
-    left,
-    right,
-    backspace,
+
     symbol
 );
 
@@ -15,18 +12,11 @@ input clk;
 input ps2_clk;
 input ps2_dat;
 
-output           left;
-output           right;
-output           backspace;
 output reg [6:0] symbol;
 
 wire [15:0] key;
 wire        key_pressed;
 wire        new_key;
-
-assign left      = new_key & key_pressed & (key == 16'hE06B);
-assign right     = new_key & key_pressed & (key == 16'hE074);
-assign backspace = new_key & key_pressed & (key == 16'h0066);
 
 ps2_rx ps2_rx (
     .clk         (clk),
@@ -45,6 +35,12 @@ always @(*) begin
         // Technoblogy - PS2 Keyboard Scan Codes
         // http://www.technoblogy.com/show?4QEL
         case (key)
+            // custom codes
+            16'hE06B: symbol = 1;    // left arrow
+            16'hE074: symbol = 2;    // right arrow
+            16'h0066: symbol = "\b"; // backspace
+            // end of custom codes
+
             16'h0016: symbol = "1";
             16'h001E: symbol = "2";
             16'h0026: symbol = "3";

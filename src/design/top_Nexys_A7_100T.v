@@ -45,10 +45,7 @@ output       vga_vs;
 
 wire clk_25M175;
 
-wire                      ps2_left;
-wire                      ps2_right;
-wire                      ps2_backspace;
-wire [SYMBOL_WIDTH - 1:0] ps2_symbol;
+wire [SYMBOL_WIDTH - 1:0] keyboard_symbol;
 
 wire [X_WIDTH - 1:0]    line_drawer_x1;
 wire [Y_WIDTH - 1:0]    line_drawer_y1;
@@ -88,13 +85,10 @@ vga_mmcm vga_mmcm (
 );
 
 ps2 ps2 (
-    .clk       (clk_25M175),
-    .ps2_clk   (ps2_clk),
-    .ps2_dat   (ps2_dat),
-    .left      (ps2_left),
-    .right     (ps2_right),
-    .backspace (ps2_backspace),
-    .symbol    (ps2_symbol)
+    .clk     (clk_25M175),
+    .ps2_clk (ps2_clk),
+    .ps2_dat (ps2_dat),
+    .symbol  (keyboard_symbol)
 );
 
 logic_ #(
@@ -102,12 +96,9 @@ logic_ #(
     .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS),
     .SYMBOL_WIDTH      (SYMBOL_WIDTH)
 ) logic_ (
-    .clk                (clk_25M175),
+    .clk (clk_25M175),
 
-    .keyboard_left      (ps2_left),
-    .keyboard_right     (ps2_right),
-    .keyboard_backspace (ps2_backspace),
-    .keyboard_symbol    (ps2_symbol),
+    .keyboard_symbol (keyboard_symbol),
 
     .line_drawer_x1    (line_drawer_x1),
     .line_drawer_y1    (line_drawer_y1),

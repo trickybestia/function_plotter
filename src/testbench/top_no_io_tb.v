@@ -16,10 +16,7 @@ localparam ADDR_WIDTH   = $clog2(PIXELS_COUNT);
 
 reg clk;
 
-reg                      ps2_left;
-reg                      ps2_right;
-reg                      ps2_backspace;
-reg [SYMBOL_WIDTH - 1:0] ps2_symbol;
+reg [SYMBOL_WIDTH - 1:0] keyboard_symbol;
 
 wire [X_WIDTH - 1:0]    line_drawer_x1;
 wire [Y_WIDTH - 1:0]    line_drawer_y1;
@@ -58,12 +55,9 @@ logic_ #(
     .VER_ACTIVE_PIXELS (VER_ACTIVE_PIXELS),
     .SYMBOL_WIDTH      (SYMBOL_WIDTH)
 ) logic_ (
-    .clk                (clk),
+    .clk (clk),
 
-    .keyboard_left      (ps2_left),
-    .keyboard_right     (ps2_right),
-    .keyboard_backspace (ps2_backspace),
-    .keyboard_symbol    (ps2_symbol),
+    .keyboard_symbol (keyboard_symbol),
 
     .line_drawer_x1    (line_drawer_x1),
     .line_drawer_y1    (line_drawer_y1),
@@ -182,6 +176,35 @@ task draw_frame;
     end
 endtask
 
+task send_symbol;
+    input [SYMBOL_WIDTH - 1:0] symbol;
+
+    begin
+        keyboard_symbol <= symbol;
+        @(posedge clk);
+        keyboard_symbol <= 0;
+        @(posedge clk);
+    end
+endtask
+
+task send_left_arrow;
+    begin
+        keyboard_symbol <= 1;
+        @(posedge clk);
+        keyboard_symbol <= 0;
+        @(posedge clk);
+    end
+endtask
+
+task send_right_arrow;
+    begin
+        keyboard_symbol <= 2;
+        @(posedge clk);
+        keyboard_symbol <= 0;
+        @(posedge clk);
+    end
+endtask
+
 always begin // generate 25.175 MHz clock
     clk = 1'b0;
     #19861;
@@ -192,10 +215,7 @@ end
 initial begin
     frame_buffer_read_addr = 0;
     swap                   = 0;
-    ps2_left               = 0;
-    ps2_right              = 0;
-    ps2_backspace          = 0;
-    ps2_symbol             = 0;
+    keyboard_symbol        = 0;
 
     @(posedge clk);
 
@@ -206,10 +226,7 @@ initial begin
         $stop;
     end
 
-    ps2_symbol <= "1";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
+    send_symbol("1");
 
     // draw 3 frames with "1" displayed
     repeat (3) begin
@@ -218,10 +235,7 @@ initial begin
         $stop;
     end
 
-    ps2_left <= 1;
-    @(posedge clk);
-    ps2_left <= 0;
-    @(posedge clk);
+    send_left_arrow();
 
     // draw 3 frames with "1" displayed, cursor at position 0
     repeat (3) begin
@@ -230,10 +244,7 @@ initial begin
         $stop;
     end
 
-    ps2_symbol <= "a";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
+    send_symbol("a");
 
     // draw 3 frames with "a1" displayed, cursor between "a" and "1"
     repeat (3) begin
@@ -242,10 +253,7 @@ initial begin
         $stop;
     end
 
-    ps2_backspace <= 1;
-    @(posedge clk);
-    ps2_backspace <= 0;
-    @(posedge clk);
+    send_symbol("\b");
 
     // draw 3 frames with "1" displayed, cursor at position 0
     repeat (3) begin
@@ -254,10 +262,7 @@ initial begin
         $stop;
     end
 
-    ps2_right <= 1;
-    @(posedge clk);
-    ps2_right <= 0;
-    @(posedge clk);
+    send_right_arrow();
 
     // draw 3 frames with "1" displayed, cursor at position 1
     repeat (3) begin
@@ -266,10 +271,7 @@ initial begin
         $stop;
     end
 
-    ps2_backspace <= 1;
-    @(posedge clk);
-    ps2_backspace <= 0;
-    @(posedge clk);
+    send_symbol("\b");
 
     // draw 3 frames
     repeat (3) begin
