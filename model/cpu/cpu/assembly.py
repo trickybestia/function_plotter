@@ -3,6 +3,7 @@ from typing import Self
 from random import randrange
 
 from . import emulator
+from cpu.utils import ones
 
 
 def _parse_int_or_label(s: str) -> str | int:
@@ -70,7 +71,7 @@ class AssemblyInstruction:
 
         raise NotImplementedError()
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         raise NotImplementedError()
 
     def substitute_label(self, label: str, value: int): ...
@@ -104,8 +105,8 @@ class ADD(AssemblyInstruction):
             randrange(0, emulator.REG_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.ADD(self.rd, self.rs1, self.rs2)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.ADD(self.rd, self.rs1, self.rs2)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
@@ -135,8 +136,8 @@ class SUB(AssemblyInstruction):
             randrange(0, emulator.REG_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.SUB(self.rd, self.rs1, self.rs2)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.SUB(self.rd, self.rs1, self.rs2)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
@@ -166,8 +167,8 @@ class AND(AssemblyInstruction):
             randrange(0, emulator.REG_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.AND(self.rd, self.rs1, self.rs2)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.AND(self.rd, self.rs1, self.rs2)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
@@ -197,8 +198,8 @@ class OR(AssemblyInstruction):
             randrange(0, emulator.REG_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.OR(self.rd, self.rs1, self.rs2)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.OR(self.rd, self.rs1, self.rs2)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
@@ -228,8 +229,8 @@ class XOR(AssemblyInstruction):
             randrange(0, emulator.REG_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.XOR(self.rd, self.rs1, self.rs2)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.XOR(self.rd, self.rs1, self.rs2)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
@@ -253,8 +254,8 @@ class LH(AssemblyInstruction):
             randrange(0, 2**emulator.IMM_WIDTH),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.LH(self.rd, self.imm)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.LH(self.rd, self.imm)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_imm(self.imm)}"
@@ -278,11 +279,43 @@ class LL(AssemblyInstruction):
             randrange(0, 2**emulator.IMM_WIDTH),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.LL(self.rd, self.imm)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.LL(self.rd, self.imm)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_imm(self.imm)}"
+
+
+@dataclass
+class LI(AssemblyInstruction):
+    rd: int
+    imm: int
+
+    @classmethod
+    def parse_args(cls, args: list[str]) -> Self:
+        assert len(args) == 2
+
+        return cls(_parse_reg_addr(args[0]), _parse_imm(args[1]))
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, 2**emulator.REG_WIDTH),
+        )
+
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [
+            emulator.LL(self.rd, self.imm & ones(emulator.IMM_WIDTH)),
+            emulator.LH(self.rd, self.imm >> emulator.IMM_WIDTH),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_imm(self.imm)}"
+
+    @staticmethod
+    def __len__() -> int:
+        return 2
 
 
 class JMPBase(AssemblyInstruction):
@@ -309,11 +342,11 @@ class JMP(JMPBase):
     def randomize(cls) -> Self:
         return cls(randrange(0, emulator.INSTRUCTION_MEM_SIZE))
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(emulator.JMPCond.EQ, 0, 0, self.jmp_pc)
+        return [emulator.JMP(emulator.JMPCond.EQ, 0, 0, self.jmp_pc)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_jmp_pc(self.jmp_pc)}"
@@ -343,13 +376,13 @@ class JMPEQ(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(
-            emulator.JMPCond.EQ, self.rs1, self.rs2, self.jmp_pc
-        )
+        return [
+            emulator.JMP(emulator.JMPCond.EQ, self.rs1, self.rs2, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -379,13 +412,13 @@ class JMPNE(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(
-            emulator.JMPCond.NE, self.rs1, self.rs2, self.jmp_pc
-        )
+        return [
+            emulator.JMP(emulator.JMPCond.NE, self.rs1, self.rs2, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -415,13 +448,13 @@ class JMPLT(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(
-            emulator.JMPCond.LT, self.rs1, self.rs2, self.jmp_pc
-        )
+        return [
+            emulator.JMP(emulator.JMPCond.LT, self.rs1, self.rs2, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -451,13 +484,13 @@ class JMPLE(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(
-            emulator.JMPCond.LE, self.rs1, self.rs2, self.jmp_pc
-        )
+        return [
+            emulator.JMP(emulator.JMPCond.LE, self.rs1, self.rs2, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -487,13 +520,13 @@ class JMPGT(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(
-            emulator.JMPCond.GT, self.rs1, self.rs2, self.jmp_pc
-        )
+        return [
+            emulator.JMP(emulator.JMPCond.GT, self.rs1, self.rs2, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -523,13 +556,13 @@ class JMPGE(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(
-            emulator.JMPCond.GE, self.rs1, self.rs2, self.jmp_pc
-        )
+        return [
+            emulator.JMP(emulator.JMPCond.GE, self.rs1, self.rs2, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -556,11 +589,13 @@ class JMPCR(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(emulator.JMPCond.CR, 0, self.accel_id, self.jmp_pc)
+        return [
+            emulator.JMP(emulator.JMPCond.CR, 0, self.accel_id, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_accel_id(self.accel_id)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -587,11 +622,13 @@ class JMPCW(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(emulator.JMPCond.CW, 0, self.accel_id, self.jmp_pc)
+        return [
+            emulator.JMP(emulator.JMPCond.CW, 0, self.accel_id, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_accel_id(self.accel_id)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -618,11 +655,13 @@ class JMPNCR(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(emulator.JMPCond.NCR, 0, self.accel_id, self.jmp_pc)
+        return [
+            emulator.JMP(emulator.JMPCond.NCR, 0, self.accel_id, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_accel_id(self.accel_id)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -649,11 +688,13 @@ class JMPNCW(JMPBase):
             randrange(0, emulator.INSTRUCTION_MEM_SIZE),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
         if isinstance(self.jmp_pc, str):
             raise Exception(f"Label {self.jmp_pc} has no value")
 
-        return emulator.JMP(emulator.JMPCond.NCW, 0, self.accel_id, self.jmp_pc)
+        return [
+            emulator.JMP(emulator.JMPCond.NCW, 0, self.accel_id, self.jmp_pc)
+        ]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_accel_id(self.accel_id)}, {_format_jmp_pc(self.jmp_pc)}"
@@ -677,8 +718,8 @@ class LOAD(AssemblyInstruction):
             randrange(0, emulator.REG_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.LOAD(self.rd, self.rs1)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.LOAD(self.rd, self.rs1)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}"
@@ -702,8 +743,8 @@ class STORE(AssemblyInstruction):
             randrange(0, emulator.REG_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.STORE(self.rs1, self.rs2)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.STORE(self.rs1, self.rs2)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_reg_addr(self.rs2)}"
@@ -727,8 +768,8 @@ class WACC(AssemblyInstruction):
             randrange(0, emulator.ACCEL_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.WACC(self.rs1, self.accel_id)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.WACC(self.rs1, self.accel_id)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rs1)}, {_format_accel_id(self.accel_id)}"
@@ -752,8 +793,8 @@ class RACC(AssemblyInstruction):
             randrange(0, emulator.ACCEL_COUNT),
         )
 
-    def into_emulator_instruction(self) -> emulator.EmulatorInstruction:
-        return emulator.RACC(self.rd, self.accel_id)
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.RACC(self.rd, self.accel_id)]
 
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_accel_id(self.accel_id)}"
@@ -782,6 +823,7 @@ INSTRUCTIONS_LIST: list[type[AssemblyInstruction]] = [
     RACC,
     LH,
     LL,
+    LI,
 ]
 INSTRUCTIONS_DICT: dict[str, type[AssemblyInstruction]] = dict(
     (instr.name(), instr) for instr in INSTRUCTIONS_LIST
@@ -792,6 +834,28 @@ class Assembly:
     instructions: list[AssemblyInstruction]
     instruction_pointer: int
     labels: dict[str, int]
+
+    @classmethod
+    def read_from_file(cls, input_path: str) -> Self:
+        asm = cls()
+
+        with open(input_path, "r") as input_file:
+            while (line := input_file.readline()) != "":
+                line_without_comment = line.split("#")[0]
+                line_parts = line_without_comment.replace(",", " ").split()
+
+                if len(line_parts) == 0:
+                    continue
+                elif len(line_parts) == 1 and line_parts[0][-1] == ":":
+                    asm.label(line_parts[0][:-1])
+
+                    continue
+
+                op, args = line_parts[0], line_parts[1:]
+
+                asm.instruction(INSTRUCTIONS_DICT[op].parse_args(args))
+
+        return asm
 
     def __init__(self):
         self.instructions = []
@@ -811,6 +875,26 @@ class Assembly:
             for label, label_value in self.labels.items():
                 instr.substitute_label(label, label_value)
 
-        return [
-            instr.into_emulator_instruction() for instr in self.instructions
-        ]
+        return sum(
+            (instr.into_emulator_instructions() for instr in self.instructions),
+            [],
+        )
+
+    def load_into_emulator(self, emulator: emulator.Emulator):
+        i = 0
+
+        for instr in self.compile():
+            for word in instr.encode():
+                emulator.instructions_mem[i] = word
+
+                i += 1
+
+    def compile_to_file(self, filename: str):
+        with open(filename, "w") as file:
+            for instr in self.compile():
+                for word in instr.encode():
+                    bits_str = bin(word)[2:].rjust(
+                        emulator.INSTRUCTION_WIDTH, "0"
+                    )
+
+                    file.write(bits_str + "\n")

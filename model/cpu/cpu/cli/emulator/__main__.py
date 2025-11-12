@@ -1,6 +1,5 @@
 from sys import argv
 
-from cpu.utils import dump_emulator_state
 from cpu.emulator import Emulator
 from cpu.accelerators.dummy_accelerator import DummyAccelerator
 
@@ -34,7 +33,7 @@ def main():
         emulator.instructions_mem[i] = instr
 
     for _ in range(ticks_count):
-        print(dump_emulator_state(emulator))
+        print(emulator.dump_state())
 
         emulator.tick()
 

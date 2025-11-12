@@ -3,11 +3,6 @@ from sys import argv
 
 from cpu.assembly import Assembly, INSTRUCTIONS_LIST, JMPBase
 from cpu.emulator import Emulator
-from cpu.utils import (
-    load_asm_into_emulator,
-    dump_emulator_state,
-    compile_asm_to_file,
-)
 from cpu.accelerators.dummy_accelerator import DummyAccelerator
 
 
@@ -46,9 +41,9 @@ def main():
     emulator = test_emulator()
     asm = random_asm()
 
-    compile_asm_to_file(asm, instr_mem_path)
+    asm.compile_to_file(instr_mem_path)
 
-    load_asm_into_emulator(asm, emulator)
+    asm.load_into_emulator(emulator)
 
     with open(asm_path, "w") as asm_file:
         for instr in asm.instructions:
@@ -56,7 +51,7 @@ def main():
 
     with open(log_path, "w") as log_file:
         for _ in range(1000):
-            log_file.write(dump_emulator_state(emulator))
+            log_file.write(emulator.dump_state())
             log_file.write("\n")
 
             emulator.tick()

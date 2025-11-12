@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from math import log2, ceil
 from typing import Optional, Self
 
+from cpu.utils import ones, encode, decode
+
 OP_WIDTH = 4
 
 REG_WIDTH = 16
@@ -47,18 +49,6 @@ class JMPCond:
     NCW = 9
 
 
-def _ones(width: int) -> int:
-    return 2**width - 1
-
-
-def _encode(value: int, lsb: int) -> int:
-    return value << lsb
-
-
-def _decode(value: int, lsb: int, width: int) -> int:
-    return (value >> lsb) & _ones(width)
-
-
 class EmulatorInstruction:
     @staticmethod
     def op() -> int:
@@ -92,23 +82,23 @@ class ADD(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.rs1, RS1_LSB)
-            | _encode(self.rs2, RS2_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.rs1, RS1_LSB)
+            | encode(self.rs2, RS2_LSB)
         ]
 
 
@@ -129,23 +119,23 @@ class SUB(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.rs1, RS1_LSB)
-            | _encode(self.rs2, RS2_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.rs1, RS1_LSB)
+            | encode(self.rs2, RS2_LSB)
         ]
 
 
@@ -166,23 +156,23 @@ class AND(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.rs1, RS1_LSB)
-            | _encode(self.rs2, RS2_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.rs1, RS1_LSB)
+            | encode(self.rs2, RS2_LSB)
         ]
 
 
@@ -203,23 +193,23 @@ class OR(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.rs1, RS1_LSB)
-            | _encode(self.rs2, RS2_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.rs1, RS1_LSB)
+            | encode(self.rs2, RS2_LSB)
         ]
 
 
@@ -240,23 +230,23 @@ class XOR(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.rs1, RS1_LSB)
-            | _encode(self.rs2, RS2_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.rs1, RS1_LSB)
+            | encode(self.rs2, RS2_LSB)
         ]
 
 
@@ -275,21 +265,21 @@ class LH(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], IMM_LSB, IMM_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], IMM_LSB, IMM_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.imm, IMM_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.imm, IMM_LSB)
         ]
 
 
@@ -308,21 +298,21 @@ class LL(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], IMM_LSB, IMM_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], IMM_LSB, IMM_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.imm, IMM_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.imm, IMM_LSB)
         ]
 
 
@@ -344,24 +334,24 @@ class JMP(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], COND_LSB, COND_WIDTH),
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
+            decode(words[0], COND_LSB, COND_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
             words[1],
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.cond, COND_LSB)
-            | _encode(self.rs1, RS1_LSB)
-            | _encode(self.rs2, RS2_LSB),
+            encode(self.op(), OP_LSB)
+            | encode(self.cond, COND_LSB)
+            | encode(self.rs1, RS1_LSB)
+            | encode(self.rs2, RS2_LSB),
             self.jmp_pc,
         ]
 
@@ -384,21 +374,21 @@ class LOAD(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.rs1, RS1_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.rs1, RS1_LSB)
         ]
 
 
@@ -417,21 +407,21 @@ class STORE(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS2_LSB, REG_ADDR_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rs1, RS1_LSB)
-            | _encode(self.rs2, RS2_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rs1, RS1_LSB)
+            | encode(self.rs2, RS2_LSB)
         ]
 
 
@@ -450,21 +440,21 @@ class WACC(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], ACCEL_ID_LSB, ACCEL_ID_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+            decode(words[0], ACCEL_ID_LSB, ACCEL_ID_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rs1, RS1_LSB)
-            | _encode(self.accel_id, ACCEL_ID_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rs1, RS1_LSB)
+            | encode(self.accel_id, ACCEL_ID_LSB)
         ]
 
 
@@ -483,21 +473,21 @@ class RACC(EmulatorInstruction):
 
     @classmethod
     def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
-        op = _decode(words[0], OP_LSB, OP_WIDTH)
+        op = decode(words[0], OP_LSB, OP_WIDTH)
 
         if op != cls.op():
             return None
 
         return cls(
-            _decode(words[0], RD_LSB, REG_ADDR_WIDTH),
-            _decode(words[0], ACCEL_ID_LSB, ACCEL_ID_WIDTH),
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], ACCEL_ID_LSB, ACCEL_ID_WIDTH),
         )
 
     def encode(self) -> list[int]:
         return [
-            _encode(self.op(), OP_LSB)
-            | _encode(self.rd, RD_LSB)
-            | _encode(self.accel_id, ACCEL_ID_LSB)
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.accel_id, ACCEL_ID_LSB)
         ]
 
 
@@ -561,7 +551,7 @@ class Emulator:
             self.write_reg(
                 instr.rd,
                 (self.read_reg(instr.rs1) + self.read_reg(instr.rs2))
-                & _ones(REG_WIDTH),
+                & ones(REG_WIDTH),
             )
         elif (instr := SUB.try_decode(instr_words)) is not None:
             self.write_reg(
@@ -571,7 +561,7 @@ class Emulator:
                     + self.read_reg(instr.rs1)
                     - self.read_reg(instr.rs2)
                 )
-                & _ones(REG_WIDTH),
+                & ones(REG_WIDTH),
             )
         elif (instr := AND.try_decode(instr_words)) is not None:
             self.write_reg(
@@ -656,14 +646,14 @@ class Emulator:
         elif (instr := LH.try_decode(instr_words)) is not None:
             self.write_reg(
                 instr.rd,
-                self.read_reg(instr.rd) & _ones(REG_WIDTH // 2)
+                self.read_reg(instr.rd) & ones(REG_WIDTH // 2)
                 | (instr.imm << (REG_WIDTH // 2)),
             )
         elif (instr := LL.try_decode(instr_words)) is not None:
             self.write_reg(
                 instr.rd,
                 self.read_reg(instr.rd)
-                & (_ones(REG_WIDTH // 2) << (REG_WIDTH // 2))
+                & (ones(REG_WIDTH // 2) << (REG_WIDTH // 2))
                 | instr.imm,
             )
         else:
@@ -672,8 +662,11 @@ class Emulator:
         self.executed_instructions_count += 1
 
         if not override_pc:
-            self.pc = (self.pc + len(instr)) & _ones(INSTRUCTION_MEM_ADDR_WIDTH)
+            self.pc = (self.pc + len(instr)) & ones(INSTRUCTION_MEM_ADDR_WIDTH)
 
         for accelerator in self.accelerators:
             if accelerator is not None:
                 accelerator.tick()
+
+    def dump_state(self) -> str:
+        return f"executed: {self.executed_instructions_count}; pc: {self.pc}; regs: {self.regs}"

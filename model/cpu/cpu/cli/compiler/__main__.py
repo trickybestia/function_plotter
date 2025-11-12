@@ -1,15 +1,15 @@
 from sys import argv
 
-from cpu.utils import read_asm, compile_asm_to_file
+from cpu.assembly import Assembly
 
 
 def main():
     input_path = argv[1]
     output_path = argv[2]
 
-    asm = read_asm(input_path)
+    asm = Assembly.read_from_file(input_path)
 
-    compile_asm_to_file(asm, output_path)
+    asm.compile_to_file(output_path)
 
 
 main()
