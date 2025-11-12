@@ -35,7 +35,7 @@ localparam X_WIDTH = $clog2(HOR_ACTIVE_PIXELS);
 localparam Y_WIDTH = $clog2(VER_ACTIVE_PIXELS);
 
 localparam INSTRUCTION_WIDTH          = 16;
-localparam INSTRUCTION_MEM_SIZE       = 128;
+localparam INSTRUCTION_MEM_SIZE       = 1024;
 localparam INSTRUCTION_MEM_ADDR_WIDTH = $clog2(INSTRUCTION_MEM_SIZE);
 
 localparam DATA_WIDTH          = 16;
@@ -97,6 +97,11 @@ wire        line_drawer_can_read;
 wire        line_drawer_can_write;
 wire [15:0] line_drawer_read_data;
 
+// symbol_drawer_accel_adapter
+wire        symbol_drawer_can_read;
+wire        symbol_drawer_can_write;
+wire [15:0] symbol_drawer_read_data;
+
 // cpu
 reg cpu_rst;
 
@@ -104,28 +109,43 @@ reg swap_pending;
 
 assign fill_drawer_start = fill_drawer_ready && accel_id == 2 && accel_write_enable;
 
-assign symbol_drawer_x            = 0;
-assign symbol_drawer_y            = 0;
-assign symbol_drawer_symbol       = 0;
-assign symbol_drawer_cursor_left  = 0;
-assign symbol_drawer_cursor_right = 0;
-assign symbol_drawer_start        = 0;
-
 // accel_id = 1
 line_drawer_accel_adapter line_drawer_accel_adapter (
-    .clk                (clk),
+    .clk (clk),
+
     .accel_can_read     (line_drawer_can_read),
     .accel_can_write    (line_drawer_can_write),
     .accel_read_enable  (accel_id == 1 && accel_read_enable),
     .accel_write_enable (accel_id == 1 && accel_write_enable),
     .accel_read_data    (line_drawer_read_data),
     .accel_write_data   (accel_write_data),
-    .line_drawer_start  (line_drawer_start),
-    .line_drawer_ready  (line_drawer_ready),
-    .line_drawer_x1     (line_drawer_x1),
-    .line_drawer_y1     (line_drawer_y1),
-    .line_drawer_x2     (line_drawer_x2),
-    .line_drawer_y2     (line_drawer_y2)
+
+    .line_drawer_start (line_drawer_start),
+    .line_drawer_ready (line_drawer_ready),
+    .line_drawer_x1    (line_drawer_x1),
+    .line_drawer_y1    (line_drawer_y1),
+    .line_drawer_x2    (line_drawer_x2),
+    .line_drawer_y2    (line_drawer_y2)
+);
+
+// accel_id = 3
+symbol_drawer_accel_adapter symbol_drawer_accel_adapter (
+    .clk (clk),
+
+    .accel_can_read     (symbol_drawer_can_read),
+    .accel_can_write    (symbol_drawer_can_write),
+    .accel_read_enable  (accel_id == 3 && accel_read_enable),
+    .accel_write_enable (accel_id == 3 && accel_write_enable),
+    .accel_read_data    (symbol_drawer_read_data),
+    .accel_write_data   (accel_write_data),
+
+    .symbol_drawer_start        (symbol_drawer_start),
+    .symbol_drawer_ready        (symbol_drawer_ready),
+    .symbol_drawer_x            (symbol_drawer_x),
+    .symbol_drawer_y            (symbol_drawer_y),
+    .symbol_drawer_symbol       (symbol_drawer_symbol),
+    .symbol_drawer_cursor_left  (symbol_drawer_cursor_left),
+    .symbol_drawer_cursor_right (symbol_drawer_cursor_right)
 );
 
 cpu_instr_mem #(
@@ -187,6 +207,7 @@ always @(*) begin
         0: accel_can_read = swap_pending;
         1: accel_can_read = line_drawer_can_read;
         2: accel_can_read = 0;
+        3: accel_can_read = symbol_drawer_can_read;
         default: ;
     endcase
 end
@@ -199,6 +220,7 @@ always @(*) begin
         0: accel_can_write = 0;
         1: accel_can_write = line_drawer_can_write;
         2: accel_can_write = fill_drawer_ready;
+        3: accel_can_write = symbol_drawer_can_write;
         default: ;
     endcase
 end
@@ -211,6 +233,7 @@ always @(*) begin
         0: accel_read_data = 0;
         1: accel_read_data = line_drawer_read_data;
         2: accel_read_data = 0;
+        3: accel_read_data = symbol_drawer_read_data;
         default: ;
     endcase
 end
