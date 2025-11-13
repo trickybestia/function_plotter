@@ -862,6 +862,10 @@ class CALL(AssemblyInstruction):
     def __str__(self) -> str:
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_jmp_pc(self.pc)}"
 
+    @staticmethod
+    def __len__() -> int:
+        return 3
+
 
 INSTRUCTIONS_LIST: list[type[AssemblyInstruction]] = [
     ADD,
