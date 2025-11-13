@@ -9,6 +9,8 @@ def read_mem(path: str) -> list[int]:
 
     with open(path, "r") as file:
         while (line := file.readline()) != "":
+            line = line.split("/", 2)[0]
+
             result.append(int(line, 2))
 
     return result

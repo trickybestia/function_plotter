@@ -955,11 +955,20 @@ class Assembly:
                 i += 1
 
     def compile_to_file(self, filename: str):
+        word_address = 0
+
         with open(filename, "w") as file:
             for instr in self.compile():
-                for word in instr.encode():
+                for word_index, word in enumerate(instr.encode()):
                     bits_str = bin(word)[2:].rjust(
                         emulator.INSTRUCTION_WIDTH, "0"
                     )
 
-                    file.write(bits_str + "\n")
+                    if word_index == 0:
+                        file.write(
+                            f"{bits_str} // {word_address:05d}: {instr}\n"
+                        )
+                    else:
+                        file.write(f"{bits_str} // {word_address:05d}:\n")
+
+                    word_address += 1

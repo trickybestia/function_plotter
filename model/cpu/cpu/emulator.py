@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import IntEnum
 from math import log2, ceil
 from typing import Optional, Self
 
@@ -36,7 +37,7 @@ IMM_WIDTH = REG_WIDTH // 2
 IMM_LSB = RD_LSB - IMM_WIDTH
 
 
-class JMPCond:
+class JMPCond(IntEnum):
     EQ = 0
     NE = 1
     LT = 2
