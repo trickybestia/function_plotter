@@ -1,6 +1,3 @@
-    li r1, 0
-    li r2, 15
-
 wait_swap_loop:
     jmpncr acc0, wait_swap_loop
     racc r0, acc0
@@ -9,321 +6,195 @@ wait_swap_loop:
 
 wait_fill_drawer_loop:
     jmpncw acc2, wait_fill_drawer_loop
+
+    li r1, 0 # symbol x
+    li r2, 0 # symbol y
+    li r5, 15 # symbol delta x
     
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'w'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'h'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'a'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 't'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 's'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    add r1, r1, r2 # space
+    add r1, r1, r5 # space
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'o'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'r'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'a'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'n'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'g'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'e'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    add r1, r1, r2 # space
+    add r1, r1, r5 # space
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'a'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'n'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'd'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    add r1, r1, r2 # space
+    add r1, r1, r5 # space
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 's'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'o'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
+    li r3, 'u'
+    call r4, draw_symbol
+    add r1, r1, r5
+
     li r3, 'n'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'd'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 's'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    add r1, r1, r2 # space
+    add r1, r1, r5 # space
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'l'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'i'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'k'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'e'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    add r1, r1, r2 # space
+    add r1, r1, r5 # space
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'a'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    add r1, r1, r2 # space
+    add r1, r1, r5 # space
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'p'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'a'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'r'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'r'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 'o'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r0, acc3
     li r3, 't'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
     li r1, 0
-    li r4, 30
+    li r2, 30
 
-    wacc r1, acc3
-    wacc r4, acc3
     li r3, 'a'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    add r1, r1, r2 # space
+    add r1, r1, r5 # space
 
-    wacc r1, acc3
-    wacc r4, acc3
     li r3, 'c'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r4, acc3
     li r3, 'a'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r4, acc3
     li r3, 'r'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r4, acc3
     li r3, 'r'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r4, acc3
     li r3, 'o'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
-    wacc r1, acc3
-    wacc r4, acc3
     li r3, 't'
-    wacc r3, acc3
-    wacc r0, acc3
-    wacc r0, acc3
-    add r1, r1, r2
+    call r4, draw_symbol
+    add r1, r1, r5
 
 wait_symbol_drawer_loop:
     jmpncw acc3, wait_symbol_drawer_loop
 
     jmp wait_swap_loop
+
+# draw symbol using symbol_drawer accelerator (acc3)
+# args:
+# r1 - symbol x coordinate
+# r2 - symbol y coordinate
+# r3 - symbol
+# r4 - return address
+draw_symbol:
+    wacc r1, acc3
+    wacc r2, acc3
+    wacc r3, acc3
+    wacc r0, acc3
+    wacc r0, acc3
+    lpcl r0, r4
