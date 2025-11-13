@@ -800,6 +800,69 @@ class RACC(AssemblyInstruction):
         return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_accel_id(self.accel_id)}"
 
 
+@dataclass
+class LPCL(AssemblyInstruction):
+    rd: int
+    rs1: int
+
+    @classmethod
+    def parse_args(cls, args: list[str]) -> Self:
+        assert len(args) == 2
+
+        return cls(_parse_reg_addr(args[0]), _parse_reg_addr(args[1]))
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.REG_COUNT),
+        )
+
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        return [emulator.LPCL(self.rd, self.rs1)]
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_reg_addr(self.rs1)}"
+
+
+@dataclass
+class CALL(AssemblyInstruction):
+    rd: int
+    pc: int | str
+
+    @classmethod
+    def parse_args(cls, args: list[str]) -> Self:
+        assert len(args) == 2
+
+        return cls(_parse_reg_addr(args[0]), _parse_int_or_label(args[1]))
+
+    @classmethod
+    def randomize(cls) -> Self:
+        return cls(
+            randrange(0, emulator.REG_COUNT),
+            randrange(0, emulator.INSTRUCTION_MEM_SIZE),
+        )
+
+    def into_emulator_instructions(self) -> list[emulator.EmulatorInstruction]:
+        if isinstance(self.pc, str):
+            raise Exception(f"Label {self.pc} has no value")
+
+        assert 2 * emulator.IMM_WIDTH <= emulator.INSTRUCTION_MEM_ADDR_WIDTH
+
+        return [
+            emulator.LL(self.rd, self.pc & ones(emulator.IMM_WIDTH)),
+            emulator.LH(self.rd, self.pc >> emulator.IMM_WIDTH),
+            emulator.LPCL(self.rd, self.rd),
+        ]
+
+    def substitute_label(self, label: str, value: int):
+        if self.pc == label:
+            self.pc = value
+
+    def __str__(self) -> str:
+        return f"{self.name()} {_format_reg_addr(self.rd)}, {_format_jmp_pc(self.pc)}"
+
+
 INSTRUCTIONS_LIST: list[type[AssemblyInstruction]] = [
     ADD,
     SUB,
@@ -824,6 +887,8 @@ INSTRUCTIONS_LIST: list[type[AssemblyInstruction]] = [
     LH,
     LL,
     LI,
+    LPCL,
+    CALL,
 ]
 INSTRUCTIONS_DICT: dict[str, type[AssemblyInstruction]] = dict(
     (instr.name(), instr) for instr in INSTRUCTIONS_LIST

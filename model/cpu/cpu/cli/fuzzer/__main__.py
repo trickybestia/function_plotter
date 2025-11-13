@@ -1,7 +1,7 @@
 from random import choice, randrange
 from sys import argv
 
-from cpu.assembly import Assembly, INSTRUCTIONS_LIST, JMPBase
+from cpu.assembly import Assembly, INSTRUCTIONS_LIST, JMPBase, CALL
 from cpu.emulator import Emulator
 from cpu.accelerators.dummy_accelerator import DummyAccelerator
 
@@ -18,6 +18,8 @@ def random_asm() -> Assembly:
 
         if isinstance(instr, JMPBase):
             instr.jmp_pc = str(randrange(0, instructions_count))
+        elif isinstance(instr, CALL):
+            instr.pc = str(randrange(0, instructions_count))
 
         asm.instruction(instr)
 

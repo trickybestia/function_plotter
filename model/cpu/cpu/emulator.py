@@ -491,6 +491,39 @@ class RACC(EmulatorInstruction):
         ]
 
 
+@dataclass(frozen=True)
+class LPCL(EmulatorInstruction):
+    rd: int
+    rs1: int
+
+    def __post_init__(self):
+        assert 0 <= self.rd < REG_COUNT
+        assert 0 <= self.rs1 < REG_COUNT
+
+    @staticmethod
+    def op() -> int:
+        return 12
+
+    @classmethod
+    def try_decode(cls, words: tuple[int, int]) -> Optional[Self]:
+        op = decode(words[0], OP_LSB, OP_WIDTH)
+
+        if op != cls.op():
+            return None
+
+        return cls(
+            decode(words[0], RD_LSB, REG_ADDR_WIDTH),
+            decode(words[0], RS1_LSB, REG_ADDR_WIDTH),
+        )
+
+    def encode(self) -> list[int]:
+        return [
+            encode(self.op(), OP_LSB)
+            | encode(self.rd, RD_LSB)
+            | encode(self.rs1, RS1_LSB)
+        ]
+
+
 class Accelerator:
     def can_read(self) -> bool:
         raise NotImplementedError()
@@ -656,6 +689,13 @@ class Emulator:
                 & (ones(REG_WIDTH // 2) << (REG_WIDTH // 2))
                 | instr.imm,
             )
+        elif (instr := LPCL.try_decode(instr_words)) is not None:
+            new_pc = self.read_reg(instr.rs1)
+
+            self.write_reg(instr.rd, self.pc + len(instr))
+
+            override_pc = True
+            self.pc = new_pc
         else:
             raise Exception(f"Invalid instruction: {instr}")
 

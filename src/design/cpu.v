@@ -58,6 +58,7 @@ localparam OP_LOAD  = 8;
 localparam OP_STORE = 9;
 localparam OP_WACC  = 10;
 localparam OP_RACC  = 11;
+localparam OP_LPCL  = 12;
 
 input clk;
 input rst;
@@ -84,9 +85,8 @@ wire [OP_WIDTH - 1:0]                   op                    = instr_mem_data_0
 wire [REG_ADDR_WIDTH - 1:0]             rd1                   = instr_mem_data_0[RD_LSB+:REG_ADDR_WIDTH];
 wire [REG_ADDR_WIDTH - 1:0]             rs1                   = (op == OP_LH || op == OP_LL) ? rd1 : instr_mem_data_0[RS1_LSB+:REG_ADDR_WIDTH];
 wire [REG_ADDR_WIDTH - 1:0]             rs2                   = instr_mem_data_0[RS2_LSB+:REG_ADDR_WIDTH];
-wire                                    rd1_write_enable      = (op == OP_ADD || op == OP_SUB || op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_LH || op == OP_LL || op == OP_RACC);
-wire                                    rd1_write_src         = (op == OP_RACC);
-wire                                    jmp                   = (op == OP_JMP);
+wire                                    rd1_write_enable      = (op == OP_ADD || op == OP_SUB || op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_LH || op == OP_LL || op == OP_RACC || op == OP_LPCL);
+reg  [1:0]                              rd1_write_src;
 wire [3:0]                              cond                  = instr_mem_data_0[COND_LSB+:COND_WIDTH];
 wire [INSTRUCTION_MEM_ADDR_WIDTH - 1:0] jmp_pc                = instr_mem_data_1;
 wire [IMM_WIDTH - 1:0]                  imm                   = instr_mem_data_0[IMM_LSB+:IMM_WIDTH];
@@ -99,6 +99,7 @@ wire                                    data_mem_read         = (op == OP_LOAD);
 // cpu_reg_file
 wire [REG_WIDTH - 1:0] rs1_value;
 wire [REG_WIDTH - 1:0] rs2_value;
+reg  [REG_WIDTH - 1:0] rd1_write_data;
 
 // cpu_alu
 wire [REG_WIDTH - 1:0] alu_result;
@@ -113,8 +114,12 @@ reg [REG_WIDTH - 1:0] rd2_reg;
 
 reg data_mem_read_reg;
 
+wire [REG_WIDTH - 1:0] LPCL_return_pc;
+
 reg [REG_WIDTH - 1:0] pc, pc_next;
 reg [REG_WIDTH - 1:0] executed, executed_next; // executed instructions count
+
+assign LPCL_return_pc = pc + 1;
 
 assign instr_mem_addr      = pc_next;
 assign data_mem_addr       = rs1_value;
@@ -132,7 +137,7 @@ cpu_reg_file #(
     .rs2_value        (rs2_value),
     .rd1              (rd1),
     .rd1_write_enable (rd1_write_enable),
-    .rd1_write_data   (rd1_write_src ? accel_read_data : alu_result),
+    .rd1_write_data   (rd1_write_data),
     .rd2              (rd2_reg),
     .rd2_write_enable (data_mem_read_reg),
     .rd2_write_data   (data_mem_read_data)
@@ -161,6 +166,29 @@ cpu_jmp_cond_decoder cpu_jmp_cond_decoder (
     .result          (jmp_cond_decoder_result)
 );
 
+// rd1_write_src
+always @(*) begin
+    rd1_write_src = 0;
+
+    case (op)
+        OP_RACC: rd1_write_src = 1;
+        OP_LPCL: rd1_write_src = 2;
+        default: ;
+    endcase
+end
+
+// rd1_write_data
+always @(*) begin
+    rd1_write_data = 0;
+
+    case (rd1_write_src)
+        0: rd1_write_data = alu_result;
+        1: rd1_write_data = accel_read_data;
+        2: rd1_write_data = LPCL_return_pc;
+        default: ;
+    endcase
+end
+
 // pc_next, executed_next
 always @(*) begin
     if (rst) begin
@@ -169,11 +197,14 @@ always @(*) begin
     end else if ((op == OP_WACC && !accel_can_write) || (op == OP_RACC && !accel_can_read)) begin
         pc_next       = pc;
         executed_next = executed;
-    end else if (jmp && jmp_cond_decoder_result) begin
+    end else if (op == OP_JMP && jmp_cond_decoder_result) begin
         pc_next       = jmp_pc;
         executed_next = executed + 1;
+    end else if (op == OP_LPCL) begin
+        pc_next       = rs1_value;
+        executed_next = executed + 1;
     end else begin
-        pc_next       = jmp ? pc + 2 : pc + 1;
+        pc_next       = (op == OP_JMP) ? pc + 2 : pc + 1;
         executed_next = executed + 1;
     end
 end
