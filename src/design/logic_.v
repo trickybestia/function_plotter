@@ -24,9 +24,14 @@ module logic_ (
     swap
 );
 
+parameter INTEGER_PART_WIDTH    = 8;
+parameter FRACTIONAL_PART_WIDTH = 8;
+
 parameter HOR_ACTIVE_PIXELS = 640;
 parameter VER_ACTIVE_PIXELS = 480;
 parameter SYMBOL_WIDTH      = 7;
+
+localparam NUMBER_WIDTH = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
 
 localparam X_WIDTH = $clog2(HOR_ACTIVE_PIXELS);
 localparam Y_WIDTH = $clog2(VER_ACTIVE_PIXELS);
@@ -101,6 +106,19 @@ wire                      keyboard_can_read;
 wire                      keyboard_can_write;
 wire [SYMBOL_WIDTH - 1:0] keyboard_read_data;
 
+// fixed_point_alu_accel_adapter
+wire        alu_accel_can_read;
+wire        alu_accel_can_write;
+wire [15:0] alu_accel_read_data;
+
+// fixed_point_alu
+wire                      alu_start;
+wire                      alu_done;
+wire [2:0]                alu_op;
+wire [NUMBER_WIDTH - 1:0] alu_a;
+wire [NUMBER_WIDTH - 1:0] alu_b;
+wire [NUMBER_WIDTH - 1:0] alu_result;
+
 // cpu
 reg cpu_rst;
 
@@ -161,6 +179,41 @@ keyboard_accel_adapter #(
     .accel_write_data   (accel_write_data),
 
     .keyboard_symbol (keyboard_symbol)
+);
+
+// accel_id = 5
+fixed_point_alu_accel_adapter #(
+    .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
+    .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH)
+) fixed_point_alu_accel_adapter (
+    .clk (clk),
+
+    .accel_can_read     (alu_accel_can_read),
+    .accel_can_write    (alu_accel_can_write),
+    .accel_read_enable  (accel_id == 5 && accel_read_enable),
+    .accel_write_enable (accel_id == 5 && accel_write_enable),
+    .accel_read_data    (alu_accel_read_data),
+    .accel_write_data   (accel_write_data),
+
+    .alu_start  (alu_start),
+    .alu_done   (alu_done),
+    .alu_op     (alu_op),
+    .alu_a      (alu_a),
+    .alu_b      (alu_b),
+    .alu_result (alu_result)
+);
+
+fixed_point_alu #(
+    .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
+    .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH)
+) fixed_point_alu (
+    .clk    (clk),
+    .start  (alu_start),
+    .done   (alu_done),
+    .op     (alu_op),
+    .a      (alu_a),
+    .b      (alu_b),
+    .result (alu_result)
 );
 
 cpu_instr_mem #(
@@ -224,6 +277,7 @@ always @(*) begin
         2: accel_can_read = 0;
         3: accel_can_read = symbol_drawer_can_read;
         4: accel_can_read = keyboard_can_read;
+        5: accel_can_read = alu_accel_can_read;
         default: ;
     endcase
 end
@@ -238,6 +292,7 @@ always @(*) begin
         2: accel_can_write = fill_drawer_ready;
         3: accel_can_write = symbol_drawer_can_write;
         4: accel_can_write = keyboard_can_write;
+        5: accel_can_write = alu_accel_can_write;
         default: ;
     endcase
 end
@@ -252,6 +307,7 @@ always @(*) begin
         2: accel_read_data = 0;
         3: accel_read_data = symbol_drawer_read_data;
         4: accel_read_data = keyboard_read_data;
+        5: accel_read_data = alu_accel_read_data;
         default: ;
     endcase
 end

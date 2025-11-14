@@ -25,6 +25,13 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/cpu_jmp_cond_decoder.v"]"\
  "[file normalize "$origin_dir/src/design/cpu_reg_file.v"]"\
  "[file normalize "$origin_dir/src/design/fill_drawer.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_add.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_alu.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_alu_accel_adapter.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_div.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_pow.v"]"\
+ "[file normalize "$origin_dir/src/design/fixed_point_sub.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer.v"]"\
  "[file normalize "$origin_dir/src/design/frame_buffer_mem.v"]"\
  "[file normalize "$origin_dir/src/design/keyboard_accel_adapter.v"]"\
@@ -39,12 +46,6 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
  "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
- "[file normalize "$origin_dir/src/design/fixed_point_alu.v"]"\
- "[file normalize "$origin_dir/src/design/fixed_point_add.v"]"\
- "[file normalize "$origin_dir/src/design/fixed_point_sub.v"]"\
- "[file normalize "$origin_dir/src/design/fixed_point_mul.v"]"\
- "[file normalize "$origin_dir/src/design/fixed_point_div.v"]"\
- "[file normalize "$origin_dir/src/design/fixed_point_pow.v"]"\
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
@@ -216,6 +217,13 @@ set files [list \
  [file normalize "${origin_dir}/src/design/cpu_jmp_cond_decoder.v"] \
  [file normalize "${origin_dir}/src/design/cpu_reg_file.v"] \
  [file normalize "${origin_dir}/src/design/fill_drawer.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_add.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_alu.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_alu_accel_adapter.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_div.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_mul.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_pow.v"] \
+ [file normalize "${origin_dir}/src/design/fixed_point_sub.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer.v"] \
  [file normalize "${origin_dir}/src/design/frame_buffer_mem.v"] \
  [file normalize "${origin_dir}/src/design/keyboard_accel_adapter.v"] \
@@ -230,12 +238,6 @@ set files [list \
  [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
  [file normalize "${origin_dir}/src/design/vga.v"] \
  [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
- [file normalize "${origin_dir}/src/design/fixed_point_alu.v"] \
- [file normalize "${origin_dir}/src/design/fixed_point_add.v"] \
- [file normalize "${origin_dir}/src/design/fixed_point_sub.v"] \
- [file normalize "${origin_dir}/src/design/fixed_point_mul.v"] \
- [file normalize "${origin_dir}/src/design/fixed_point_div.v"] \
- [file normalize "${origin_dir}/src/design/fixed_point_pow.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
