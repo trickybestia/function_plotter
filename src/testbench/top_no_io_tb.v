@@ -188,21 +188,15 @@ task send_symbol;
 endtask
 
 task send_left_arrow;
-    begin
-        keyboard_symbol <= 1;
-        @(posedge clk);
-        keyboard_symbol <= 0;
-        @(posedge clk);
-    end
+    send_symbol(1);
 endtask
 
 task send_right_arrow;
-    begin
-        keyboard_symbol <= 2;
-        @(posedge clk);
-        keyboard_symbol <= 0;
-        @(posedge clk);
-    end
+    send_symbol(2);
+endtask
+
+task send_backspace;
+    send_symbol(3);
 endtask
 
 always begin // generate 25.175 MHz clock
@@ -253,7 +247,7 @@ initial begin
         $stop;
     end
 
-    send_symbol("\b");
+    send_backspace();
 
     // draw 3 frames with "1" displayed, cursor at position 0
     repeat (3) begin
@@ -271,7 +265,7 @@ initial begin
         $stop;
     end
 
-    send_symbol("\b");
+    send_backspace();
 
     // draw 3 frames
     repeat (3) begin

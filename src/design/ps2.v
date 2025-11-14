@@ -36,9 +36,9 @@ always @(*) begin
         // http://www.technoblogy.com/show?4QEL
         case (key)
             // custom codes
-            16'hE06B: symbol = 1;    // left arrow
-            16'hE074: symbol = 2;    // right arrow
-            16'h0066: symbol = "\b"; // backspace
+            16'hE06B: symbol = 1; // left arrow
+            16'hE074: symbol = 2; // right arrow
+            16'h0066: symbol = 3; // backspace
             // end of custom codes
 
             16'h0016: symbol = "1";
