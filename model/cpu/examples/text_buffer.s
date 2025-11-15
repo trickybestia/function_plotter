@@ -1,4 +1,3 @@
-# WORK IN PROGRESS
 # r14 - cursor position
 # r13 - text buffer length
 
