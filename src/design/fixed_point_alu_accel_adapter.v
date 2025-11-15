@@ -22,12 +22,14 @@ parameter FRACTIONAL_PART_WIDTH = 8;
 localparam NUMBER_WIDTH = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
 
 localparam STATE_READ_OP                  = 0;
-localparam STATE_READ_A                   = 1;
-localparam STATE_READ_B                   = 2;
-localparam STATE_ALU_START                = 3;
-localparam STATE_WORK                     = 4;
-localparam STATE_RETURN_RESULT_INTEGER    = 5;
-localparam STATE_RETURN_RESULT_FRACTIONAL = 6;
+localparam STATE_READ_A_INTEGER           = 1;
+localparam STATE_READ_A_FRACTIONAL        = 2;
+localparam STATE_READ_B_INTEGER           = 3;
+localparam STATE_READ_B_FRACTIONAL        = 4;
+localparam STATE_ALU_START                = 5;
+localparam STATE_WORK                     = 6;
+localparam STATE_RETURN_RESULT_INTEGER    = 7;
+localparam STATE_RETURN_RESULT_FRACTIONAL = 8;
 
 input clk;
 
@@ -45,15 +47,15 @@ output reg [NUMBER_WIDTH - 1:0] alu_a;
 output reg [NUMBER_WIDTH - 1:0] alu_b;
 input      [NUMBER_WIDTH - 1:0] alu_result;
 
-reg [2:0] state;
+reg [3:0] state;
 
 assign accel_can_read  = (state == STATE_RETURN_RESULT_INTEGER || state == STATE_RETURN_RESULT_FRACTIONAL);
-assign accel_can_write = (state == STATE_READ_OP || state == STATE_READ_A || state == STATE_READ_B);
+assign accel_can_write = (state == STATE_READ_OP || state == STATE_READ_A_INTEGER || state == STATE_READ_A_FRACTIONAL || state == STATE_READ_B_INTEGER || state == STATE_READ_B_FRACTIONAL);
 
 assign alu_start = (state == STATE_ALU_START);
 
 initial begin
-    state = STATE_READ_A;
+    state = STATE_READ_OP;
 end
 
 // accel_read_data
@@ -70,9 +72,11 @@ end
 // state
 always @(posedge clk) begin
     case (state)
-        STATE_READ_OP:                  if (accel_write_enable) state <= STATE_READ_A;
-        STATE_READ_A:                   if (accel_write_enable) state <= STATE_READ_B;
-        STATE_READ_B:                   if (accel_write_enable) state <= STATE_ALU_START;
+        STATE_READ_OP:                  if (accel_write_enable) state <= STATE_READ_A_INTEGER;
+        STATE_READ_A_INTEGER:           if (accel_write_enable) state <= STATE_READ_A_FRACTIONAL;
+        STATE_READ_A_FRACTIONAL:        if (accel_write_enable) state <= STATE_READ_B_INTEGER;
+        STATE_READ_B_INTEGER:           if (accel_write_enable) state <= STATE_READ_B_FRACTIONAL;
+        STATE_READ_B_FRACTIONAL:        if (accel_write_enable) state <= STATE_ALU_START;
         STATE_ALU_START:                state <= STATE_WORK;
         STATE_WORK:                     if (alu_done) state <= STATE_RETURN_RESULT_INTEGER;
         STATE_RETURN_RESULT_INTEGER:    if (accel_read_enable) state <= STATE_RETURN_RESULT_FRACTIONAL;
@@ -89,15 +93,23 @@ end
 
 // alu_a
 always @(posedge clk) begin
-    if (state == STATE_READ_A && accel_write_enable) begin
-        alu_a <= accel_write_data;
+    if (accel_write_enable) begin
+        case (state)
+            STATE_READ_A_INTEGER:    alu_a[NUMBER_WIDTH - 1-:INTEGER_PART_WIDTH] <= accel_write_data;
+            STATE_READ_A_FRACTIONAL: alu_a[0+:FRACTIONAL_PART_WIDTH]             <= accel_write_data;
+            default: ;
+        endcase
     end
 end
 
 // alu_b
 always @(posedge clk) begin
-    if (state == STATE_READ_B && accel_write_enable) begin
-        alu_b <= accel_write_data;
+    if (accel_write_enable) begin
+        case (state)
+            STATE_READ_B_INTEGER:    alu_b[NUMBER_WIDTH - 1-:INTEGER_PART_WIDTH] <= accel_write_data;
+            STATE_READ_B_FRACTIONAL: alu_b[0+:FRACTIONAL_PART_WIDTH]             <= accel_write_data;
+            default: ;
+        endcase
     end
 end
 
