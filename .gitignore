@@ -15,3 +15,5 @@ __pycache__
 *.drawio.dtmp
 # draw.io backups
 *.drawio.bkp
+# GDB history files
+*.gdb_history

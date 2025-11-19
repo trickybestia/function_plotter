@@ -46,6 +46,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
  "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
+ "[file normalize "$origin_dir/src/design/stack_machine.v"]"\
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
@@ -55,7 +56,6 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/symbol_drawer_mem_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/symbol_drawer_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/top_Nexys_A7_100T_tb.v"]"\
- "[file normalize "$origin_dir/src/testbench/top_Nexys_A7_100T_tb_behav.wcfg"]"\
  "[file normalize "$origin_dir/src/testbench/top_no_io_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_add_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/fixed_point_sub_tb.v"]"\
@@ -67,6 +67,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/testbench/cpu_reg_file_tb.v"]"\
  "[file normalize "$origin_dir/src/testbench/cpu_tb.sv"]"\
  "[file normalize "$origin_dir/src/testbench/cpu_tb_behav.wcfg"]"\
+ "[file normalize "$origin_dir/src/testbench/stack_machine_tb.v"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -238,6 +239,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
  [file normalize "${origin_dir}/src/design/vga.v"] \
  [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
+ [file normalize "${origin_dir}/src/design/stack_machine.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -469,7 +471,6 @@ if {[string equal [get_filesets -quiet top_Nexys_A7_100T_tb] ""]} {
 set obj [get_filesets top_Nexys_A7_100T_tb]
 set files [list \
  [file normalize "${origin_dir}/src/testbench/top_Nexys_A7_100T_tb.v"] \
- [file normalize "${origin_dir}/src/testbench/top_Nexys_A7_100T_tb_behav.wcfg"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -715,6 +716,29 @@ set obj [get_filesets cpu_tb]
 set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "cpu_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
+
+# Create 'stack_machine_tb' fileset (if not found)
+if {[string equal [get_filesets -quiet stack_machine_tb] ""]} {
+  create_fileset -simset stack_machine_tb
+}
+
+# Set 'stack_machine_tb' fileset object
+set obj [get_filesets stack_machine_tb]
+set files [list \
+ [file normalize "${origin_dir}/src/testbench/stack_machine_tb.v"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'stack_machine_tb' fileset file properties for remote files
+# None
+
+# Set 'stack_machine_tb' fileset file properties for local files
+# None
+
+# Set 'stack_machine_tb' fileset properties
+set obj [get_filesets stack_machine_tb]
+set_property -name "sim_wrapper_top" -value "1" -objects $obj
+set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
 # Set 'utils_1' fileset object
