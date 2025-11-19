@@ -1,4 +1,7 @@
 def parse_number(s: str) -> float:
+    if len(s) == 0:
+        return
+
     const_10 = 10
     const_1 = 1
 
