@@ -108,7 +108,7 @@ draw_symbol_loop:
     lpcl r0, r4
 ```
 
-### keyboard (acc4)
+## keyboard (acc4)
 
 A FIFO buffer for keyboard input. By default, it stores up to 16 keys.  
 Sets `accel_can_read` to 1 when the buffer is not empty.
