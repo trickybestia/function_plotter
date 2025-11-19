@@ -24,7 +24,7 @@ module logic_ (
     swap
 );
 
-parameter INTEGER_PART_WIDTH    = 8;
+parameter INTEGER_PART_WIDTH    = 11;
 parameter FRACTIONAL_PART_WIDTH = 8;
 
 parameter HOR_ACTIVE_PIXELS = 640;
