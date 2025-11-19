@@ -1,4 +1,4 @@
-# Accelerator
+# Accelerators
 
 ## swap (`acc0`)
 
