@@ -191,9 +191,8 @@ parse_number_1:
     li r4, 1    # r4 = constant 1
     li r11, '0' # r11 = '0'
 
-    add r5, r0, r0 # r5 = i
+    add r5, r4, r0 # r5 = i = 1
     add r8, r4, r0 # minus = True
-    add r5, r4, r0 # i = 1
 
     load r6, r0 # r6 = mem[0] = symbol
     li r7, '-'
@@ -201,7 +200,7 @@ parse_number_1:
     jmpeq r6, r7, parse_number_skip_reset_minus
 
     add r8, r0, r0 # minus = False
-    add r5, r0, r0 # i = 0
+    add r5, r0, r0 # r5 = i = 0
 
 parse_number_skip_reset_minus:
     ll r7, '.'
