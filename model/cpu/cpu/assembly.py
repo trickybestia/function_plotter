@@ -8,7 +8,7 @@ from cpu.utils import ones
 
 def _parse_int_or_label(s: str) -> str | int:
     try:
-        return int(s)
+        return _parse_imm(s)
     except:
         return s
 
