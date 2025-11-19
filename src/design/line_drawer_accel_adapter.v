@@ -20,7 +20,8 @@ localparam STATE_READ_X1 = 0;
 localparam STATE_READ_Y1 = 1;
 localparam STATE_READ_X2 = 2;
 localparam STATE_READ_Y2 = 3;
-localparam STATE_WORK    = 4;
+localparam STATE_START   = 4;
+localparam STATE_WORK    = 5;
 
 input clk;
 
@@ -44,7 +45,7 @@ assign accel_can_read  = 0;
 assign accel_can_write = (state == STATE_READ_X1 || state == STATE_READ_Y1 || state == STATE_READ_X2 || state == STATE_READ_Y2);
 assign accel_read_data = 0;
 
-assign line_drawer_start = (state == STATE_READ_Y2 && accel_write_enable);
+assign line_drawer_start = (state == STATE_START);
 
 initial begin
     state = STATE_READ_X1;
@@ -56,7 +57,8 @@ always @(posedge clk) begin
         STATE_READ_X1: if (accel_write_enable) state <= STATE_READ_Y1;
         STATE_READ_Y1: if (accel_write_enable) state <= STATE_READ_X2;
         STATE_READ_X2: if (accel_write_enable) state <= STATE_READ_Y2;
-        STATE_READ_Y2: if (accel_write_enable) state <= STATE_WORK;
+        STATE_READ_Y2: if (accel_write_enable) state <= STATE_START;
+        STATE_START:   state <= STATE_WORK;
         STATE_WORK:    if (line_drawer_ready)  state <= STATE_READ_X1;
     endcase
 end
