@@ -86,7 +86,6 @@ reg  [NUMBER_WIDTH - 1:0]       x;
 reg  [NUMBER_WIDTH - 1:0]       y;   
 reg  [OUTPUT_VALUE_WIDTH - 1:0] fetched_value;   
    
-reg [NUMBER_WIDTH - 1:0]       stack [0:STACK_SIZE - 1];
 reg [$clog2(STACK_SIZE) - 1:0] stack_p;
 
 // instantiate alu module
@@ -109,6 +108,30 @@ fixed_point_alu #(
     .result (result)                     
 );
 
+// instantiate stack module
+reg  [$clog2(STACK_SIZE) - 1:0] stack_a_addr;
+reg                             stack_a_write_enable;
+reg  [NUMBER_WIDTH - 1:0]       stack_a_write_data;
+wire [NUMBER_WIDTH - 1:0]       stack_a_read_data;
+
+reg  [$clog2(STACK_SIZE) - 1:0] stack_b_addr;
+wire [NUMBER_WIDTH - 1:0]       stack_b_read_data;
+
+stack_machine_mem #(
+    .DATA_WIDTH (NUMBER_WIDTH),
+    .SIZE       (STACK_SIZE)
+) stack (
+    .clk (clk),
+
+    .a_addr         (stack_a_addr),
+    .a_write_enable (stack_a_write_enable),
+    .a_write_data   (stack_a_write_data),
+    .a_read_data    (stack_a_read_data),
+    
+    .b_addr      (stack_b_addr),
+    .b_read_data (stack_b_read_data)
+);
+
 assign ready = (state == READY);
 
 initial begin
@@ -123,6 +146,54 @@ initial begin
     y                  = 0;
 end
 
+// stack_a_addr
+always @(*) begin
+    stack_a_addr = 0;
+
+    case (state)
+        PUT_VAR_TO_STACK:   stack_a_addr = stack_p;
+        PUT_VAL_TO_STACK:   stack_a_addr = stack_p;
+        ANALYZE_OUTPUT_VAL: stack_a_addr = stack_p - 1;
+        PERFORM_MATN_OP_3:  stack_a_addr = stack_p - 2;
+        default: ;
+    endcase
+end
+
+// stack_a_write_enable
+always @(*) begin
+    stack_a_write_enable = 0;
+
+    case (state)
+        PUT_VAR_TO_STACK:  stack_a_write_enable = 1;
+        PUT_VAL_TO_STACK:  stack_a_write_enable = 1;
+        PERFORM_MATN_OP_3: stack_a_write_enable = 1;
+        default: ;
+    endcase
+end
+
+// stack_a_write_data
+always @(*) begin
+    stack_a_write_data = 0;
+
+    case (state)
+        PUT_VAR_TO_STACK:  stack_a_write_data = x;
+        PUT_VAL_TO_STACK:  stack_a_write_data = fetched_value[NUMBER_WIDTH - 1:0];
+        PERFORM_MATN_OP_3: stack_a_write_data = result;
+        default: ;
+    endcase
+end
+
+// stack_b_addr
+always @(*) begin
+    stack_b_addr = 0;
+
+    case (state)
+        ANALYZE_OUTPUT_VAL: stack_b_addr = stack_p - 2;
+        default: ;
+    endcase
+end
+
+// state
 always @(posedge clk) begin
     case (state)
         READY: begin
@@ -207,13 +278,13 @@ always @(posedge clk) begin
         end
 
         PUT_VAR_TO_STACK: begin
-            stack[stack_p] <= x;
+            //stack[stack_p] <= x;
             stack_p <= stack_p + 1;
             state <= FETCH_OUTPUT_VAL;        
         end
 
         PUT_VAL_TO_STACK: begin
-            stack[stack_p] <= fetched_value[NUMBER_WIDTH - 1:0];
+            //stack[stack_p] <= fetched_value[NUMBER_WIDTH - 1:0];
             stack_p <= stack_p + 1;        
             state <= FETCH_OUTPUT_VAL;        
         end
@@ -223,13 +294,13 @@ always @(posedge clk) begin
                 state <= TRANSFORM_Y;
             end
             else begin
-                if (op_for_alu == DIV && stack[stack_p - 1] == 0) begin
+                if (op_for_alu == DIV && /*stack[stack_p - 1]*/ stack_a_read_data == 0) begin
                     skip_pixel <= 1;
                     state <= READY;
                 end
                 else begin
-                    a <= stack[stack_p - 2];
-                    b <= stack[stack_p - 1];
+                    a <= /*stack[stack_p - 2]*/ stack_b_read_data;
+                    b <= /*stack[stack_p - 1]*/ stack_a_read_data;
                     alu_start <= 1;        
                     state <= PERFORM_MATN_OP_2;                    
                 end
@@ -241,7 +312,7 @@ always @(posedge clk) begin
         end
         PERFORM_MATN_OP_3: begin        
             if (alu_done) begin
-                stack[stack_p - 2] <= result;
+                //stack[stack_p - 2] <= result;
                 stack_p <= stack_p - 1;
                 state <= FETCH_OUTPUT_VAL;        
             end
@@ -251,7 +322,7 @@ always @(posedge clk) begin
             op_for_alu <= MUL;
 
             if (stack_p > 0)
-              a <= stack[0];
+              a <= /*stack[0]*/ stack_a_read_data;
             else
               a <= 0;
 

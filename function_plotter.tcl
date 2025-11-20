@@ -43,6 +43,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/ps2_rx.v"]"\
  "[file normalize "$origin_dir/src/design/stack_machine.v"]"\
  "[file normalize "$origin_dir/src/design/stack_machine_accel_adapter.v"]"\
+ "[file normalize "$origin_dir/src/design/stack_machine_mem.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer_accel_adapter.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
@@ -237,6 +238,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/ps2_rx.v"] \
  [file normalize "${origin_dir}/src/design/stack_machine.v"] \
  [file normalize "${origin_dir}/src/design/stack_machine_accel_adapter.v"] \
+ [file normalize "${origin_dir}/src/design/stack_machine_mem.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer_accel_adapter.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
