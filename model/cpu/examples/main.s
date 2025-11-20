@@ -7,7 +7,12 @@
 
     li r1, 1
 
-    li r2, '2'
+    li r2, '-'
+    store r13, r2
+    add r13, r13, r1
+    add r14, r14, r1
+
+    li r2, '1'
     store r13, r2
     add r13, r13, r1
     add r14, r14, r1
@@ -17,7 +22,12 @@
     add r13, r13, r1
     add r14, r14, r1
 
-    li r2, '0'
+    li r2, '.'
+    store r13, r2
+    add r13, r13, r1
+    add r14, r14, r1
+
+    li r2, '9'
     store r13, r2
     add r13, r13, r1
     add r14, r14, r1
@@ -105,7 +115,28 @@ end_draw_symbols_loop:
 
     call r15, parse_number
 
-    li r3, 639
+    li r3, 10 # r3 = 10
+    li r4, 2  # r4 = OP_MUL
+
+    wacc r4, acc5 # | parsed number *= 10
+    wacc r1, acc5 # |
+    wacc r2, acc5 # |
+    wacc r3, acc5 # |
+    wacc r0, acc5 # |
+    racc r1, acc5 # |
+    racc r2, acc5 # |
+
+    li r3, 240 # r3 = 240
+
+    wacc r0, acc5 # | parsed number += 240
+    wacc r1, acc5 # |
+    wacc r2, acc5 # |
+    wacc r3, acc5 # |
+    wacc r0, acc5 # |
+    racc r1, acc5 # |
+    racc r2, acc5 # |
+
+    li r3, 639 # r3 = 639
 
     wacc r0, acc1 # x1 = 0
     wacc r1, acc1 # y1 = parse_number() integer part
@@ -182,11 +213,11 @@ parse_number:
     add r1, r0, r0
     add r2, r0, r0
 
-    jmpne r13, r0, parse_number_1
+    jmpne r13, r0, parse_number_length_check_pass
 
     lpcl r0, r15
 
-parse_number_1:
+parse_number_length_check_pass:
     li r3, 10   # r3 = constant 10
     li r4, 1    # r4 = constant 1
     li r11, '0' # r11 = '0'
@@ -207,11 +238,8 @@ parse_number_skip_reset_minus:
     li r9, 2 # OP_MUL
 
 parse_number_loop_integer:
-    jmpne r5, r13, parse_number_2
+    jmpeq r5, r13, parse_number_done
 
-    lpcl r0, r15
-
-parse_number_2:
     load r6, r5 # r6 = mem[r5] = symbol
 
     jmpne r6, r7, parse_number_loop_integer_skip_match_dot
@@ -236,22 +264,57 @@ parse_number_loop_integer_skip_match_dot:
     jmp parse_number_loop_integer
 
 parse_number_parse_fractional_part:
+    li r12, 3 # OP_DIV
     add r10, r3, r0 # r10 = j = const_10
 
 parse_number_loop_fractional:
-    # TODO: result += int(s[i]) / j
+    jmpeq r5, r13, parse_number_done
 
-    wacc r9, acc5 # | result *= 10
-    wacc r0, acc5 # |
+    load r6, r5     # r6 = mem[r5] = symbol
+    sub r6, r6, r11 # r6 = r6 - '0'
+
+    wacc r12, acc5 # | r6 = fractional part of r6 / j
+    wacc r6, acc5  # |
+    wacc r0, acc5  # |
+    wacc r10, acc5 # |
+    wacc r0, acc5  # |
+    racc r0, acc5  # |
+    racc r6, acc5  # |
+
+    wacc r0, acc5 # | result += r6
+    wacc r1, acc5 # |
     wacc r2, acc5 # |
-    wacc r3, acc5 # |
     wacc r0, acc5 # |
+    wacc r6, acc5 # |
+    racc r1, acc5 # |
     racc r2, acc5 # |
-    racc r0, acc5 # |
+
+    wacc r9, acc5  # | r10 *= const_10
+    wacc r10, acc5 # |
+    wacc r0, acc5  # |
+    wacc r3, acc5  # |
+    wacc r0, acc5  # |
+    racc r10, acc5 # |
+    racc r0, acc5  # |
 
     add r5, r5, r4 # i += const_1
 
     jmp parse_number_loop_fractional
 
 parse_number_done:
+    jmpeq r8, r4, parse_number_handle_minus
+
+    lpcl r0, r15
+
+parse_number_handle_minus:
+    li r9, 1 # OP_SUB
+
+    wacc r9, acc5 # | result = 0 - result
+    wacc r0, acc5 # |
+    wacc r0, acc5 # |
+    wacc r1, acc5 # |
+    wacc r2, acc5 # |
+    racc r1, acc5 # |
+    racc r2, acc5 # |
+
     lpcl r0, r15
