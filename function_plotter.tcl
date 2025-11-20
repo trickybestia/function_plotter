@@ -41,12 +41,13 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/ps2.v"]"\
  "[file normalize "$origin_dir/src/design/ps2_raw_rx.v"]"\
  "[file normalize "$origin_dir/src/design/ps2_rx.v"]"\
+ "[file normalize "$origin_dir/src/design/stack_machine.v"]"\
+ "[file normalize "$origin_dir/src/design/stack_machine_accel_adapter.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer_accel_adapter.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
  "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
- "[file normalize "$origin_dir/src/design/stack_machine.v"]"\
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
@@ -195,12 +196,12 @@ set_property -name "simulator_language" -value "Mixed" -objects $obj
 set_property -name "sim_compile_state" -value "1" -objects $obj
 set_property -name "use_inline_hdl_ip" -value "1" -objects $obj
 set_property -name "webtalk.activehdl_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.modelsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "521" -objects $obj
+set_property -name "webtalk.modelsim_export_sim" -value "2" -objects $obj
+set_property -name "webtalk.questa_export_sim" -value "2" -objects $obj
+set_property -name "webtalk.riviera_export_sim" -value "2" -objects $obj
+set_property -name "webtalk.vcs_export_sim" -value "2" -objects $obj
+set_property -name "webtalk.xsim_export_sim" -value "2" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "539" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -234,12 +235,13 @@ set files [list \
  [file normalize "${origin_dir}/src/design/ps2.v"] \
  [file normalize "${origin_dir}/src/design/ps2_raw_rx.v"] \
  [file normalize "${origin_dir}/src/design/ps2_rx.v"] \
+ [file normalize "${origin_dir}/src/design/stack_machine.v"] \
+ [file normalize "${origin_dir}/src/design/stack_machine_accel_adapter.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer_accel_adapter.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
  [file normalize "${origin_dir}/src/design/vga.v"] \
  [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
- [file normalize "${origin_dir}/src/design/stack_machine.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -716,6 +718,7 @@ set obj [get_filesets cpu_tb]
 set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "cpu_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
+set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
 # Create 'stack_machine_tb' fileset (if not found)
 if {[string equal [get_filesets -quiet stack_machine_tb] ""]} {

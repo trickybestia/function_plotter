@@ -33,6 +33,9 @@ parameter SYMBOL_WIDTH      = 7;
 
 localparam NUMBER_WIDTH = INTEGER_PART_WIDTH + FRACTIONAL_PART_WIDTH;
 
+localparam SM_OUTPUT_QUEUE_SIZE  = 64;
+localparam SM_OUTPUT_QUEUE_WIDTH = NUMBER_WIDTH + 1;
+
 localparam X_WIDTH = $clog2(HOR_ACTIVE_PIXELS);
 localparam Y_WIDTH = $clog2(VER_ACTIVE_PIXELS);
 
@@ -110,6 +113,23 @@ wire [SYMBOL_WIDTH - 1:0] keyboard_read_data;
 wire        alu_accel_can_read;
 wire        alu_accel_can_write;
 wire [15:0] alu_accel_read_data;
+
+// stack_machine_accel_adapter
+wire        sm_accel_can_read;
+wire        sm_accel_can_write;
+wire [15:0] sm_accel_read_data;
+
+// stack_machine
+wire                                          sm_start;
+wire                                          sm_ready;
+wire [X_WIDTH - 1:0]                          sm_x_input;
+wire [Y_WIDTH - 1:0]                          sm_y_output;
+wire                                          sm_skip_pixel;
+wire [$clog2(SM_OUTPUT_QUEUE_SIZE) - 1:0]     sm_output_queue_index;
+wire                                          sm_output_queue_get;
+wire [$clog2(SM_OUTPUT_QUEUE_SIZE + 1) - 1:0] sm_output_queue_length;
+wire [SM_OUTPUT_QUEUE_WIDTH - 1:0]            sm_output_queue_data_out;
+wire                                          sm_output_queue_ready;
 
 // fixed_point_alu
 wire                      alu_start;
@@ -203,6 +223,55 @@ fixed_point_alu_accel_adapter #(
     .alu_result (alu_result)
 );
 
+// accel_id = 6
+stack_machine_accel_adapter #(
+    .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
+    .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH),
+    .OUTPUT_QUEUE_SIZE     (SM_OUTPUT_QUEUE_SIZE),
+    .HOR_ACTIVE_PIXELS     (HOR_ACTIVE_PIXELS),
+    .VER_ACTIVE_PIXELS     (VER_ACTIVE_PIXELS)
+) stack_machine_accel_adapter (
+    .clk (clk),
+
+    .accel_can_read     (sm_accel_can_read),
+    .accel_can_write    (sm_accel_can_write),
+    .accel_read_enable  (accel_id == 6 && accel_read_enable),
+    .accel_write_enable (accel_id == 6 && accel_write_enable),
+    .accel_read_data    (sm_accel_read_data),
+    .accel_write_data   (accel_write_data),
+
+    .sm_start                 (sm_start),
+    .sm_ready                 (sm_ready),
+    .sm_x_input               (sm_x_input),
+    .sm_y_output              (sm_y_output),
+    .sm_skip_pixel            (sm_skip_pixel),
+    .sm_output_queue_index    (sm_output_queue_index),
+    .sm_output_queue_get      (sm_output_queue_get),
+    .sm_output_queue_length   (sm_output_queue_length),
+    .sm_output_queue_data_out (sm_output_queue_data_out),
+    .sm_output_queue_ready    (sm_output_queue_ready)
+);
+
+stack_machine #(
+    .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
+    .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH),
+    .OUTPUT_QUEUE_SIZE     (SM_OUTPUT_QUEUE_SIZE),
+    .HOR_ACTIVE_PIXELS     (HOR_ACTIVE_PIXELS),
+    .VER_ACTIVE_PIXELS     (VER_ACTIVE_PIXELS)
+) stack_machine (
+    .clk                   (clk),
+    .start                 (sm_start),
+    .ready                 (sm_ready),
+    .x_input               (sm_x_input),
+    .y_output              (sm_y_output),
+    .skip_pixel            (sm_skip_pixel),
+    .output_queue_index    (sm_output_queue_index),
+    .output_queue_get      (sm_output_queue_get),
+    .output_queue_length   (sm_output_queue_length),
+    .output_queue_data_out (sm_output_queue_data_out),
+    .output_queue_ready    (sm_output_queue_ready)
+);
+
 fixed_point_alu #(
     .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
     .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH)
@@ -278,6 +347,7 @@ always @(*) begin
         3: accel_can_read = symbol_drawer_can_read;
         4: accel_can_read = keyboard_can_read;
         5: accel_can_read = alu_accel_can_read;
+        6: accel_can_read = sm_accel_can_read;
         default: ;
     endcase
 end
@@ -293,6 +363,7 @@ always @(*) begin
         3: accel_can_write = symbol_drawer_can_write;
         4: accel_can_write = keyboard_can_write;
         5: accel_can_write = alu_accel_can_write;
+        6: accel_can_write = sm_accel_can_write;
         default: ;
     endcase
 end
@@ -308,6 +379,7 @@ always @(*) begin
         3: accel_read_data = symbol_drawer_read_data;
         4: accel_read_data = keyboard_read_data;
         5: accel_read_data = alu_accel_read_data;
+        6: accel_read_data = sm_accel_read_data;
         default: ;
     endcase
 end
