@@ -49,6 +49,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
  "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
+ "[file normalize "$origin_dir/src/design/uart_rx.v"]"\
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
@@ -244,6 +245,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
  [file normalize "${origin_dir}/src/design/vga.v"] \
  [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
+ [file normalize "${origin_dir}/src/design/uart_rx.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
