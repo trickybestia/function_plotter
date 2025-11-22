@@ -32,8 +32,6 @@ wait_fill_drawer_loop:
     li r6, 368      # r6 = 480 / 2 + 256 / 2
     add r4, r14, r0 # r4 = data buffer index
 
-    sub r4, r4, r3
-
     jmpne r4, r0, first_skip_load_r13
 
     add r4, r13, r0
