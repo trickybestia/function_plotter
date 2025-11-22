@@ -13,15 +13,18 @@ wire [3:0] vga_b;
 wire       vga_hs;
 wire       vga_vs;
 
+reg uart_rx_in;
+
 top_Nexys_A7_100T uut (
-    .clk_100M (clk),
-    .ps2_clk  (ps2_clk),
-    .ps2_dat  (ps2_dat),
-    .vga_r    (vga_r),
-    .vga_g    (vga_g),
-    .vga_b    (vga_b),
-    .vga_hs   (vga_hs),
-    .vga_vs   (vga_vs)
+    .clk_100M   (clk),
+    .ps2_clk    (ps2_clk),
+    .ps2_dat    (ps2_dat),
+    .vga_r      (vga_r),
+    .vga_g      (vga_g),
+    .vga_b      (vga_b),
+    .vga_hs     (vga_hs),
+    .vga_vs     (vga_vs),
+    .uart_rx_in (uart_rx_in)
 );
 
 always begin
@@ -32,8 +35,9 @@ always begin
 end
 
 initial begin
-    ps2_clk = 1;
-    ps2_dat = 0;
+    ps2_clk    = 1;
+    ps2_dat    = 0;
+    uart_rx_in = 1;
 
     @(posedge uut.clk_25M175);
 

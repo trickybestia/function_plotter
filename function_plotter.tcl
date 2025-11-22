@@ -24,6 +24,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/cpu_instr_mem.v"]"\
  "[file normalize "$origin_dir/src/design/cpu_jmp_cond_decoder.v"]"\
  "[file normalize "$origin_dir/src/design/cpu_reg_file.v"]"\
+ "[file normalize "$origin_dir/src/design/fifo_accel_adapter.v"]"\
  "[file normalize "$origin_dir/src/design/fill_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_add.v"]"\
  "[file normalize "$origin_dir/src/design/fixed_point_alu.v"]"\
@@ -47,9 +48,9 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/symbol_drawer.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer_accel_adapter.v"]"\
  "[file normalize "$origin_dir/src/design/symbol_drawer_mem.v"]"\
+ "[file normalize "$origin_dir/src/design/uart_rx.v"]"\
  "[file normalize "$origin_dir/src/design/vga.v"]"\
  "[file normalize "$origin_dir/src/design/top_Nexys_A7_100T.v"]"\
- "[file normalize "$origin_dir/src/design/uart_rx.v"]"\
  "[file normalize "$origin_dir/ip/vga_mmcm/vga_mmcm.xci"]"\
  "[file normalize "$origin_dir/src/Nexys_A7_100T.xdc"]"\
  "[file normalize "$origin_dir/src/testbench/fill_drawer_tb.v"]"\
@@ -220,6 +221,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/cpu_instr_mem.v"] \
  [file normalize "${origin_dir}/src/design/cpu_jmp_cond_decoder.v"] \
  [file normalize "${origin_dir}/src/design/cpu_reg_file.v"] \
+ [file normalize "${origin_dir}/src/design/fifo_accel_adapter.v"] \
  [file normalize "${origin_dir}/src/design/fill_drawer.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_add.v"] \
  [file normalize "${origin_dir}/src/design/fixed_point_alu.v"] \
@@ -243,9 +245,9 @@ set files [list \
  [file normalize "${origin_dir}/src/design/symbol_drawer.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer_accel_adapter.v"] \
  [file normalize "${origin_dir}/src/design/symbol_drawer_mem.v"] \
+ [file normalize "${origin_dir}/src/design/uart_rx.v"] \
  [file normalize "${origin_dir}/src/design/vga.v"] \
  [file normalize "${origin_dir}/src/design/top_Nexys_A7_100T.v"] \
- [file normalize "${origin_dir}/src/design/uart_rx.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -746,6 +748,7 @@ add_files -norecurse -fileset $obj $files
 set obj [get_filesets stack_machine_tb]
 set_property -name "sim_wrapper_top" -value "1" -objects $obj
 set_property -name "top" -value "top_Nexys_A7_100T" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
 # Set 'utils_1' fileset object

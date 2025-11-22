@@ -21,7 +21,10 @@ module logic_ (
     fill_drawer_start,
     fill_drawer_ready,
 
-    swap
+    swap,
+
+    data,
+    data_valid
 );
 
 parameter INTEGER_PART_WIDTH    = 11;
@@ -74,6 +77,9 @@ input  fill_drawer_ready;
 
 input swap;
 
+input [7:0] data;
+input       data_valid;
+
 // cpu_instr_mem
 wire [INSTRUCTION_MEM_ADDR_WIDTH - 1:0] instr_mem_addr;
 wire [INSTRUCTION_WIDTH - 1:0]          instr_mem_data_0;
@@ -118,6 +124,11 @@ wire [15:0] alu_accel_read_data;
 wire        sm_accel_can_read;
 wire        sm_accel_can_write;
 wire [15:0] sm_accel_read_data;
+
+// data_fifo
+wire        data_fifo_accel_can_read;
+wire        data_fifo_accel_can_write;
+wire [15:0] data_fifo_accel_read_data;
 
 // stack_machine
 wire                                          sm_start;
@@ -252,6 +263,24 @@ stack_machine_accel_adapter #(
     .sm_output_queue_ready    (sm_output_queue_ready)
 );
 
+// accel_id = 7
+fifo_accel_adapter #(
+    .DATA_WIDTH (8),
+    .PTR_WIDTH  (10)
+) data_fifo (
+    .clk (clk),
+
+    .accel_can_read     (data_fifo_accel_can_read),
+    .accel_can_write    (data_fifo_accel_can_write),
+    .accel_read_enable  (accel_id == 7 && accel_read_enable),
+    .accel_write_enable (accel_id == 7 && accel_write_enable),
+    .accel_read_data    (data_fifo_accel_read_data),
+    .accel_write_data   (accel_write_data),
+
+    .data_in       (data),
+    .data_in_valid (data_valid)
+);
+
 stack_machine #(
     .INTEGER_PART_WIDTH    (INTEGER_PART_WIDTH),
     .FRACTIONAL_PART_WIDTH (FRACTIONAL_PART_WIDTH),
@@ -348,6 +377,7 @@ always @(*) begin
         4: accel_can_read = keyboard_can_read;
         5: accel_can_read = alu_accel_can_read;
         6: accel_can_read = sm_accel_can_read;
+        7: accel_can_read = data_fifo_accel_can_read;
         default: ;
     endcase
 end
@@ -364,6 +394,7 @@ always @(*) begin
         4: accel_can_write = keyboard_can_write;
         5: accel_can_write = alu_accel_can_write;
         6: accel_can_write = sm_accel_can_write;
+        7: accel_can_write = data_fifo_accel_can_write;
         default: ;
     endcase
 end
@@ -380,6 +411,7 @@ always @(*) begin
         4: accel_read_data = keyboard_read_data;
         5: accel_read_data = alu_accel_read_data;
         6: accel_read_data = sm_accel_read_data;
+        7: accel_read_data = data_fifo_accel_read_data;
         default: ;
     endcase
 end

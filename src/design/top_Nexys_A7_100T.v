@@ -8,7 +8,9 @@ module top_Nexys_A7_100T (
     vga_g,
     vga_b,
     vga_hs,
-    vga_vs
+    vga_vs,
+
+    uart_rx_in
 );
 
 parameter HOR_TOTAL_PIXELS       = 800;
@@ -42,6 +44,8 @@ output [3:0] vga_g;
 output [3:0] vga_b;
 output       vga_hs;
 output       vga_vs;
+
+input uart_rx_in;
 
 wire clk_25M175;
 
@@ -78,6 +82,9 @@ wire frame_buffer_read_data;
 
 wire [ADDR_WIDTH - 1:0] vga_read_addr;
 wire                    vga_swap;
+
+wire [7:0] uart_data;
+wire       uart_data_valid;
 
 vga_mmcm vga_mmcm (
     .clk_100M   (clk_100M),
@@ -118,7 +125,10 @@ logic_ #(
     .fill_drawer_start (fill_drawer_start),
     .fill_drawer_ready (fill_drawer_ready),
 
-    .swap (vga_swap)
+    .swap (vga_swap),
+
+    .data       (uart_data),
+    .data_valid (uart_data_valid)
 );
 
 line_drawer #(
@@ -194,15 +204,28 @@ vga #(
     .VER_SYNC_PIXELS        (VER_SYNC_PIXELS),
     .VER_SYNC_POLARITY      (VER_SYNC_POLARITY)
 ) vga (
-    .clk       (clk_25M175),
-    .read_data (frame_buffer_read_data),
-    .read_addr (vga_read_addr),
-    .r         (vga_r),
-    .g         (vga_g),
-    .b         (vga_b),
-    .hs        (vga_hs),
-    .vs        (vga_vs),
-    .swap      (vga_swap)
+    .clk        (clk_25M175),
+    .read_data  (frame_buffer_read_data),
+    .read_addr  (vga_read_addr),
+    .r          (vga_r),
+    .g          (vga_g),
+    .b          (vga_b),
+    .hs         (vga_hs),
+    .vs         (vga_vs),
+    .swap       (vga_swap)
+);
+
+uart_rx #(
+    .CLK_FREQUENCY_HZ (25_175_000),
+    .BAUD_RATE        (9600)
+) uart_rx (
+    .clk (clk_25M175),
+    .rst (0),
+
+    .data       (uart_data),
+    .data_valid (uart_data_valid),
+
+    .rx (uart_rx_in)
 );
 
 endmodule

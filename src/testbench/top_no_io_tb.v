@@ -17,6 +17,8 @@ localparam ADDR_WIDTH   = $clog2(PIXELS_COUNT);
 reg clk;
 
 reg [SYMBOL_WIDTH - 1:0] keyboard_symbol;
+reg [7:0]                data;
+reg                      data_valid;
 
 wire [X_WIDTH - 1:0]    line_drawer_x1;
 wire [Y_WIDTH - 1:0]    line_drawer_y1;
@@ -77,7 +79,10 @@ logic_ #(
     .fill_drawer_start (fill_drawer_start),
     .fill_drawer_ready (fill_drawer_ready),
 
-    .swap (swap)
+    .swap (swap),
+
+    .data       (data),
+    .data_valid (data_valid)
 );
 
 line_drawer #(
@@ -210,6 +215,8 @@ initial begin
     frame_buffer_read_addr = 0;
     swap                   = 0;
     keyboard_symbol        = 0;
+    data                   = 0;
+    data_valid             = 0;
 
     @(posedge clk);
 
