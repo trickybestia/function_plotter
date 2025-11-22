@@ -1,6 +1,7 @@
 from math import sin
 from random import randint
 from sys import argv
+from time import sleep
 
 from serial import Serial
 
@@ -22,6 +23,8 @@ def main():
 
     while True:
         serial.write([sample_signal(t)])
+
+        sleep(0.01)
 
         t += 1
 

@@ -47,7 +47,7 @@ localparam INSTRUCTION_MEM_SIZE       = 1024;
 localparam INSTRUCTION_MEM_ADDR_WIDTH = $clog2(INSTRUCTION_MEM_SIZE);
 
 localparam DATA_WIDTH          = 16;
-localparam DATA_MEM_SIZE       = 256;
+localparam DATA_MEM_SIZE       = 1024;
 localparam DATA_MEM_ADDR_WIDTH = $clog2(DATA_MEM_SIZE);
 
 localparam STATE_READY = 0;

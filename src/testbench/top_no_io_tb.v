@@ -212,11 +212,27 @@ always begin // generate 25.175 MHz clock
 end
 
 initial begin
+    data       = 0;
+    data_valid = 0;
+
+    @(posedge clk);
+
+    forever begin
+        repeat (2500) @(posedge clk);
+
+        data       <= data + 1;
+        data_valid <= 1;
+
+        @(posedge clk);
+
+        data_valid <= 0;
+    end
+end
+
+initial begin
     frame_buffer_read_addr = 0;
     swap                   = 0;
     keyboard_symbol        = 0;
-    data                   = 0;
-    data_valid             = 0;
 
     @(posedge clk);
 
