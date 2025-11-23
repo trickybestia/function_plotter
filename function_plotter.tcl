@@ -22,6 +22,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/src/design/cpu_alu.v"]"\
  "[file normalize "$origin_dir/src/design/cpu_data_mem.v"]"\
  "[file normalize "$origin_dir/src/design/cpu_instr_mem.v"]"\
+ "[file normalize "$origin_dir/src/design/cpu_instr_mem_writer.v"]"\
  "[file normalize "$origin_dir/src/design/cpu_jmp_cond_decoder.v"]"\
  "[file normalize "$origin_dir/src/design/cpu_reg_file.v"]"\
  "[file normalize "$origin_dir/src/design/fifo_accel_adapter.v"]"\
@@ -204,7 +205,7 @@ set_property -name "webtalk.questa_export_sim" -value "2" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "2" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "2" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "2" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "539" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "540" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -219,6 +220,7 @@ set files [list \
  [file normalize "${origin_dir}/src/design/cpu_alu.v"] \
  [file normalize "${origin_dir}/src/design/cpu_data_mem.v"] \
  [file normalize "${origin_dir}/src/design/cpu_instr_mem.v"] \
+ [file normalize "${origin_dir}/src/design/cpu_instr_mem_writer.v"] \
  [file normalize "${origin_dir}/src/design/cpu_jmp_cond_decoder.v"] \
  [file normalize "${origin_dir}/src/design/cpu_reg_file.v"] \
  [file normalize "${origin_dir}/src/design/fifo_accel_adapter.v"] \

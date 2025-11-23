@@ -35,6 +35,11 @@ cpu_instr_mem #(
     .INIT_FILE  ("")
 ) cpu_instr_mem (
     .clk,
+
+    .write_enable (0),
+    .write_addr   ('0),
+    .write_data   ('0),
+
     .addr   (instr_mem_addr),
     .data_0 (instr_mem_data_0),
     .data_1 (instr_mem_data_1)

@@ -10,6 +10,8 @@ module top_Nexys_A7_100T (
     vga_hs,
     vga_vs,
 
+    instr_mem_write_enable_switch,
+
     uart_rx_in
 );
 
@@ -34,6 +36,10 @@ localparam Y_WIDTH      = $clog2(VER_ACTIVE_PIXELS);
 localparam PIXELS_COUNT = HOR_ACTIVE_PIXELS * VER_ACTIVE_PIXELS;
 localparam ADDR_WIDTH   = $clog2(PIXELS_COUNT);
 
+localparam INSTRUCTION_WIDTH          = 16;
+localparam INSTRUCTION_MEM_SIZE       = 1024;
+localparam INSTRUCTION_MEM_ADDR_WIDTH = $clog2(INSTRUCTION_MEM_SIZE);
+
 input clk_100M;
 
 input ps2_clk;
@@ -44,6 +50,8 @@ output [3:0] vga_g;
 output [3:0] vga_b;
 output       vga_hs;
 output       vga_vs;
+
+input instr_mem_write_enable_switch;
 
 input uart_rx_in;
 
@@ -83,8 +91,15 @@ wire frame_buffer_read_data;
 wire [ADDR_WIDTH - 1:0] vga_read_addr;
 wire                    vga_swap;
 
-wire [7:0] uart_data;
-wire       uart_data_valid;
+wire [7:0] data_uart_data;
+wire       data_uart_data_valid;
+
+wire [7:0] instr_uart_data;
+wire       instr_uart_data_valid;
+
+wire                                    instr_mem_write_enable;
+wire [INSTRUCTION_MEM_ADDR_WIDTH - 1:0] instr_mem_write_addr;
+wire [INSTRUCTION_WIDTH - 1:0]          instr_mem_write_data;
 
 vga_mmcm vga_mmcm (
     .clk_100M   (clk_100M),
@@ -127,8 +142,12 @@ logic_ #(
 
     .swap (vga_swap),
 
-    .data       (uart_data),
-    .data_valid (uart_data_valid)
+    .data       (data_uart_data),
+    .data_valid (data_uart_data_valid),
+
+    .instr_mem_write_enable (instr_mem_write_enable),
+    .instr_mem_write_addr   (instr_mem_write_addr),
+    .instr_mem_write_data   (instr_mem_write_data)
 );
 
 line_drawer #(
@@ -215,17 +234,44 @@ vga #(
     .swap       (vga_swap)
 );
 
+cpu_instr_mem_writer #(
+    .INSTRUCTION_WIDTH    (INSTRUCTION_WIDTH),
+    .INSTRUCTION_MEM_SIZE (INSTRUCTION_MEM_SIZE)
+) cpu_instr_mem_writer (
+    .clk (clk_25M175),
+
+    .data_in       (instr_uart_data),
+    .data_in_valid (instr_uart_data_valid),
+
+    .instr_mem_write_enable (instr_mem_write_enable),
+    .instr_mem_write_addr   (instr_mem_write_addr),
+    .instr_mem_write_data   (instr_mem_write_data)
+);
+
 uart_rx #(
     .CLK_FREQUENCY_HZ (25_175_000),
     .BAUD_RATE        (9600)
-) uart_rx (
+) data_uart_rx (
     .clk (clk_25M175),
     .rst (0),
 
-    .data       (uart_data),
-    .data_valid (uart_data_valid),
+    .data       (data_uart_data),
+    .data_valid (data_uart_data_valid),
 
-    .rx (uart_rx_in)
+    .rx (instr_mem_write_enable_switch ? 1 : uart_rx_in)
+);
+
+uart_rx #(
+    .CLK_FREQUENCY_HZ (25_175_000),
+    .BAUD_RATE        (9600)
+) instr_mem_uart_rx (
+    .clk (clk_25M175),
+    .rst (0),
+
+    .data       (instr_uart_data),
+    .data_valid (instr_uart_data_valid),
+
+    .rx (instr_mem_write_enable_switch ? uart_rx_in : 1)
 );
 
 endmodule

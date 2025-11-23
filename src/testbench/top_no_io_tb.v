@@ -82,7 +82,11 @@ logic_ #(
     .swap (swap),
 
     .data       (data),
-    .data_valid (data_valid)
+    .data_valid (data_valid),
+
+    .instr_mem_write_enable (0),
+    .instr_mem_write_addr   (0),
+    .instr_mem_write_data   (0)
 );
 
 line_drawer #(

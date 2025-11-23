@@ -24,7 +24,11 @@ module logic_ (
     swap,
 
     data,
-    data_valid
+    data_valid,
+
+    instr_mem_write_enable,
+    instr_mem_write_addr,
+    instr_mem_write_data
 );
 
 parameter INTEGER_PART_WIDTH    = 11;
@@ -79,6 +83,10 @@ input swap;
 
 input [7:0] data;
 input       data_valid;
+
+input                                    instr_mem_write_enable;
+input [INSTRUCTION_MEM_ADDR_WIDTH - 1:0] instr_mem_write_addr;
+input [INSTRUCTION_WIDTH - 1:0]          instr_mem_write_data;
 
 // cpu_instr_mem
 wire [INSTRUCTION_MEM_ADDR_WIDTH - 1:0] instr_mem_addr;
@@ -324,6 +332,11 @@ cpu_instr_mem #(
 `endif
 ) cpu_instr_mem (
     .clk    (clk),
+
+    .write_enable (instr_mem_write_enable),
+    .write_addr   (instr_mem_write_addr),
+    .write_data   (instr_mem_write_data),
+
     .addr   (instr_mem_addr),
     .data_0 (instr_mem_data_0),
     .data_1 (instr_mem_data_1)
@@ -343,7 +356,7 @@ cpu_data_mem #(
 
 cpu cpu (
     .clk                   (clk),
-    .rst                   (cpu_rst),
+    .rst                   (cpu_rst | instr_mem_write_enable),
     .instr_mem_addr        (instr_mem_addr),
     .instr_mem_data_0      (instr_mem_data_0),
     .instr_mem_data_1      (instr_mem_data_1),
@@ -418,7 +431,7 @@ end
 
 // cpu_rst
 always @(posedge clk) begin
-    cpu_rst <= 0;
+    cpu_rst <= instr_mem_write_enable;
 end
 
 // swap_pending
