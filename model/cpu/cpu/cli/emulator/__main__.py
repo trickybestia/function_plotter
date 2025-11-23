@@ -2,18 +2,7 @@ from sys import argv
 
 from cpu.emulator import Emulator
 from cpu.accelerators.dummy_accelerator import DummyAccelerator
-
-
-def read_mem(path: str) -> list[int]:
-    result = []
-
-    with open(path, "r") as file:
-        while (line := file.readline()) != "":
-            line = line.split("/", 2)[0]
-
-            result.append(int(line, 2))
-
-    return result
+from cpu.utils import read_mem
 
 
 def test_emulator() -> Emulator:
