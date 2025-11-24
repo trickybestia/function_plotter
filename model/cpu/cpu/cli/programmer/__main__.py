@@ -4,9 +4,11 @@ from serial import Serial
 
 from cpu.utils import read_mem
 
+BYTES_PER_INSTRUCTION_MEMORY_WORD = 2
 
-def mem_to_serial(mem: list[int], pad_to: int) -> list[int]:
-    result = [0] * pad_to
+
+def mem_to_serial(mem: list[int], words_count: int) -> list[int]:
+    result = [0] * words_count * BYTES_PER_INSTRUCTION_MEMORY_WORD
 
     for i in range(len(mem)):
         result[i * 2] = mem[i] >> 8
