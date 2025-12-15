@@ -234,6 +234,44 @@ task draw_frame;
     end
 endtask
 
+task send_symbol;
+    input [SYMBOL_WIDTH - 1:0] symbol;
+
+    begin
+        ps2_symbol <= symbol;
+        @(posedge clk);
+        ps2_symbol <= 0;
+        @(posedge clk);
+    end
+endtask
+
+task send_left_arrow;
+    begin
+        ps2_left <= 1;
+        @(posedge clk);
+        ps2_left <= 0;
+        @(posedge clk);
+    end
+endtask
+
+task send_right_arrow;
+    begin
+        ps2_right <= 1;
+        @(posedge clk);
+        ps2_right <= 0;
+        @(posedge clk);
+    end
+endtask
+
+task send_backspace;
+    begin
+        ps2_backspace <= 1;
+        @(posedge clk);
+        ps2_backspace <= 0;
+        @(posedge clk);
+    end
+endtask
+
 always begin // generate 25.175 MHz clock
     clk = 1'b0;
     #19861;
@@ -251,265 +289,58 @@ initial begin
 
     @(posedge clk);
 
-    // draw 3 frames normally
-/* -----\/----- EXCLUDED -----\/-----
-    repeat (3) begin
-        draw_frame();
-
-        $stop;
-    end
- -----/\----- EXCLUDED -----/\----- */
-
-    ps2_symbol <= "[";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("[");
     draw_frame();
 
-
-    ps2_symbol <= "x";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("x");
     draw_frame();
 
-
-    ps2_symbol <= "-";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("-");
     draw_frame();
 
-
-    ps2_symbol <= "5";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("5");
     draw_frame();
 
-
-    ps2_symbol <= "]";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("]");
     draw_frame();
 
-
-    ps2_symbol <= "*";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("*");
     draw_frame();
 
-
-
-        ps2_symbol <= "[";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("[");
     draw_frame();
 
-
-    ps2_symbol <= "x";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("x");
     draw_frame();
 
-
-    ps2_symbol <= "+";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("+");
     draw_frame();
 
-
-    ps2_symbol <= "5";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("5");
     draw_frame();
 
-
-    ps2_symbol <= "]";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("]");
     draw_frame();
 
-
-        ps2_symbol <= "*";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
-    $stop; 
-
-
-        ps2_symbol <= "[";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("*");
     draw_frame();
 
-
-    ps2_symbol <= "x";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
-
-
-    ps2_symbol <= "-";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
-
-
-    ps2_symbol <= "3";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
-
-
-    ps2_symbol <= "]";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
-    $stop; 
-/* -----\/----- EXCLUDED -----\/-----
-    ps2_symbol <= "3";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
     $stop;
 
-
-    ps2_symbol <= "-";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("[");
     draw_frame();
-    $stop;
 
-    ps2_symbol <= "2";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("x");
     draw_frame();
-    $stop;
 
-    ps2_symbol <= "]";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("-");
     draw_frame();
-    $stop; 
 
-    ps2_symbol <= "+";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("3");
     draw_frame();
-    $stop;
 
-    ps2_symbol <= "x";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
+    send_symbol("]");
     draw_frame();
-    $stop;
-
-    ps2_symbol <= "*";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
-    $stop; 
-
-    ps2_symbol <= "2";
-    @(posedge clk);
-    ps2_symbol <= 0;
-    @(posedge clk);
-
-    draw_frame();
-    $stop;
- -----/\----- EXCLUDED -----/\----- */
-
-/* -----\/----- EXCLUDED -----\/-----
-    // draw 3 frames with "a1" displayed, cursor between "a" and "1"
-    repeat (3) begin
-        draw_frame();
-
-        $stop;
-    end
- -----/\----- EXCLUDED -----/\----- */
-
-/* -----\/----- EXCLUDED -----\/-----
-    ps2_backspace <= 1;
-    @(posedge clk);
-    ps2_backspace <= 0;
-    @(posedge clk);
-
-    // draw 3 frames with "1" displayed, cursor at position 0
-    repeat (3) begin
-        draw_frame();
-
-        $stop;
-    end
-
-    ps2_right <= 1;
-    @(posedge clk);
-    ps2_right <= 0;
-    @(posedge clk);
-
-    // draw 3 frames with "1" displayed, cursor at position 1
-    repeat (3) begin
-        draw_frame();
-
-        $stop;
-    end
-
-    ps2_backspace <= 1;
-    @(posedge clk);
-    ps2_backspace <= 0;
-    @(posedge clk);
-
-    // draw 3 frames
-    repeat (3) begin
-        draw_frame();
-
-        $stop;
-    end
- -----/\----- EXCLUDED -----/\----- */
 
     $finish;
 end
