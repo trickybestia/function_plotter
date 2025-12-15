@@ -2,6 +2,8 @@
 
 module top_no_io_tb;
 
+parameter HOR_TOTAL_PIXELS  = 800;
+parameter VER_TOTAL_PIXELS  = 525;
 parameter HOR_ACTIVE_PIXELS = 640;
 parameter VER_ACTIVE_PIXELS = 480;
 
@@ -64,6 +66,8 @@ wire                 graphics_fsm_fill_drawer_start;
 wire                 graphics_fsm_symbol_drawer_start;
 wire [X_WIDTH - 1:0] graphics_fsm_symbol_drawer_x;
 wire [Y_WIDTH - 1:0] graphics_fsm_symbol_drawer_y;
+
+integer pixel_counter; // see draw_frame() task
 
 input_buffer #(
     .SYMBOL_WIDTH (SYMBOL_WIDTH)
@@ -218,9 +222,11 @@ endtask
 
 task draw_frame;
     begin
-        while (~logic_ready) @(posedge clk);
-        while (logic_ready)  @(posedge clk);
-        while (~logic_ready) @(posedge clk);
+        while (pixel_counter != 0) @(posedge clk);
+
+        if (!logic_ready) begin
+            $display("WARN: logic module not finished yet (logic_ready == 0)");
+        end
 
         swap <= 1;
         @(posedge clk);
@@ -279,6 +285,14 @@ always begin // generate 25.175 MHz clock
     #19861;
 end
 
+always @(posedge clk) begin
+    if (pixel_counter == HOR_TOTAL_PIXELS * VER_TOTAL_PIXELS) begin
+        pixel_counter <= 0;
+    end else begin
+        pixel_counter <= pixel_counter + 1;
+    end
+end
+
 initial begin
     frame_buffer_read_addr = 0;
     swap                   = 0;
@@ -286,6 +300,7 @@ initial begin
     ps2_right              = 0;
     ps2_backspace          = 0;
     ps2_symbol             = 0;
+    pixel_counter          = 0;
 
     @(posedge clk);
 
