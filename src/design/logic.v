@@ -36,21 +36,22 @@ localparam OUTPUT_QUEUE_SIZE = 64;
 
 // FSM states
 localparam READY              = 0;
-localparam PARSE_EXPRESSION   = 1;
-localparam PARSE_EXPRESSION_2 = 2;
-localparam PARSE_EXPRESSION_3 = 3;   
-localparam CALCULATE          = 4;
-localparam CALCULATE_2        = 5;
-localparam CALCULATE_3        = 6;
-localparam DRAW_X_AXIS        = 7;
-localparam DRAW_X_AXIS_2      = 8;
-localparam DRAW_X_AXIS_3      = 9;
-localparam DRAW_Y_AXIS        = 10;
-localparam DRAW_Y_AXIS_2      = 11;
-localparam DRAW_Y_AXIS_3      = 12;  
-localparam DRAW               = 13;
-localparam DRAW_2             = 14;
-localparam DRAW_3             = 15;   
+localparam RESET              = 1;
+localparam PARSE_EXPRESSION   = 2;
+localparam PARSE_EXPRESSION_2 = 3;
+localparam PARSE_EXPRESSION_3 = 4;
+localparam DRAW_X_AXIS        = 5;
+localparam DRAW_X_AXIS_2      = 6;
+localparam DRAW_X_AXIS_3      = 7;
+localparam DRAW_Y_AXIS        = 8;
+localparam DRAW_Y_AXIS_2      = 9;
+localparam DRAW_Y_AXIS_3      = 10;
+localparam CALCULATE          = 11;
+localparam CALCULATE_2        = 12;
+localparam CALCULATE_3        = 13;
+localparam DRAW               = 14;
+localparam DRAW_2             = 15;
+localparam DRAW_3             = 16;
 
 // input/output
 input clk;
@@ -70,7 +71,7 @@ input  [SYMBOL_WIDTH - 1:0] symbol;
 input                       symbol_valid;
 
 // reg/wire
-reg [3:0] state;
+reg [4:0] state;
 reg       is_first_iter;   
 
 reg [X_WIDTH - 1:0] x2_axis;
@@ -177,52 +178,9 @@ always @(posedge clk) begin
     case (state)
         READY: begin
             if (start) begin
-                state <= PARSE_EXPRESSION;
-                x <= 0;
-                x1 <= 0;
-                y1 <= 0;
-                x2 <= 0;
-                y2 <= 0;
-                index_switch <= 0;
-                is_first_iter <= 1;
-                output_queue_reset <= 1;
-            end
-        end
-
-        PARSE_EXPRESSION: begin
-            output_queue_reset <= 0;
-            parser_start <= 1;
-            state <= PARSE_EXPRESSION_2;
-        end
-        PARSE_EXPRESSION_2: begin
-            parser_start <= 0;
-            state <= PARSE_EXPRESSION_3;
-        end
-        PARSE_EXPRESSION_3: begin        
-            if (parser_ready) begin
-                state <= CALCULATE;
-                index_switch <= 1;           
-            end 
-        end
-
-        CALCULATE: begin
-            if (x > HOR_ACTIVE_PIXELS)
-              state <= READY;
-            else begin
-                stack_machine_start <= 1;
-                state <= CALCULATE_2;
-            end
-        end
-        CALCULATE_2: begin
-            stack_machine_start <= 0;
-            state <= CALCULATE_3;
-        end
-        CALCULATE_3: begin
-            if (stack_machine_ready) begin
                 state <= DRAW_X_AXIS;
             end
         end
-
 
         DRAW_X_AXIS: begin
             x2_axis <= x2; 
@@ -257,12 +215,56 @@ always @(posedge clk) begin
         end
         DRAW_Y_AXIS_3: begin
             if (line_drawer_ready) begin
-                state <= DRAW;
+                state <= RESET;
                 x2 <= x2_axis; 
                 y2 <= y2_axis;
             end
         end
 
+        RESET: begin
+            state <= PARSE_EXPRESSION;
+            x <= 0;
+            x1 <= 0;
+            y1 <= 0;
+            x2 <= 0;
+            y2 <= 0;
+            index_switch <= 0;
+            is_first_iter <= 1;
+            output_queue_reset <= 1;
+        end
+        PARSE_EXPRESSION: begin
+            output_queue_reset <= 0;
+            parser_start <= 1;
+            state <= PARSE_EXPRESSION_2;
+        end
+        PARSE_EXPRESSION_2: begin
+            parser_start <= 0;
+            state <= PARSE_EXPRESSION_3;
+        end
+        PARSE_EXPRESSION_3: begin        
+            if (parser_ready) begin
+                state <= CALCULATE;
+                index_switch <= 1;           
+            end 
+        end
+
+        CALCULATE: begin
+            if (x > HOR_ACTIVE_PIXELS)
+              state <= READY;
+            else begin
+                stack_machine_start <= 1;
+                state <= CALCULATE_2;
+            end
+        end
+        CALCULATE_2: begin
+            stack_machine_start <= 0;
+            state <= CALCULATE_3;
+        end
+        CALCULATE_3: begin
+            if (stack_machine_ready) begin
+                state <= DRAW;
+            end
+        end
         DRAW: begin
             if (skip_pixel) begin
                 x <= x + 1;
@@ -295,7 +297,6 @@ always @(posedge clk) begin
                 state <= CALCULATE;           
             end
         end
-
     endcase
 end
 
